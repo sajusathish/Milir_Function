@@ -12,13 +12,12 @@
 <style>
 :root{
   --ink:#222; --muted:#6b6b6b; --bg:#faf7f2; --card:#fff;
-  --marigold:#f2a900; --leaf:#2f9e44; --verm:#d9480f;
-  --gold:#f4c542; --gold2:#bb9a23;
+  --marigold:#f2a900; --leaf:#2f9e44; --gold:#f4c542; --gold2:#bb9a23;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:Poppins,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
-img,canvas,svg{max-width:100%;display:block}
+img,svg{max-width:100%;display:block}
 .wrap{min-height:100svh;display:grid;place-items:center;padding:16px}
 .card{position:relative;background:var(--card);border:1px solid #00000010;border-radius:22px;max-width:560px;width:100%;padding:18px 18px 24px;box-shadow:0 18px 60px rgba(0,0,0,.08);overflow:hidden}
 
@@ -57,13 +56,11 @@ img,canvas,svg{max-width:100%;display:block}
 .scene{border:1px dashed #00000014;border-radius:14px;background:#fff;padding:12px;margin:12px 0;position:relative;overflow:hidden}
 .scene h3{margin:0 0 8px 0;text-align:center;font-weight:800;font-size:16px}
 
-/* Mottai: scroll crossfade + hair confetti */
+/* Mottai: step-by-step scroll crossfade (no particles) */
 .mottai .frame{position:relative;width:100%;aspect-ratio:4/5;background:#fff;overflow:hidden;border:1px solid #00000010;border-radius:14px}
-.mottai img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center}
-#withHair{opacity:1;transform:translateY(0)}
+.mottai img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;transition:opacity .15s linear, transform .15s linear}
+#withHair{opacity:1;transform:translateY(0)}   /* full hair at start */
 #bald{opacity:0}
-#hairConfetti{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none}
-.hint{margin:6px 0 0;text-align:center;font-size:12px;color:var(--muted)}
 
 /* Ear-piercing mini scene (simple) */
 .pierce .stage{position:relative;border:1px solid #00000010;border-radius:14px;overflow:hidden;background:linear-gradient(180deg,#fff,#fff6f6);aspect-ratio:4/3}
@@ -131,15 +128,14 @@ img,canvas,svg{max-width:100%;display:block}
     <span class="badge">🕙 10:00 am</span>
   </section>
 
-  <!-- Mottai: playful scroll transition -->
+  <!-- Mottai: step-by-step scroll transition -->
   <section class="scene mottai" id="mottaiScene" aria-label="Mottai">
     <h3>Mottai Ceremony</h3>
     <div class="frame" id="frameBox">
       <img id="withHair" src="assets/baby_with_hair.png" alt="Baby with hair">
       <img id="bald"     src="assets/bald_baby.png"   alt="Baby after tonsure">
-      <canvas id="hairConfetti"></canvas>
     </div>
-    <p class="hint">Scroll to watch the hair float away</p>
+    <p class="hint">Scroll slowly to reveal the tonsure</p>
   </section>
 
   <!-- Ear piercing mini scene -->
@@ -253,99 +249,67 @@ END:VCALENDAR`;
   });
 })();
 
-/* Mottai: crossfade + floating hair confetti */
+/* Mottai: step-by-step scroll driver (no particles) */
 (function(){
-  const section = document.getElementById('mottaiScene');
+  const scene  = document.getElementById('mottaiScene');
   const withHair = document.getElementById('withHair');
-  const bald = document.getElementById('bald');
-  const canvas = document.getElementById('hairConfetti');
-  const frame = document.getElementById('frameBox');
-  if(!section || !withHair || !bald || !canvas || !frame) return;
+  const bald     = document.getElementById('bald');
+  if(!scene || !withHair || !bald) return;
 
-  const ctx = canvas.getContext('2d');
-  let particles = [];
-  let lastP = 0;
+  let progress = 0;               // 0 = full hair, 1 = fully bald
+  const stepPerWheel = 0.08;      // change this to tune how much each scroll moves
+  const stepPerTouch = 0.0025;    // touch drag sensitivity
+  const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
 
-  function resize(){
-    canvas.width = frame.clientWidth;
-    canvas.height = frame.clientHeight;
+  // apply visual state
+  function render(){
+    const p = clamp(progress,0,1);
+    withHair.style.opacity = 1 - p;
+    withHair.style.transform = `translateY(${(-12*p)}px)`;
+    bald.style.opacity = p;
   }
-  window.addEventListener('resize', resize, {passive:true});
-  resize();
+  render(); // start: hair 100%
 
-  function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
-  function ease(t){return t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2}
-
-  function onScroll(){
-    const r = section.getBoundingClientRect();
-    const vh = window.innerHeight || document.documentElement.clientHeight;
-    let p = (vh*0.75 - r.top)/(r.height+vh*0.5);
-    p = clamp(p,0,1);
-    const e = ease(p);
-
-    withHair.style.opacity = 1 - e;
-    withHair.style.transform = `translateY(${-12*e}px)`;
-    bald.style.opacity = e;
-
-    const dp = Math.max(0, p - lastP);
-    if(dp > 0){
-      const emitCount = Math.floor(dp*140);
-      emit(emitCount);
-    }
-    lastP = p;
+  // only intercept scroll when the scene is mostly in view
+  function sceneInView(){
+    const r=scene.getBoundingClientRect();
+    const vh=window.innerHeight||document.documentElement.clientHeight;
+    return r.top < vh*0.75 && r.bottom > vh*0.25;
   }
 
-  function emit(n){
-    const w = canvas.width, h = canvas.height;
-    const headX = w*0.5, headY = h*0.28;   // rough hairline
-    for(let i=0;i<n;i++){
-      const ang = (Math.random()*0.8 - 0.4) - Math.PI/2;
-      const speed = 40 + Math.random()*80;
-      particles.push({
-        x: headX + (Math.random()*40 - 20),
-        y: headY + (Math.random()*20 - 10),
-        vx: Math.cos(ang)*speed*0.008,
-        vy: Math.sin(ang)*speed*0.008,
-        g: -0.002 - Math.random()*0.002,
-        r: 1.5 + Math.random()*2.2,
-        rot: Math.random()*Math.PI,
-        vr: (Math.random()*2 - 1)*0.06,
-        life: 60 + Math.random()*60,
-        hue: 24 + Math.random()*12
-      });
-    }
-    if(particles.length > 300) particles = particles.slice(-300);
-  }
+  // wheel - stepwise
+  scene.addEventListener('wheel',(e)=>{
+    if(!sceneInView()) return;
+    e.preventDefault();
+    const dir = e.deltaY>0 ? 1 : -1;
+    progress = clamp(progress + dir*stepPerWheel, 0, 1);
+    render();
+  }, {passive:false});
 
-  function tick(){
-    requestAnimationFrame(tick);
-    const w = canvas.width, h = canvas.height;
-    ctx.clearRect(0,0,w,h);
-    for(let i=particles.length-1;i>=0;i--){
-      const p = particles[i];
-      p.vy += p.g;
-      p.x += p.vx;
-      p.y += p.vy;
-      p.rot += p.vr;
-      p.life -= 1;
+  // touch drag - stepwise
+  let tStartY=null;
+  scene.addEventListener('touchstart',e=>{ if(!sceneInView()) return; tStartY = e.touches[0].clientY; }, {passive:true});
+  scene.addEventListener('touchmove',e=>{
+    if(tStartY===null || !sceneInView()) return;
+    const dy = tStartY - e.touches[0].clientY; // swipe up -> positive
+    progress = clamp(progress + dy*stepPerTouch, 0, 1);
+    tStartY = e.touches[0].clientY;
+    render();
+  }, {passive:true});
+  scene.addEventListener('touchend',()=>{tStartY=null});
 
-      ctx.save();
-      ctx.translate(p.x,p.y);
-      ctx.rotate(p.rot);
-      ctx.fillStyle = `hsl(${p.hue} 40% 35% / ${clamp(p.life/60,0,1)})`;
-      ctx.beginPath();
-      ctx.ellipse(0,0,p.r*1.8,p.r,0,0,Math.PI*2);
-      ctx.fill();
-      ctx.restore();
+  // keyboard (optional)
+  scene.addEventListener('keydown',(e)=>{
+    if(!sceneInView()) return;
+    if(e.key==='ArrowDown' || e.key==='PageDown'){e.preventDefault();progress=clamp(progress+stepPerWheel,0,1);render();}
+    if(e.key==='ArrowUp'   || e.key==='PageUp'){e.preventDefault();progress=clamp(progress-stepPerWheel,0,1);render();}
+  });
 
-      if(p.life<=0 || p.y < -20 || p.x<-20 || p.x>w+20) particles.splice(i,1);
-    }
-  }
-  tick();
-
-  document.addEventListener('scroll', onScroll, {passive:true});
-  window.addEventListener('resize', onScroll);
-  onScroll();
+  // fallback: slight progress from generic page scroll if not using the wheel on the scene
+  document.addEventListener('scroll',()=>{
+    if(!sceneInView()) return;
+    // no automatic mapping here to keep it stepwise as requested
+  }, {passive:true});
 })();
 
 /* Ear Piercing swing when visible */
