@@ -26,8 +26,8 @@ img,svg,canvas{max-width:100%;display:block}
 /* transparent capture layer (touch anywhere) */
 #captureLayer{
   position:fixed; inset:0; z-index:6;
-  pointer-events:none; /* off by default */
-  background:transparent; /* truly invisible */
+  pointer-events:none;
+  background:transparent;
 }
 #captureLayer.active{ pointer-events:auto; }
 
@@ -120,9 +120,7 @@ img,svg,canvas{max-width:100%;display:block}
 </head>
 <body>
 
-<!-- capture layer for mobile gestures anywhere -->
 <div id="captureLayer" aria-hidden="true"></div>
-
 <canvas id="confettiGlobal" aria-hidden="true"></canvas>
 
 <div class="wrap">
@@ -283,7 +281,34 @@ const Confetti=(function(){
   return {start};
 })();
 
-/* interaction with global capture + overlay for mobile */
+/* scroll lock helper */
+const ScrollLock=(function(){
+  let locked=false, lastY=0;
+  function lock(){
+    if(locked) return;
+    lastY=window.scrollY||document.documentElement.scrollTop||0;
+    document.body.style.position='fixed';
+    document.body.style.top=`-${lastY}px`;
+    document.body.style.left='0';
+    document.body.style.right='0';
+    document.body.style.width='100%';
+    locked=true;
+  }
+  function unlock(){
+    if(!locked) return;
+    document.body.style.position='';
+    document.body.style.top='';
+    document.body.style.left='';
+    document.body.style.right='';
+    document.body.style.width='';
+    window.scrollTo(0,lastY);
+    locked=false;
+  }
+  function isLocked(){ return locked; }
+  return {lock,unlock,isLocked};
+})();
+
+/* interaction: global wheel/touch listeners + smarter arming */
 (function(){
   const scene=document.getElementById('mottaiScene');
   const hair=document.getElementById('withHair');
@@ -313,15 +338,21 @@ const Confetti=(function(){
   function armCaptureIfReady(){
     const vis=visibilityRatio(scene);
     if(vis>=0.98 && lastVis<0.98){
-      captureUntil=performance.now()+700; // slightly longer on phones
+      captureUntil=performance.now()+900; // a touch longer on phones
       preHold=0;
     }
     lastVis=vis;
 
-    // overlay becomes active while: capturing OR fully visible and not done with holds
     const active = (performance.now()<=captureUntil && vis>=0.98)
                 || (fullyVisible(scene,6) && (!completed || postHold<postHoldNeeded || progress>0));
     overlay.classList.toggle('active', active);
+
+    // lock scroll when active and we still need to play
+    if(active && (!completed || postHold<postHoldNeeded || progress>0)) {
+      ScrollLock.lock();
+    } else if(!active && ScrollLock.isLocked()){
+      ScrollLock.unlock();
+    }
   }
   document.addEventListener('scroll', armCaptureIfReady, {passive:true});
   window.addEventListener('resize', armCaptureIfReady, {passive:true});
@@ -352,23 +383,35 @@ const Confetti=(function(){
     if(prev===1 && progress<1){ completed=false; }
   }
 
-  // wheel anywhere (desktop)
+  /* WHEEL: listen on window (global), always passive:false so we can preventDefault */
   window.addEventListener('wheel',(e)=>{
     const d=e.deltaY;
     if(shouldHijack(d)){
       e.preventDefault();
+      ScrollLock.lock();
       if((canCapture() || (d>0 && progress===0)) && preHold<preHoldNeeded){ preHold++; return; }
       if(d>0){ if(completed){ postHold++; } else { onAdvance(stepWheel); } }
       else   { onAdvance(-stepWheel); }
+      // if done and post hold satisfied, release lock
+      if(completed && postHold>=postHoldNeeded){ ScrollLock.unlock(); }
     }
   },{passive:false});
 
-  // touch on overlay (mobile anywhere)
-  let oy=null;
-  overlay.addEventListener('touchstart',(e)=>{ if(!overlay.classList.contains('active')) return; oy=e.touches[0].clientY; }, {passive:true});
-  overlay.addEventListener('touchmove',(e)=>{
-    if(!overlay.classList.contains('active') || oy===null) return;
-    const y=e.touches[0].clientY, dy=oy-y; // down positive
+  /* TOUCH: listen on documentElement globally, not just overlay */
+  let oy=null, gestureActive=false;
+  const onTouchStart=(e)=>{
+    // if scene is in view enough, start a gesture and lock scroll
+    if(visibilityRatio(scene)>=0.9){
+      gestureActive=true;
+      oy=(e.touches?e.touches[0].clientY:e.clientY);
+      ScrollLock.lock();
+    }else{
+      gestureActive=false; oy=null;
+    }
+  };
+  const onTouchMove=(e)=>{
+    if(!gestureActive || oy===null) return;
+    const y=(e.touches?e.touches[0].clientY:e.clientY), dy=oy-y; // down is positive
     if(shouldHijack(dy)){
       e.preventDefault();
       if((canCapture() || (dy>0 && progress===0)) && preHold<preHoldNeeded){
@@ -378,24 +421,34 @@ const Confetti=(function(){
       }
       if(dy>0){ if(completed){ postHold+=Math.abs(dy)*0.01; } else { onAdvance(stepTouch*dy); } }
       else    { onAdvance(stepTouch*dy); }
+      if(completed && postHold>=postHoldNeeded){ ScrollLock.unlock(); }
     }
     oy=y;
-  },{passive:false});
-  overlay.addEventListener('touchend',()=>{ oy=null; },{passive:true});
+  };
+  const onTouchEnd=()=>{ oy=null; gestureActive=false; if(!(completed && postHold>=postHoldNeeded)) armCaptureIfReady(); };
+
+  // iOS/Android friendly listeners
+  document.documentElement.addEventListener('touchstart', onTouchStart, {passive:true});
+  document.documentElement.addEventListener('touchmove', onTouchMove, {passive:false});
+  document.documentElement.addEventListener('touchend', onTouchEnd, {passive:true});
 
   // keyboard
   window.addEventListener('keydown',(e)=>{
     if(visibilityRatio(scene)<0.98) return;
     if(e.key==='ArrowDown'||e.key==='PageDown'){
-      e.preventDefault();
+      e.preventDefault(); ScrollLock.lock();
       if(preHold<preHoldNeeded){ preHold++; return; }
       if(completed){ if(postHold<postHoldNeeded) postHold++; }
       else if(progress<1){ onAdvance(0.06); }
+      if(completed && postHold>=postHoldNeeded){ ScrollLock.unlock(); }
     }
     if(e.key==='ArrowUp'||e.key==='PageUp'){
-      if(progress>0){ e.preventDefault(); onAdvance(-0.06); }
+      if(progress>0){ e.preventDefault(); ScrollLock.lock(); onAdvance(-0.06); }
     }
   });
+
+  // ensure lock state matches visibility on load
+  armCaptureIfReady();
 })();
 </script>
 </body>
