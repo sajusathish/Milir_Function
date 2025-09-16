@@ -11,89 +11,222 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
 <style>
 :root{
-  --ink:#1f1f1f; --muted:#6b6b6b; --bg:#faf9f7; --card:#ffffff; --line:#e9e6e1;
-  --accent:#111; --accent-ghost:#fff; --accent-border:#dcd8d2;
+  --ink:#222; --muted:#666; --bg:#fff8f8; --card:#fff;
+  --gold:#f6c552; --gold2:#b6922b; --peach:#ffe9ef; --cream:#fff9ea; --leaf:#2e9e44;
+  --accent:#111;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:Poppins,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+img,svg{display:block;max-width:100%}
 
-/* layout */
-.wrap{min-height:100svh;display:grid;place-items:center;padding:16px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:18px;max-width:680px;width:100%;padding:22px;box-shadow:0 14px 50px rgba(0,0,0,.06)}
-hr{border:0;border-top:1px solid var(--line);margin:16px 0}
+/* Shell */
+.wrap{min-height:100svh;display:grid;place-items:center;padding:14px}
+.shell{position:relative;width:100%;max-width:820px}
+.card{background:var(--card);border:1px solid #00000012;border-radius:24px;overflow:hidden;box-shadow:0 22px 70px rgba(0,0,0,.08);position:relative}
 
-/* header */
-.kicker{text-transform:uppercase;letter-spacing:.14em;font-size:12px;color:var(--muted);text-align:center;margin-top:4px}
-.title{font-family:"Playfair Display",serif;font-weight:800;font-size:clamp(34px,6vw,56px);line-height:1.08;text-align:center;margin:6px 0 2px}
-.sub{font-size:15px;text-align:center;color:#333;margin:2px 0 10px}
+/* Hero */
+.hero{position:relative;min-height:56svh;display:grid;place-items:center;background:radial-gradient(65% 55% at 50% 20%, #fff, var(--peach))}
+.hero .inner{padding:18px 14px 10px;text-align:center;position:relative;z-index:2}
+.kicker{letter-spacing:.14em;text-transform:uppercase;font-size:12px;color:var(--muted)}
+.title{font-family:"Playfair Display",serif;font-weight:800;font-size:clamp(40px,8vw,68px);margin:6px 0}
+.sub{font-size:14px;color:#333}
+.date{font-size:13px;color:var(--muted);margin-top:4px}
 
-/* countdown */
-.countdown{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:8px 0 0}
-.tile{min-width:74px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;text-align:center;background:#fff}
+/* Jasmine thoran */
+.toran{position:absolute;left:0;right:0;top:0;height:120px;z-index:3;pointer-events:none}
+.toran .string{position:absolute;left:2%;right:2%;top:30px;height:2px;background:#0000001a;border-radius:2px}
+.toran .sprig{position:absolute;top:26px;width:74px;height:120px;transform-origin:top center;animation:sway 3.6s ease-in-out infinite}
+.toran .sprig:nth-child(1){left:6%}
+.toran .sprig:nth-child(2){left:26%}
+.toran .sprig:nth-child(3){left:46%}
+.toran .sprig:nth-child(4){left:66%}
+.toran .sprig:nth-child(5){left:86%}
+@keyframes sway{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(5deg)}}
+.leaves{position:absolute;top:0;left:50%;width:16px;transform:translateX(-50%)}
+.leaves span{display:block;width:14px;height:22px;background:var(--leaf);border-radius:12px 12px 2px 12px;transform:rotate(-16deg);margin:6px 0}
+.jasmine{position:absolute;top:36px;left:50%;transform:translateX(-50%);display:grid;gap:4px}
+.jasmine .bud{width:16px;height:16px;border-radius:50%;background:#fff;border:2px solid #f5f5f5;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+
+/* Balloons (faster + GPU) */
+.balloons{position:absolute;inset:0;overflow:hidden;z-index:1;pointer-events:none}
+.balloon{position:absolute;bottom:-140px;width:26px;height:34px;border-radius:50% 50% 45% 45%;background:#ffd1e1;animation:rise 4s linear infinite;opacity:.95;will-change:transform}
+.balloon:after{content:"";position:absolute;left:50%;top:32px;width:2px;height:60px;background:#e5cbd4;transform:translateX(-1px)}
+.balloon.b2{left:15%;background:#cde6ff;animation-duration:3.8s}
+.balloon.b3{left:35%;background:#ffe7a1;animation-duration:3.6s}
+.balloon.b4{left:65%;background:#d7ffc9;animation-duration:3.9s}
+.balloon.b5{left:85%;background:#ffe0ff;animation-duration:3.4s}
+@keyframes rise{0%{transform:translate3d(0,0,0)}50%{transform:translate3d(14px,-46vh,0)}100%{transform:translate3d(-10px,-96vh,0)}}
+
+/* Countdown */
+.countdown{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:12px 0 4px;position:relative;z-index:2}
+.tile{min-width:68px;background:#fff;border:1px solid #00000012;border-radius:14px;padding:10px 10px;text-align:center;box-shadow:0 6px 16px rgba(0,0,0,.05)}
 .num{font-size:26px;font-weight:800;font-family:"Playfair Display",serif}
 .lbl{font-size:11px;color:var(--muted)}
 
-/* details list */
-.details{display:grid;gap:8px;margin:14px 0 6px}
-.row{display:flex;gap:10px;align-items:center;justify-content:space-between;border:1px solid var(--line);border-radius:12px;padding:12px}
-.row strong{font-weight:700}
-.small{font-size:13px;color:var(--muted)}
+/* Section wrappers */
+.section{padding:14px}
+.section .inner{max-width:820px;margin:0 auto}
 
-/* actions + QR */
-.grid{display:grid;gap:12px;margin-top:10px}
-@media(min-width:560px){.grid{grid-template-columns:1fr 180px;align-items:center}}
+/* Scene cards */
+.scene-card{border:1px solid #00000010;border-radius:18px;background:linear-gradient(180deg,#fff,var(--cream));padding:14px;overflow:hidden}
+
+/* Tonsure scene (no baby) */
+.tonsure{position:relative;display:grid;place-items:center;min-height:260px}
+.symbols{position:relative;width:min(560px,94%);height:180px}
+.lock{position:absolute;left:20%;top:26%;width:120px;height:120px;border-radius:60px;background:linear-gradient(160deg,#3b2a17,#2b1c0f);box-shadow:0 10px 24px rgba(0,0,0,.15)}
+.scissors{position:absolute;right:12%;top:10%;width:90px;height:auto;opacity:0;transform:rotate(12deg)}
+.play .scissors{animation:snip 1s ease-out forwards}
+@keyframes snip{0%{opacity:0;transform:translate(30px,-30px) rotate(20deg)}30%{opacity:1}70%{transform:translate(-12px,8px) rotate(-10deg)}100%{transform:translate(0,0) rotate(0)}}
+.clipping{position:absolute;left:20%;top:26%;width:120px;height:120px;border-radius:60px;background:linear-gradient(160deg,#4a3621,#2b1c0f);opacity:0}
+.play .clipping{animation:fallHair .9s .45s cubic-bezier(.2,.8,.2,1) forwards}
+@keyframes fallHair{to{transform:translateY(160px) rotate(-18deg);opacity:1}}
+.tonsure p{margin:0;margin-top:6px;font-size:13px;color:var(--muted);text-align:center}
+
+/* Ear piercing scene (no baby) */
+.pierce{position:relative;display:grid;place-items:center;min-height:340px}
+.stage{position:relative;width:100%;max-width:700px;aspect-ratio:16/9;overflow:hidden;border-radius:14px;background:linear-gradient(180deg,var(--peach),#fff)}
+.jhumka{position:absolute;left:50%;top:18%;transform-origin:50% 10%;transform:translateX(-50%) rotate(-30deg) scale(.9);opacity:0;filter:drop-shadow(0 6px 14px rgba(0,0,0,.12))}
+.swing .jhumka{animation:swingIn 1.2s cubic-bezier(.2,.8,.2,1) forwards}
+@keyframes swingIn{
+  0%{opacity:0;transform:translateX(-50%) rotate(-30deg) scale(.9)}
+  70%{opacity:1;transform:translateX(-50%) rotate(6deg) scale(1)}
+  100%{opacity:1;transform:translateX(-50%) rotate(0) scale(1)}
+}
+.sparkles{position:absolute;left:50%;top:58%;transform:translate(-50%,-50%);opacity:0}
+.swing .sparkles{animation:pop 600ms .9s ease-out forwards}
+@keyframes pop{0%{transform:translate(-50%,-50%) scale(.7);opacity:0}60%{transform:translate(-50%,-50%) scale(1.25);opacity:1}100%{transform:translate(-50%,-50%) scale(1);opacity:1}}
+
+/* Info grid */
+.info-grid{display:grid;gap:12px;margin-top:12px}
+@media(min-width:640px){.info-grid{grid-template-columns:1.4fr .6fr;align-items:center}}
 .actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
 .btn{appearance:none;border:0;background:var(--accent);color:#fff;border-radius:12px;padding:12px 16px;font-weight:700;cursor:pointer;text-decoration:none}
-.btn.ghost{background:var(--accent-ghost);color:var(--accent);border:1px solid var(--accent-border)}
+.btn.ghost{background:#fff;color:#111;border:1px solid #00000020}
 .qr{display:grid;place-items:center}
-.qr img{width:160px;height:160px;border-radius:12px;border:1px solid var(--line)}
+.qr img{width:180px;height:180px;max-width:42vw;border-radius:12px;border:1px solid #00000010}
 
-/* foot */
-.footer{margin-top:12px;text-align:center;color:var(--muted);font-size:12px}
+/* Footer */
+.footer{padding:8px 14px 16px;text-align:center;color:var(--muted);font-size:12px}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce){
+  .sprig,.balloon,.play .clipping,.swing .jhumka,.swing .sparkles{animation:none!important}
+}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <main class="card" role="main" aria-labelledby="title">
-    <p class="kicker">You are invited</p>
-    <h1 class="title" id="title">Milir</h1>
-    <p class="sub">Tonsure & Ear Piercing · JC Residency, Madurai</p>
+  <div class="shell">
+    <main class="card">
 
-    <section aria-label="Countdown">
-      <div class="countdown" id="countdown" aria-live="polite"></div>
-      <p class="small" style="text-align:center;margin-top:6px">Sun, 5 Oct 2025 · 10:00 am IST</p>
-    </section>
-
-    <hr/>
-
-    <section class="details" aria-label="Event details">
-      <div class="row"><span><strong>Venue</strong></span><span class="small">JC Residency, Madurai</span></div>
-      <div class="row"><span><strong>Date</strong></span><span class="small">5 October 2025</span></div>
-      <div class="row"><span><strong>Time</strong></span><span class="small">10:00 am</span></div>
-      <div class="row"><span><strong>Occasion</strong></span><span class="small">Tonsure & Ear Piercing</span></div>
-    </section>
-
-    <div class="grid">
-      <div class="actions" aria-label="Actions">
-        <a class="btn" href="https://www.google.com/maps/search/?api=1&query=JC+Residency+Madurai" target="_blank" rel="noopener">Open map</a>
-        <button class="btn ghost" id="addCal">Add to calendar</button>
-        <button class="btn" id="shareBtn">Share</button>
+      <!-- Toran + balloons -->
+      <div class="toran" aria-hidden="true">
+        <div class="string"></div>
+        <div class="sprig">
+          <div class="leaves"><span></span><span></span><span></span></div>
+          <div class="jasmine"><div class="bud"></div><div class="bud"></div><div class="bud"></div></div>
+        </div>
+        <div class="sprig">
+          <div class="leaves"><span></span><span></span><span></span></div>
+          <div class="jasmine"><div class="bud"></div><div class="bud"></div><div class="bud"></div></div>
+        </div>
+        <div class="sprig">
+          <div class="leaves"><span></span><span></span><span></span></div>
+          <div class="jasmine"><div class="bud"></div><div class="bud"></div><div class="bud"></div></div>
+        </div>
+        <div class="sprig">
+          <div class="leaves"><span></span><span></span><span></span></div>
+          <div class="jasmine"><div class="bud"></div><div class="bud"></div><div class="bud"></div></div>
+        </div>
+        <div class="sprig">
+          <div class="leaves"><span></span><span></span><span></span></div>
+          <div class="jasmine"><div class="bud"></div><div class="bud"></div><div class="bud"></div></div>
+        </div>
       </div>
-      <div class="qr" aria-label="QR for directions">
-        <img alt="QR code for map to JC Residency Madurai" src="https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=https%3A%2F%2Fwww.google.com%2Fmaps%2Fsearch%2F%3Fapi%3D1%26query%3DJC%2BResidency%2BMadurai"/>
-        <p class="small">Scan for directions</p>
+      <div class="balloons" aria-hidden="true">
+        <div class="balloon b1" style="left:5%"></div>
+        <div class="balloon b2"></div>
+        <div class="balloon b3"></div>
+        <div class="balloon b4"></div>
+        <div class="balloon b5"></div>
       </div>
-    </div>
 
-    <p class="footer">With love, family and friends</p>
-  </main>
+      <!-- Hero -->
+      <header class="hero">
+        <div class="inner">
+          <p class="kicker">You are invited</p>
+          <h1 class="title">Milir</h1>
+          <p class="sub">Tonsure & Ear Piercing · JC Residency, Madurai</p>
+          <div class="countdown" id="countdown" aria-live="polite"></div>
+          <p class="date">Sun, 5 Oct 2025 · 10:00 am IST</p>
+        </div>
+      </header>
+
+      <!-- Tonsure (no baby) -->
+      <section class="section">
+        <div class="inner">
+          <div class="scene-card tonsure" id="tonsureCard">
+            <div class="symbols">
+              <div class="lock" aria-hidden="true"></div>
+              <div class="clipping" aria-hidden="true"></div>
+              <img class="scissors" alt="" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'><g fill='none' stroke='%23222' stroke-width='8' stroke-linecap='round'><circle cx='30' cy='30' r='18'/><circle cx='90' cy='30' r='18'/><path d='M30 30 L60 60 L90 30 M30 90 L60 60 L90 90'/></g></svg>"/>
+            </div>
+            <p>Mottai Ceremony</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Ear piercing (no baby) -->
+      <section class="section">
+        <div class="inner">
+          <div class="scene-card pierce">
+            <div class="stage" id="pierceStage">
+              <!-- long jhumka -->
+              <svg class="jhumka" viewBox="0 0 140 240" aria-label="Jhumka earring">
+                <circle cx="70" cy="20" r="12" fill="var(--gold)" stroke="var(--gold2)" stroke-width="4"/>
+                <rect x="68" y="32" width="4" height="72" rx="2" fill="var(--gold2)"/>
+                <path d="M26 128 q44 -40 88 0 v54 H26z" fill="#ffdfa3" stroke="var(--gold2)" stroke-width="4"/>
+                <g>
+                  <circle cx="36" cy="184" r="6" fill="#ffb6d1" stroke="#e88cb2" stroke-width="3"/>
+                  <circle cx="56" cy="196" r="6" fill="#ffe38f" stroke="#e0b54f" stroke-width="3"/>
+                  <circle cx="84" cy="196" r="6" fill="#ffe38f" stroke="#e0b54f" stroke-width="3"/>
+                  <circle cx="104" cy="184" r="6" fill="#ffb6d1" stroke="#e88cb2" stroke-width="3"/>
+                </g>
+              </svg>
+              <!-- sparkle -->
+              <svg class="sparkles" viewBox="0 0 100 100" width="90" height="90" aria-hidden="true">
+                <g fill="#ffdca8" stroke="#d5ac52" stroke-width="2" opacity=".9">
+                  <path d="M50 8 L56 28 L72 34 L56 40 L50 60 L44 40 L28 34 L44 28 Z"/>
+                  <circle cx="78" cy="60" r="6"/>
+                  <circle cx="24" cy="56" r="4"/>
+                </g>
+              </svg>
+            </div>
+
+            <div class="info-grid">
+              <div class="actions">
+                <a class="btn" href="https://www.google.com/maps/search/?api=1&query=JC+Residency+Madurai" target="_blank" rel="noopener">Open map</a>
+                <button class="btn ghost" id="addCal">Add to calendar</button>
+                <button class="btn" id="shareBtn">Share</button>
+              </div>
+              <div class="qr">
+                <img alt="QR code for directions to JC Residency Madurai" src="https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=https%3A%2F%2Fwww.google.com%2Fmaps%2Fsearch%2F%3Fapi%3D1%26query%3DJC%2BResidency%2BMadurai"/>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <footer class="footer">With love, family and friends</footer>
+    </main>
+  </div>
 </div>
 
 <script>
 const EVENT_ISO = "2025-10-05T10:00:00+05:30";
 
-// countdown
+/* countdown */
 (function(){
   const el=document.getElementById('countdown');
   const parts=['Days','Hours','Mins','Secs'];
@@ -115,7 +248,7 @@ const EVENT_ISO = "2025-10-05T10:00:00+05:30";
   setInterval(tick,1000); tick();
 })();
 
-// add to calendar
+/* add to calendar */
 (function(){
   const btn=document.getElementById('addCal');
   if(!btn) return;
@@ -141,7 +274,7 @@ END:VCALENDAR`;
   });
 })();
 
-// share
+/* share */
 (function(){
   const btn=document.getElementById('shareBtn');
   if(!btn) return;
@@ -154,6 +287,22 @@ END:VCALENDAR`;
       }
     }catch{}
   });
+})();
+
+/* Play the two scenes on view */
+(function(){
+  const tonsureCard = document.getElementById('tonsureCard');
+  const pierceStage = document.getElementById('pierceStage');
+
+  const io1 = new IntersectionObserver(([e])=>{
+    if(e.isIntersecting){ tonsureCard.classList.add('play'); }
+  }, {threshold:.6});
+  io1.observe(tonsureCard);
+
+  const io2 = new IntersectionObserver(([e])=>{
+    if(e.isIntersecting){ pierceStage.classList.add('swing'); }
+  }, {threshold:.6});
+  io2.observe(pierceStage);
 })();
 </script>
 </body>
