@@ -23,16 +23,12 @@ html,body{overscroll-behavior-y: contain}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:Poppins,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
 img,svg,canvas{max-width:100%;display:block}
 
-/* transparent capture layer (touch anywhere) */
-#captureLayer{
-  position:fixed; inset:0; z-index:6;
-  pointer-events:none;
-  background:transparent;
-}
-#captureLayer.active{ pointer-events:auto; }
+/* transparent capture layer */
+#captureLayer{position:fixed; inset:0; z-index:6; pointer-events:none; background:transparent}
+#captureLayer.active{pointer-events:auto}
 
-/* global confetti on top */
-#confettiGlobal{position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:9999;opacity:0;transition:opacity .25s}
+/* global confetti */
+#confettiGlobal{position:fixed; inset:0; width:100vw; height:100vh; pointer-events:none; z-index:9999; opacity:0; transition:opacity .25s}
 
 /* layout */
 .wrap{min-height:100svh;display:grid;place-items:center;padding:16px;position:relative;z-index:2}
@@ -114,7 +110,9 @@ img,svg,canvas{max-width:100%;display:block}
 .footer{text-align:center;color:var(--muted);font-size:12px;margin-top:12px}
 .buffer{height:72px}
 
-/* reduced motion */
+/* tiny skip link */
+.skip{position:absolute;top:8px;right:10px;font-size:12px;color:#666;text-decoration:underline;background:#fff8;border-radius:8px;padding:4px 8px}
+
 @media (prefers-reduced-motion: reduce){.flag,.balloon,.partybar{animation:none!important}}
 </style>
 </head>
@@ -147,6 +145,8 @@ img,svg,canvas{max-width:100%;display:block}
       </svg>
     </div>
   </div>
+
+  <a class="skip" href="#" id="skipAnim">Skip animation</a>
 
   <p class="kicker">You are invited to</p>
   <h1 class="title">Milir's</h1>
@@ -281,39 +281,13 @@ const Confetti=(function(){
   return {start};
 })();
 
-/* scroll lock helper */
-const ScrollLock=(function(){
-  let locked=false, lastY=0;
-  function lock(){
-    if(locked) return;
-    lastY=window.scrollY||document.documentElement.scrollTop||0;
-    document.body.style.position='fixed';
-    document.body.style.top=`-${lastY}px`;
-    document.body.style.left='0';
-    document.body.style.right='0';
-    document.body.style.width='100%';
-    locked=true;
-  }
-  function unlock(){
-    if(!locked) return;
-    document.body.style.position='';
-    document.body.style.top='';
-    document.body.style.left='';
-    document.body.style.right='';
-    document.body.style.width='';
-    window.scrollTo(0,lastY);
-    locked=false;
-  }
-  function isLocked(){ return locked; }
-  return {lock,unlock,isLocked};
-})();
-
-/* interaction: global wheel/touch listeners + smarter arming */
+/* interaction: global listeners, no hard scroll lock */
 (function(){
   const scene=document.getElementById('mottaiScene');
   const hair=document.getElementById('withHair');
   const bald=document.getElementById('bald');
   const overlay=document.getElementById('captureLayer');
+  const skip=document.getElementById('skipAnim');
   if(!scene||!hair||!bald||!overlay) return;
 
   let progress=0;                 // 0 hair -> 1 bald
@@ -326,6 +300,8 @@ const ScrollLock=(function(){
 
   let captureUntil=0;
   let lastVis=0;
+  let hijacking=false;           // true only while we actively consume a gesture
+  let failSafeTimer=null;
 
   function render(){
     const p=Math.max(0,Math.min(1,progress));
@@ -338,21 +314,17 @@ const ScrollLock=(function(){
   function armCaptureIfReady(){
     const vis=visibilityRatio(scene);
     if(vis>=0.98 && lastVis<0.98){
-      captureUntil=performance.now()+900; // a touch longer on phones
+      captureUntil=performance.now()+800;
       preHold=0;
     }
     lastVis=vis;
 
-    const active = (performance.now()<=captureUntil && vis>=0.98)
-                || (fullyVisible(scene,6) && (!completed || postHold<postHoldNeeded || progress>0));
+    const needsPlay = (!completed || postHold<postHoldNeeded || progress>0);
+    const active = ((performance.now()<=captureUntil && vis>=0.98) || (fullyVisible(scene,6) && needsPlay));
     overlay.classList.toggle('active', active);
 
-    // lock scroll when active and we still need to play
-    if(active && (!completed || postHold<postHoldNeeded || progress>0)) {
-      ScrollLock.lock();
-    } else if(!active && ScrollLock.isLocked()){
-      ScrollLock.unlock();
-    }
+    // if the scene is not active or no longer needs play, make sure we are not hijacking
+    if(!active || !needsPlay) endHijack();
   }
   document.addEventListener('scroll', armCaptureIfReady, {passive:true});
   window.addEventListener('resize', armCaptureIfReady, {passive:true});
@@ -383,37 +355,53 @@ const ScrollLock=(function(){
     if(prev===1 && progress<1){ completed=false; }
   }
 
-  /* WHEEL: listen on window (global), always passive:false so we can preventDefault */
+  function beginHijack(){
+    if(hijacking) return;
+    hijacking=true;
+    clearTimeout(failSafeTimer);
+    failSafeTimer=setTimeout(()=>{ endHijack(); }, 3000); // never trap more than 3s
+  }
+  function endHijack(){
+    hijacking=false;
+    clearTimeout(failSafeTimer);
+    failSafeTimer=null;
+  }
+
+  /* WHEEL */
   window.addEventListener('wheel',(e)=>{
     const d=e.deltaY;
     if(shouldHijack(d)){
       e.preventDefault();
-      ScrollLock.lock();
+      beginHijack();
       if((canCapture() || (d>0 && progress===0)) && preHold<preHoldNeeded){ preHold++; return; }
       if(d>0){ if(completed){ postHold++; } else { onAdvance(stepWheel); } }
       else   { onAdvance(-stepWheel); }
-      // if done and post hold satisfied, release lock
-      if(completed && postHold>=postHoldNeeded){ ScrollLock.unlock(); }
+      // stop hijacking when done
+      if((completed && postHold>=postHoldNeeded) || (!completed && progress===0 && d<0)){
+        endHijack();
+      }
+    }else{
+      endHijack();
     }
   },{passive:false});
 
-  /* TOUCH: listen on documentElement globally, not just overlay */
+  /* TOUCH */
   let oy=null, gestureActive=false;
-  const onTouchStart=(e)=>{
-    // if scene is in view enough, start a gesture and lock scroll
+  document.documentElement.addEventListener('touchstart',(e)=>{
     if(visibilityRatio(scene)>=0.9){
       gestureActive=true;
-      oy=(e.touches?e.touches[0].clientY:e.clientY);
-      ScrollLock.lock();
+      oy=e.touches[0].clientY;
     }else{
       gestureActive=false; oy=null;
     }
-  };
-  const onTouchMove=(e)=>{
+  },{passive:true});
+
+  document.documentElement.addEventListener('touchmove',(e)=>{
     if(!gestureActive || oy===null) return;
-    const y=(e.touches?e.touches[0].clientY:e.clientY), dy=oy-y; // down is positive
+    const y=e.touches[0].clientY, dy=oy-y; // down positive
     if(shouldHijack(dy)){
       e.preventDefault();
+      beginHijack();
       if((canCapture() || (dy>0 && progress===0)) && preHold<preHoldNeeded){
         preHold += Math.abs(dy)*0.01;
         if(preHold>preHoldNeeded) preHold=preHoldNeeded;
@@ -421,33 +409,41 @@ const ScrollLock=(function(){
       }
       if(dy>0){ if(completed){ postHold+=Math.abs(dy)*0.01; } else { onAdvance(stepTouch*dy); } }
       else    { onAdvance(stepTouch*dy); }
-      if(completed && postHold>=postHoldNeeded){ ScrollLock.unlock(); }
+      if(completed && postHold>=postHoldNeeded){ endHijack(); }
+    }else{
+      endHijack();
     }
     oy=y;
-  };
-  const onTouchEnd=()=>{ oy=null; gestureActive=false; if(!(completed && postHold>=postHoldNeeded)) armCaptureIfReady(); };
+  },{passive:false});
 
-  // iOS/Android friendly listeners
-  document.documentElement.addEventListener('touchstart', onTouchStart, {passive:true});
-  document.documentElement.addEventListener('touchmove', onTouchMove, {passive:false});
-  document.documentElement.addEventListener('touchend', onTouchEnd, {passive:true});
+  document.documentElement.addEventListener('touchend',()=>{ oy=null; gestureActive=false; endHijack(); },{passive:true});
 
   // keyboard
   window.addEventListener('keydown',(e)=>{
     if(visibilityRatio(scene)<0.98) return;
+    if(e.key==='Escape'){ // emergency out
+      completed=true; postHold=postHoldNeeded; progress=1; render(); endHijack(); return;
+    }
     if(e.key==='ArrowDown'||e.key==='PageDown'){
-      e.preventDefault(); ScrollLock.lock();
+      e.preventDefault();
+      beginHijack();
       if(preHold<preHoldNeeded){ preHold++; return; }
       if(completed){ if(postHold<postHoldNeeded) postHold++; }
       else if(progress<1){ onAdvance(0.06); }
-      if(completed && postHold>=postHoldNeeded){ ScrollLock.unlock(); }
+      if(completed && postHold>=postHoldNeeded){ endHijack(); }
     }
     if(e.key==='ArrowUp'||e.key==='PageUp'){
-      if(progress>0){ e.preventDefault(); ScrollLock.lock(); onAdvance(-0.06); }
+      if(progress>0){ e.preventDefault(); beginHijack(); onAdvance(-0.06); }
     }
   });
 
-  // ensure lock state matches visibility on load
+  // skip link
+  skip?.addEventListener('click',(e)=>{
+    e.preventDefault();
+    completed=true; postHold=postHoldNeeded; progress=1; render(); endHijack();
+  });
+
+  // keep overlay state fresh
   armCaptureIfReady();
 })();
 </script>
