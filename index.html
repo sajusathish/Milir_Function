@@ -13,14 +13,14 @@
 :root{
   --ink:#222; --muted:#6b6b6b; --bg:#faf7f2; --card:#fff;
   --c1:#ff7eb9; --c2:#ffd166; --c3:#90cdf4; --c4:#95e1d3; --c5:#a29bfe;
-  --line:#00000018;
+  --line:#00000018; --light:#f2f2f2; --light2:#e8e8e8; --border:#dddddd;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:Poppins,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
 img,svg,canvas{max-width:100%;display:block}
 
-/* global confetti on top, hidden until transition completes */
+/* global confetti on top - starts after transition */
 #confettiGlobal{
   position:fixed; inset:0; width:100vw; height:100vh; pointer-events:none;
   z-index:9999; opacity:0; transition:opacity .25s ease;
@@ -36,10 +36,13 @@ img,svg,canvas{max-width:100%;display:block}
 .corner.br{bottom:6px;right:6px;transform:scale(-1,-1)}
 
 /* PARTY BAR (bunting + balloons) */
-.partybar{position:absolute;left:-6%;right:-6%;top:0;height:120px;pointer-events:none}
+.partybar{position:absolute;left:-6%;right:-6%;top:0;height:120px;pointer-events:none;animation:breeze 6.5s ease-in-out infinite}
 .partybar .string{position:absolute;left:0;right:0;top:24px;height:2px;background:var(--line);border-radius:2px}
+
+/* bunting flags */
 .flags{position:absolute;left:0;right:0;top:26px;display:flex;justify-content:space-between;padding:0 20px}
-.flag{width:0;height:0;border-left:18px solid transparent;border-right:18px solid transparent;border-top:28px solid var(--c1);transform-origin:top center;animation:flagSway 4s ease-in-out infinite}
+.flag{width:0;height:0;border-left:18px solid transparent;border-right:18px solid transparent;border-top:28px solid var(--c1);
+  transform-origin:top center;animation:flagSway 4.2s ease-in-out infinite}
 .flag:nth-child(2){border-top-color:var(--c2);animation-delay:.2s}
 .flag:nth-child(3){border-top-color:var(--c3);animation-delay:.4s}
 .flag:nth-child(4){border-top-color:var(--c4);animation-delay:.1s}
@@ -49,17 +52,28 @@ img,svg,canvas{max-width:100%;display:block}
 .flag:nth-child(8){border-top-color:var(--c3);animation-delay:.45s}
 .flag:nth-child(9){border-top-color:var(--c4);animation-delay:.15s}
 .flag:nth-child(10){border-top-color:var(--c5);animation-delay:.35s}
-@keyframes flagSway{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(6deg)}}
 
-/* Balloons */
+/* balloons */
 .balloons{position:absolute;left:0;right:0;top:-6px;display:flex;justify-content:space-around;padding:0 30px}
-.balloon{width:54px;height:72px}
+.balloon{width:54px;height:72px;animation:floatBob 5.5s ease-in-out infinite}
+.balloon.f2{animation-duration:6.2s; animation-delay:-.6s}
+.balloon.f3{animation-duration:5.8s; animation-delay:-.2s}
 .balloon .b{filter:drop-shadow(0 6px 10px rgba(0,0,0,.12))}
 .balloon .s{stroke:#555;stroke-width:2;fill:none;stroke-linecap:round;opacity:.6}
-.balloon.f1{animation:float 5s ease-in-out -0.5s infinite}
-.balloon.f2{animation:float 6s ease-in-out -1s infinite}
-.balloon.f3{animation:float 5.5s ease-in-out -0.2s infinite}
-@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(8px)}}
+
+/* breeze + waving keyframes */
+@keyframes breeze{
+  0%,100%{ transform:translateY(0) }
+  50%{ transform:translateY(6px) }
+}
+@keyframes flagSway{
+  0%,100%{ transform:rotate(-6deg) translateY(0) }
+  50%{ transform:rotate(6deg) translateY(3px) }
+}
+@keyframes floatBob{
+  0%,100%{ transform:translateY(0) rotate(-1deg) }
+  50%{ transform:translateY(9px) rotate(1deg) }
+}
 
 /* Typography */
 .kicker{margin-top:92px;text-align:center;letter-spacing:.14em;text-transform:uppercase;font-size:12px;color:var(--muted)}
@@ -89,8 +103,10 @@ img,svg,canvas{max-width:100%;display:block}
 
 /* Actions + QR */
 .actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:10px}
-.btn{appearance:none;border:0;background:#111;color:#fff;border-radius:12px;padding:12px 16px;font-weight:700;cursor:pointer;text-decoration:none}
-.btn.ghost{background:#fff;color:#111;border:1px solid #00000020}
+.btn{appearance:none;border:1px solid var(--border);border-radius:12px;padding:12px 16px;font-weight:700;cursor:pointer;text-decoration:none}
+.btn.light{background:var(--light);color:#111}
+.btn.light:hover{background:var(--light2)}
+.btn.dark{background:#111;color:#fff;border-color:transparent}
 .qr{display:grid;place-items:center;margin-top:10px}
 .qr img{width:132px;height:132px;border-radius:12px;border:1px solid #00000010}
 
@@ -99,7 +115,7 @@ img,svg,canvas{max-width:100%;display:block}
 
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce){
-  .flag,.balloon{animation:none!important}
+  .flag,.balloon,.partybar{animation:none!important}
 }
 </style>
 </head>
@@ -123,19 +139,16 @@ img,svg,canvas{max-width:100%;display:block}
       <span class="flag"></span><span class="flag"></span><span class="flag"></span><span class="flag"></span><span class="flag"></span>
     </div>
     <div class="balloons">
-      <!-- balloon 1 -->
       <svg class="balloon f1" viewBox="0 0 80 120" aria-hidden="true">
         <ellipse class="b" cx="40" cy="38" rx="22" ry="28" fill="#ff7eb9"/>
         <path d="M40 66 L36 74 L44 74 Z" fill="#ff7eb9"/>
         <path class="s" d="M40 74 C38 86, 50 96, 40 112" />
       </svg>
-      <!-- balloon 2 -->
       <svg class="balloon f2" viewBox="0 0 80 120" aria-hidden="true">
         <ellipse class="b" cx="40" cy="38" rx="22" ry="28" fill="#ffd166"/>
         <path d="M40 66 L36 74 L44 74 Z" fill="#ffd166"/>
         <path class="s" d="M40 74 C42 90, 30 98, 40 112" />
       </svg>
-      <!-- balloon 3 -->
       <svg class="balloon f3" viewBox="0 0 80 120" aria-hidden="true">
         <ellipse class="b" cx="40" cy="38" rx="22" ry="28" fill="#90cdf4"/>
         <path d="M40 66 L36 74 L44 74 Z" fill="#90cdf4"/>
@@ -158,7 +171,7 @@ img,svg,canvas{max-width:100%;display:block}
 
   <!-- Mottai scene -->
   <section class="scene mottai" id="mottaiScene" aria-label="Mottai">
-    <h3>Mottai Ceremony</h3>
+    <h3>Mottai & Kathukuthu Thiruvizha</h3>
     <div class="frame" id="frameBox">
       <img id="withHair" src="assets/baby_with_hair.png" alt="Baby with hair">
       <img id="bald"     src="assets/bald_baby.png"   alt="Baby after tonsure">
@@ -166,9 +179,9 @@ img,svg,canvas{max-width:100%;display:block}
   </section>
 
   <div class="actions">
-    <a class="btn" href="https://www.google.com/maps/search/?api=1&query=JC+Residency+Madurai" target="_blank" rel="noopener">Open map</a>
-    <button class="btn ghost" id="addCal">Add to calendar</button>
-    <button class="btn" id="shareBtn">Share</button>
+    <a class="btn light" href="https://www.google.com/maps/search/?api=1&query=JC+Residency+Madurai" target="_blank" rel="noopener">Open map</a>
+    <button class="btn light" id="addCal">Add to calendar</button>
+    <button class="btn dark" id="shareBtn">Share</button>
   </div>
 
   <div class="qr">
@@ -333,7 +346,7 @@ const Confetti = (function(){
     render();
     if(prev < 1 && progress === 1){
       completed = true; postHold = 0;
-      Confetti.start(); // start global confetti on top after transition
+      Confetti.start(); // start global confetti after transition
     }
     if(prev === 1 && progress < 1){
       completed = false;
