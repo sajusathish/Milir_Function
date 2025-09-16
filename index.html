@@ -19,14 +19,16 @@ html,body{height:100%}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:Poppins,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
 img,svg,canvas{max-width:100%;display:block}
 
-/* global confetti canvas */
+/* global confetti - stays hidden until transition completes */
 #confettiGlobal{
   position:fixed;
   inset:0;
   width:100vw;
   height:100vh;
   pointer-events:none;
-  z-index:1; /* above background, below content */
+  z-index:9999; /* on top of everything */
+  opacity:0;    /* hidden until started */
+  transition:opacity .25s ease;
 }
 
 /* layout */
@@ -92,7 +94,7 @@ img,svg,canvas{max-width:100%;display:block}
 </head>
 <body>
 
-<!-- global confetti that loops forever -->
+<!-- global confetti on top - initially hidden -->
 <canvas id="confettiGlobal" aria-hidden="true"></canvas>
 
 <div class="wrap">
@@ -224,68 +226,64 @@ function fullyVisible(el, margin=6){
   return (r.top >= margin) && (r.bottom <= vh - margin);
 }
 
-/* Global, looping confetti from top */
-(function(){
-  const canvas = document.getElementById('confettiGlobal');
-  if(!canvas) return;
-  const ctx = canvas.getContext('2d');
-  const colors = ['#ff8fb1','#ffd166','#95e1d3','#a29bfe','#fca5a5','#fcd34d','#90cdf4','#c6f6d5'];
-  let W = canvas.width = window.innerWidth;
-  let H = canvas.height = window.innerHeight;
-
-  window.addEventListener('resize', ()=>{
-    W = canvas.width = window.innerWidth;
-    H = canvas.height = window.innerHeight;
-  });
-
-  const N = 120; // number of confetti pieces. bump up for denser
-  const parts = [];
-  function resetPiece(p, fromTop=true){
-    p.x = Math.random()*W;
-    p.y = fromTop ? (-20 - Math.random()*H*0.3) : (Math.random()*H);
-    p.w = 4 + Math.random()*3;
-    p.h = 10 + Math.random()*6;
-    p.color = colors[Math.floor(Math.random()*colors.length)];
-    p.vx = (Math.random()*2 - 1) * 0.6;
-    p.vy = 1.2 + Math.random()*1.6;
-    p.rot = Math.random()*Math.PI;
-    p.vr = (Math.random()*2 - 1) * 0.04;
-    p.swing = Math.random()*0.8 + 0.2; // side sway
-    p.life = 300 + Math.random()*300;
+/* Global confetti engine - paused until started */
+const Confetti = (function(){
+  let started=false, rafId=null, canvas, ctx, W, H, parts;
+  const colors=['#ff8fb1','#ffd166','#95e1d3','#a29bfe','#fca5a5','#fcd34d','#90cdf4','#c6f6d5'];
+  const N=140;
+  function size(){
+    W=canvas.width=window.innerWidth;
+    H=canvas.height=window.innerHeight;
   }
-  for(let i=0;i<N;i++){
-    const p = {};
-    resetPiece(p, false);
-    parts.push(p);
+  function resetPiece(p, fromTop){
+    p.x=Math.random()*W;
+    p.y=fromTop?(-20 - Math.random()*H*0.3):(Math.random()*H);
+    p.w=4+Math.random()*3;
+    p.h=10+Math.random()*6;
+    p.color=colors[Math.floor(Math.random()*colors.length)];
+    p.vx=(Math.random()*2-1)*0.6;
+    p.vy=1.2+Math.random()*1.6;
+    p.rot=Math.random()*Math.PI;
+    p.vr=(Math.random()*2-1)*0.04;
+    p.swing=Math.random()*0.8+0.2;
+    p.life=300+Math.random()*300;
   }
-
-  let t = 0;
-  (function loop(){
-    t += 0.016;
+  function loop(){
+    if(!started) return;
     ctx.clearRect(0,0,W,H);
+    const t=performance.now()*0.001;
     for(let i=0;i<parts.length;i++){
-      const p = parts[i];
-      p.life -= 1;
-      p.x += p.vx + Math.sin(t + i)*p.swing*0.3;
+      const p=parts[i];
+      p.life-=1;
+      p.x += p.vx + Math.sin(t+i)*p.swing*0.3;
       p.y += p.vy;
       p.rot += p.vr;
-
       ctx.save();
       ctx.translate(p.x,p.y);
       ctx.rotate(p.rot);
-      ctx.fillStyle = p.color;
-      ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+      ctx.fillStyle=p.color;
+      ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);
       ctx.restore();
-
-      if(p.y > H + 24 || p.x < -40 || p.x > W + 40 || p.life <= 0){
-        resetPiece(p, true); // respawn at the top
-      }
+      if(p.y>H+24 || p.x<-40 || p.x>W+40 || p.life<=0) resetPiece(p,true);
     }
-    requestAnimationFrame(loop);
-  })();
+    rafId=requestAnimationFrame(loop);
+  }
+  function start(){
+    if(started) return;
+    canvas=document.getElementById('confettiGlobal');
+    if(!canvas) return;
+    ctx=canvas.getContext('2d');
+    size();
+    parts=new Array(N).fill(0).map(()=>{const p={}; resetPiece(p,false); return p;});
+    window.addEventListener('resize', size);
+    started=true;
+    canvas.style.opacity=1; // fade in
+    loop();
+  }
+  return { start };
 })();
 
-/* Mottai interaction with scroll hold and reverse */
+/* Mottai interaction with hold and confetti start on completion */
 (function(){
   const scene    = document.getElementById('mottaiScene');
   const hairImg  = document.getElementById('withHair');
@@ -293,8 +291,8 @@ function fullyVisible(el, margin=6){
   if(!scene||!hairImg||!baldImg) return;
 
   let progress = 0;           // 0 hair -> 1 bald
-  const stepWheel = 0.08;     // per wheel notch
-  const stepTouch = 0.003;    // per touch delta
+  const stepWheel = 0.08;     // wheel sensitivity
+  const stepTouch = 0.003;    // touch sensitivity
   let completed = false;
   let postHold = 0;           // extra scrolls after complete
   const postHoldNeeded = 2;
@@ -323,8 +321,14 @@ function fullyVisible(el, margin=6){
     const prev = progress;
     progress = Math.max(0, Math.min(1, progress + amount));
     render();
-    if(prev < 1 && progress === 1){ completed = true; postHold = 0; }
-    if(prev === 1 && progress < 1){ completed = false; }
+    if(prev < 1 && progress === 1){
+      completed = true;
+      postHold = 0;
+      Confetti.start(); // start global confetti on top
+    }
+    if(prev === 1 && progress < 1){
+      completed = false;
+    }
   }
 
   // wheel
