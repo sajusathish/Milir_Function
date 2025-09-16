@@ -11,41 +11,26 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&family=Playfair+Display:wght@600;800&display=swap" rel="stylesheet">
 <style>
 :root{
-  --ink:#222;
-  --muted:#6b6b6b;
-  --bg:#faf7f2;
-  --card:#fff;
-  --marigold:#f2a900;
-  --leaf:#2f9e44;
-  --pink:#ff7eb9;
-  --gold:#f4c542;
+  --ink:#222; --muted:#6b6b6b; --bg:#faf7f2; --card:#fff;
+  --marigold:#f2a900; --leaf:#2f9e44; --pink:#ff7eb9; --gold:#f4c542;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:Poppins,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
-img{max-width:100%;display:block}
 .wrap{min-height:100svh;display:grid;place-items:center;padding:16px}
-.card{
-  position:relative;background:var(--card);border:1px solid #00000010;border-radius:22px;
-  max-width:560px;width:100%;padding:18px 18px 24px;box-shadow:0 18px 60px rgba(0,0,0,.08);overflow:hidden
-}
+.card{position:relative;background:var(--card);border:1px solid #00000010;border-radius:22px;max-width:560px;width:100%;padding:18px 18px 24px;box-shadow:0 18px 60px rgba(0,0,0,.08);overflow:hidden}
 
-/* Toran (marigold garland) */
+/* Toran garland */
 .toran{position:absolute;left:-6%;right:-6%;top:-2px;height:120px;pointer-events:none}
 .string{position:absolute;left:0;right:0;top:22px;height:2px;background:#00000018;border-radius:2px}
 .flowers{position:absolute;left:0;right:0;top:0;display:flex;justify-content:space-between;padding:0 22px}
 .flower{width:56px;height:80px;display:grid;place-items:flex-start;transform-origin:top center;animation:sway 3.8s ease-in-out infinite}
-.bloom{width:44px;height:44px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#ffd76a,var(--marigold));box-shadow:inset 0 8px 14px rgba(0,0,0,.12),0 3px 6px rgba(0,0,0,.12)}
-.leaf{width:10px;height:18px;background:var(--leaf);border-radius:10px 10px 2px 10px;margin:2px 0 0 18px;transform:rotate(-14deg)}
+.bloom{width:44px;height:44px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#ffd76a,var(--marigold))}
+.leaf{width:10px;height:18px;background:var(--leaf);border-radius:10px;margin:2px 0 0 18px;transform:rotate(-14deg)}
 .leaf.r{margin-left:0;margin-right:18px;transform:rotate(14deg);justify-self:end}
 @keyframes sway{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
 
-/* Kolam corners */
-.corner{position:absolute;width:90px;height:90px;opacity:.25}
-.corner.tl{top:6px;left:6px}
-.corner.br{bottom:6px;right:6px;transform:scale(-1,-1)}
-
-/* Typography */
+/* Headings */
 .kicker{margin-top:78px;text-align:center;letter-spacing:.14em;text-transform:uppercase;font-size:12px;color:var(--muted)}
 .title{font-family:"Playfair Display",serif;font-weight:800;font-size:clamp(36px,7vw,60px);line-height:1.04;text-align:center;margin:6px 0}
 .sub{font-size:15px;text-align:center;color:#333}
@@ -64,36 +49,22 @@ img{max-width:100%;display:block}
 .btn{appearance:none;border:0;background:#111;color:#fff;border-radius:12px;padding:12px 16px;font-weight:700;cursor:pointer;text-decoration:none}
 .btn.ghost{background:#fff;color:#111;border:1px solid #00000020}
 
-/* Baby footprints */
-.feet{display:flex;gap:12px;justify-content:center;margin:8px 0 2px;opacity:.8}
-.feet svg{width:30px;height:30px}
-
-/* Ear piercing (clear, baby-girl theme) */
-.ear-section{display:grid;place-items:center;margin:14px 0 6px}
-.earSVG{width:220px;height:auto;filter:drop-shadow(0 6px 14px rgba(0,0,0,.08))}
-.stud{fill:var(--gold);stroke:#d5a824;stroke-width:2}
-.heart{fill:var(--pink)}
-.spark line{stroke:var(--pink);stroke-width:3;stroke-linecap:round}
-.dangle{transform-origin:140px 120px;animation:swing 2.4s ease-in-out infinite}
-@keyframes swing{0%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}100%{transform:rotate(-8deg)}}
-.bow{position:relative;display:inline-block;margin-bottom:6px;font-size:26px}
-.bow:before{content:"🎀"}
-
-/* QR */
-.qr{display:grid;place-items:center;margin-top:10px}
-.qr img{width:132px;height:132px;border-radius:12px;border:1px solid #00000010}
-.footer{text-align:center;color:var(--muted);font-size:12px;margin-top:12px}
+/* Scroll-interactive ear piercing */
+.scroll-scene{margin:16px 0 8px}
+.scene-wrap{position:relative;height:60vh;min-height:420px;border:1px dashed #00000014;border-radius:16px;background:#fffafc;display:grid;place-items:center;overflow:hidden}
+.ear-zoom{width:min(68vw,320px);transition:transform .1s linear;filter:drop-shadow(0 6px 14px rgba(0,0,0,.08))}
+.earring-fly{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none}
+.earring-svg{width:54px;height:54px;filter:drop-shadow(0 6px 12px rgba(0,0,0,.12))}
+.mini-garland{position:absolute;bottom:8px;left:0;right:0;display:flex;gap:6px;justify-content:center;opacity:.9}
+.attached .earring-svg{animation:pop .6s ease-out}
+@keyframes pop{0%{transform:scale(.6)}60%{transform:scale(1.2)}100%{transform:scale(1)}}
 </style>
 </head>
 <body>
 <div class="wrap">
 <main class="card">
 
-<!-- decorative corners -->
-<svg class="corner tl" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M5 85 Q45 75 55 35 Q65 10 95 5" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/></svg>
-<svg class="corner br" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M5 85 Q45 75 55 35 Q65 10 95 5" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/></svg>
-
-<!-- toran -->
+<!-- Toran -->
 <div class="toran" aria-hidden="true">
   <div class="string"></div>
   <div class="flowers">
@@ -118,40 +89,39 @@ img{max-width:100%;display:block}
   <span class="badge">🕙 10:00 am</span>
 </section>
 
-<!-- Ear Piercing: clear, cute, and feminine -->
-<section class="ear-section" aria-label="Ear piercing graphic">
-  <div class="bow" aria-hidden="true"></div>
-  <svg class="earSVG" viewBox="0 0 220 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ear with stud and heart earring">
+<!-- Scroll-interactive Ear Piercing (Tamil vibe) -->
+<section class="scroll-scene" aria-label="Interactive ear piercing">
+  <p class="small" style="font-weight:600;margin-bottom:6px">காதணி போடும் விழா</p>
+  <div class="scene-wrap" id="earScene">
     <!-- ear -->
-    <path d="M110 22c-40 0-70 22-70 64 0 24 12 42 30 54 9 6 14 15 14 26 0 12 9 22 21 22h18c12 0 21-10 21-22 0-19 6-33 19-46 12-12 19-28 19-46 0-36-32-52-72-52z" fill="#ffd8c8" stroke="#e7a892" stroke-width="3"/>
-    <!-- inner folds -->
-    <path d="M128 78c-16-8-34 2-38 18-4 16 5 28 20 30" fill="none" stroke="#e6ad9b" stroke-width="4" stroke-linecap="round"/>
-    <path d="M132 130c6 10-2 22-12 22" fill="none" stroke="#e6ad9b" stroke-width="4" stroke-linecap="round"/>
-    <!-- stud + dangling heart -->
-    <g class="dangle">
-      <circle class="stud" cx="140" cy="120" r="8"/>
-      <line x1="140" y1="128" x2="140" y2="148" stroke="#d5a824" stroke-width="3"/>
-      <path class="heart" d="M140 148 c-6 -8 -18 2 -8 12 l8 8 l8 -8 c10 -10 -2 -20 -8 -12z"/>
-    </g>
-    <!-- sparkle -->
-    <g class="spark" opacity="0.9">
-      <line x1="160" y1="104" x2="174" y2="96"/>
-      <line x1="120" y1="104" x2="106" y2="96"/>
-      <line x1="140" y1="96"  x2="140" y2="82"/>
-    </g>
-  </svg>
-  <p class="small">Her first little studs — all sparkle and smiles</p>
-  <div class="earStrip" aria-hidden="true" style="display:flex;gap:8px;justify-content:center;margin-top:4px">
-    <span class="badge" style="background:#ffe7f1;border-color:#ffbdd7">🌸</span>
-    <span class="badge" style="background:#fff7d9;border-color:#ffe49a">⭐</span>
-    <span class="badge" style="background:#fff;border-color:#e8d9ff">💎</span>
+    <svg class="ear-zoom" id="earSvg" viewBox="0 0 220 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Baby ear">
+      <defs>
+        <radialGradient id="blush" cx="60%" cy="70%" r="40%">
+          <stop offset="0%" stop-color="#ffd2d9"/><stop offset="100%" stop-color="transparent"/>
+        </radialGradient>
+      </defs>
+      <circle cx="150" cy="150" r="60" fill="url(#blush)" opacity=".5"/>
+      <path d="M110 22c-40 0-70 22-70 64 0 24 12 42 30 54 9 6 14 15 14 26 0 12 9 22 21 22h18c12 0 21-10 21-22 0-19 6-33 19-46 12-12 19-28 19-46 0-36-32-52-72-52z" fill="#ffd8c8" stroke="#e7a892" stroke-width="3"/>
+      <path d="M128 78c-16-8-34 2-38 18-4 16 5 28 20 30" fill="none" stroke="#e6ad9b" stroke-width="4" stroke-linecap="round"/>
+      <path d="M132 130c6 10-2 22-12 22" fill="none" stroke="#e6ad9b" stroke-width="4" stroke-linecap="round"/>
+      <circle id="studSpot" cx="140" cy="120" r="3" fill="#d5a824"/>
+    </svg>
+    <!-- earring flies in -->
+    <div class="earring-fly" id="earFly" aria-hidden="true">
+      <svg viewBox="0 0 64 64" class="earring-svg">
+        <circle cx="32" cy="18" r="10" fill="var(--gold)" stroke="#d5a824" stroke-width="3"/>
+        <line x1="32" y1="28" x2="32" y2="40" stroke="#d5a824" stroke-width="3"/>
+        <g transform="translate(32,48)">
+          <circle r="8" fill="#ffe7f1" stroke="#ffbdd7" stroke-width="3"/>
+          <circle r="2" fill="#ff7eb9"/>
+        </g>
+      </svg>
+    </div>
+    <!-- mini marigold line -->
+    <div class="mini-garland" aria-hidden="true"><span>🌼</span><span>🌼</span><span>🌼</span><span>🌼</span><span>🌼</span></div>
   </div>
+  <p class="small" id="earHint">Scroll to watch the earring come closer</p>
 </section>
-
-<div class="feet" aria-hidden="true">
-  <svg viewBox="0 0 24 24"><path d="M6 12c-1.8 0-3-.9-3-2.6 0-1.5 1-3.3 2.4-4.1C7.3 4 9 5.5 9 7.4 9 9.7 7.6 12 6 12Z" fill="#d3895b"/><circle cx="4" cy="5" r="1.6" fill="#d3895b"/><circle cx="6.5" cy="4.4" r="1.4" fill="#d3895b"/><circle cx="8.6" cy="5.2" r="1.2" fill="#d3895b"/><circle cx="9.6" cy="6.6" r="1.1" fill="#d3895b"/></svg>
-  <svg viewBox="0 0 24 24"><path d="M18 12c1.8 0 3-.9 3-2.6 0-1.5-1-3.3-2.4-4.1C16.7 4 15 5.5 15 7.4c0 2.3 1.4 4.6 3 4.6Z" fill="#d3895b"/><circle cx="20" cy="5" r="1.6" fill="#d3895b"/><circle cx="17.5" cy="4.4" r="1.4" fill="#d3895b"/><circle cx="15.4" cy="5.2" r="1.2" fill="#d3895b"/><circle cx="14.4" cy="6.6" r="1.1" fill="#d3895b"/></svg>
-</div>
 
 <div class="actions">
   <a class="btn" href="https://www.google.com/maps/search/?api=1&query=JC+Residency+Madurai" target="_blank" rel="noopener">Open map</a>
@@ -171,6 +141,7 @@ img{max-width:100%;display:block}
 <script>
 const EVENT_ISO = "2025-10-05T10:00:00+05:30";
 
+// countdown
 (function(){
   const el=document.getElementById('countdown');
   const parts=['Days','Hours','Mins','Secs'];
@@ -182,20 +153,20 @@ const EVENT_ISO = "2025-10-05T10:00:00+05:30";
   });
   function tick(){
     const now=new Date(), target=new Date(EVENT_ISO);
-    let diff=Math.max(0,target-now);
-    const s=Math.floor(diff/1000);
+    const s=Math.max(0, Math.floor((target-now)/1000));
     const d=Math.floor(s/86400);
     const h=Math.floor((s%86400)/3600);
     const m=Math.floor((s%3600)/60);
     const sec=s%60;
     [d,h,m,sec].forEach((v,i)=>tiles[i].querySelector('.num').textContent=v);
-    if(s===0) clearInterval(int);
   }
-  const int=setInterval(tick,1000); tick();
+  setInterval(tick,1000); tick();
 })();
 
+// add to calendar
 (function(){
   const btn=document.getElementById('addCal');
+  if(!btn) return;
   btn.addEventListener('click',()=>{
     const title='Milir | Tonsure & Ear Piercing';
     const dtStart=new Date(EVENT_ISO);
@@ -218,8 +189,10 @@ END:VCALENDAR`;
   });
 })();
 
+// share
 (function(){
   const btn=document.getElementById('shareBtn');
+  if(!btn) return;
   btn.addEventListener('click',async()=>{
     try{
       if(navigator.share){
@@ -229,6 +202,53 @@ END:VCALENDAR`;
       }
     }catch{}
   });
+})();
+
+// scroll-driven ear zoom + earring attach
+(function(){
+  const scene=document.getElementById('earScene');
+  const ear=document.getElementById('earSvg');
+  const fly=document.getElementById('earFly');
+  const hint=document.getElementById('earHint');
+  if(!scene||!ear||!fly) return;
+  const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
+
+  function onscroll(){
+    const r=scene.getBoundingClientRect();
+    const vh=window.innerHeight||document.documentElement.clientHeight;
+    // progress: 0 at enter, 1 near center
+    let p=(vh*0.8 - r.top)/(r.height+vh*0.4); p=clamp(p,0,1);
+
+    // ear zoom
+    const scale=0.7 + 0.6*p;
+    ear.style.transform=`scale(${scale}) translateY(${(1-p)*20}px)`;
+
+    // earring flight to stud spot
+    const spot=ear.querySelector('#studSpot');
+    const bb=spot.getBoundingClientRect();
+    const sc=scene.getBoundingClientRect();
+    const cx=bb.left + bb.width/2 - sc.left;
+    const cy=bb.top + bb.height/2 - sc.top;
+
+    const startX=sc.width*0.75, startY=-sc.height*0.2; // from top-right
+    const x=startX + (cx - startX)*p;
+    const y=startY + (cy - startY)*p;
+    const s=0.6 + 0.5*p, rot=45*(1-p);
+
+    fly.style.transform=`translate(${x - sc.width/2}px, ${y - sc.height/2}px) rotate(${rot}deg) scale(${s})`;
+    fly.style.opacity=0.2 + 0.8*p;
+
+    if(p>0.98){
+      scene.classList.add('attached');
+      hint.textContent='இப்போது தயார் • see you soon';
+    }else{
+      scene.classList.remove('attached');
+      hint.textContent='Scroll to watch the earring come closer';
+    }
+  }
+  onscroll();
+  document.addEventListener('scroll',onscroll,{passive:true});
+  window.addEventListener('resize',onscroll);
 })();
 </script>
 </body>
