@@ -13,6 +13,7 @@
 :root{
   --ink:#222; --muted:#6b6b6b; --bg:#faf7f2; --card:#fff;
   --marigold:#f2a900; --leaf:#2f9e44; --pink:#ff7eb9; --gold:#f4c542;
+  --gold2:#bb9a23;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
@@ -21,50 +22,71 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:Poppins,system-u
 .card{position:relative;background:var(--card);border:1px solid #00000010;border-radius:22px;max-width:560px;width:100%;padding:18px 18px 24px;box-shadow:0 18px 60px rgba(0,0,0,.08);overflow:hidden}
 
 /* Toran garland */
-.toran{position:absolute;left:-6%;right:-6%;top:-2px;height:120px;pointer-events:none}
+.toran{position:absolute;left:-6%;right:-6%;top:-2px;height:120px;pointer-events:none;z-index:3}
 .string{position:absolute;left:0;right:0;top:22px;height:2px;background:#00000018;border-radius:2px}
 .flowers{position:absolute;left:0;right:0;top:0;display:flex;justify-content:space-between;padding:0 22px}
-.flower{width:56px;height:80px;display:grid;place-items:flex-start;transform-origin:top center;animation:sway 3.8s ease-in-out infinite}
+.flower{width:56px;height:80px;display:grid;place-items:flex-start;transform-origin:top center;animation:sway 3.2s ease-in-out infinite}
 .bloom{width:44px;height:44px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#ffd76a,var(--marigold))}
 .leaf{width:10px;height:18px;background:var(--leaf);border-radius:10px;margin:2px 0 0 18px;transform:rotate(-14deg)}
 .leaf.r{margin-left:0;margin-right:18px;transform:rotate(14deg);justify-self:end}
 @keyframes sway{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
 
+/* Balloons overlay (faster and visible) */
+.balloons{position:absolute;inset:0;overflow:hidden;z-index:1;pointer-events:none}
+.balloon{position:absolute;bottom:-140px;width:26px;height:34px;border-radius:50% 50% 45% 45%;background:#ffd1e1;animation:rise 4.2s linear infinite;opacity:.95;will-change:transform}
+.balloon:after{content:"";position:absolute;left:50%;top:32px;width:2px;height:60px;background:#e5cbd4;transform:translateX(-1px)}
+.balloon.b2{left:15%;background:#cde6ff;animation-duration:4s}
+.balloon.b3{left:35%;background:#ffe7a1;animation-duration:3.8s}
+.balloon.b4{left:65%;background:#d7ffc9;animation-duration:4.1s}
+.balloon.b5{left:85%;background:#ffe0ff;animation-duration:3.6s}
+@keyframes rise{
+  0%{transform:translate3d(0,0,0)}
+  50%{transform:translate3d(14px,-46vh,0)}
+  100%{transform:translate3d(-10px,-96vh,0)}
+}
+
 /* Headings */
-.kicker{margin-top:78px;text-align:center;letter-spacing:.14em;text-transform:uppercase;font-size:12px;color:var(--muted)}
-.title{font-family:"Playfair Display",serif;font-weight:800;font-size:clamp(36px,7vw,60px);line-height:1.04;text-align:center;margin:6px 0}
-.sub{font-size:15px;text-align:center;color:#333}
+.kicker{margin-top:78px;text-align:center;letter-spacing:.14em;text-transform:uppercase;font-size:12px;color:var(--muted);position:relative;z-index:2}
+.title{font-family:"Playfair Display",serif;font-weight:800;font-size:clamp(36px,7vw,60px);line-height:1.04;text-align:center;margin:6px 0;position:relative;z-index:2}
+.sub{font-size:15px;text-align:center;color:#333;position:relative;z-index:2}
 
 /* Countdown */
-.countdown{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:12px 0 4px}
+.countdown{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:12px 0 4px;position:relative;z-index:2}
 .tile{min-width:68px;background:#fff;border:1px solid #00000012;border-radius:14px;padding:10px 10px;text-align:center;box-shadow:0 6px 16px rgba(0,0,0,.05)}
 .num{font-size:26px;font-weight:800;font-family:"Playfair Display",serif}
 .lbl{font-size:11px;color:var(--muted)}
 
 /* Details */
-.details{margin:14px auto 10px;display:grid;gap:6px;justify-items:center}
+.details{margin:14px auto 10px;display:grid;gap:6px;justify-items:center;position:relative;z-index:2}
 .badge{background:#f6f3ed;border:1px solid #00000010;border-radius:999px;padding:8px 14px;font-size:14px}
 .small{font-size:13px;color:var(--muted);text-align:center}
-.actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:10px}
-.btn{appearance:none;border:0;background:#111;color:#fff;border-radius:12px;padding:12px 16px;font-weight:700;cursor:pointer;text-decoration:none}
-.btn.ghost{background:#fff;color:#111;border:1px solid #00000020}
 
 /* Scroll-interactive ear piercing */
 .scroll-scene{margin:16px 0 8px}
 .scene-wrap{position:relative;height:60vh;min-height:420px;border:1px dashed #00000014;border-radius:16px;background:#fffafc;display:grid;place-items:center;overflow:hidden}
-.ear-zoom{width:min(68vw,320px);transition:transform .1s linear;filter:drop-shadow(0 6px 14px rgba(0,0,0,.08))}
-.earring-fly{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none}
-.earring-svg{width:54px;height:54px;filter:drop-shadow(0 6px 12px rgba(0,0,0,.12))}
+.ear-zoom{width:min(78vw,380px);transition:transform .1s linear;filter:drop-shadow(0 6px 14px rgba(0,0,0,.08))}
+.earring-fly{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;will-change:transform,opacity}
+.earring-svg{width:86px;height:auto;filter:drop-shadow(0 6px 12px rgba(0,0,0,.12))}
 .mini-garland{position:absolute;bottom:8px;left:0;right:0;display:flex;gap:6px;justify-content:center;opacity:.9}
 .attached .earring-svg{animation:pop .6s ease-out}
 @keyframes pop{0%{transform:scale(.6)}60%{transform:scale(1.2)}100%{transform:scale(1)}}
+
+/* Actions + QR aligned and responsive */
+.info-grid{display:grid;gap:12px;margin-top:14px}
+@media(min-width:560px){.info-grid{grid-template-columns:1fr 180px;align-items:center}}
+.actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.btn{appearance:none;border:0;background:#111;color:#fff;border-radius:12px;padding:12px 16px;font-weight:700;cursor:pointer;text-decoration:none}
+.btn.ghost{background:#fff;color:#111;border:1px solid #00000020}
+.qr{display:grid;place-items:center}
+.qr img{width:160px;height:160px;max-width:40vw;border-radius:12px;border:1px solid #00000010}
+.footer{text-align:center;color:var(--muted);font-size:12px;margin-top:12px}
 </style>
 </head>
 <body>
 <div class="wrap">
 <main class="card">
 
-<!-- Toran -->
+<!-- Toran + Balloons -->
 <div class="toran" aria-hidden="true">
   <div class="string"></div>
   <div class="flowers">
@@ -75,6 +97,13 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:Poppins,system-u
     <div class="flower"><div class="bloom"></div><div class="leaf"></div></div>
     <div class="flower"><div class="bloom"></div><div class="leaf r"></div></div>
   </div>
+</div>
+<div class="balloons" aria-hidden="true">
+  <div class="balloon b1" style="left:5%"></div>
+  <div class="balloon b2"></div>
+  <div class="balloon b3"></div>
+  <div class="balloon b4"></div>
+  <div class="balloon b5"></div>
 </div>
 
 <p class="kicker">You are invited</p>
@@ -89,49 +118,66 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:Poppins,system-u
   <span class="badge">🕙 10:00 am</span>
 </section>
 
-<!-- Scroll-interactive Ear Piercing (Tamil vibe) -->
+<!-- Scroll-interactive Ear Piercing (Tamil vibe, baby cartoon + long jhumka) -->
 <section class="scroll-scene" aria-label="Interactive ear piercing">
   <p class="small" style="font-weight:600;margin-bottom:6px">காதணி போடும் விழா</p>
   <div class="scene-wrap" id="earScene">
-    <!-- ear -->
-    <svg class="ear-zoom" id="earSvg" viewBox="0 0 220 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Baby ear">
-      <defs>
-        <radialGradient id="blush" cx="60%" cy="70%" r="40%">
-          <stop offset="0%" stop-color="#ffd2d9"/><stop offset="100%" stop-color="transparent"/>
-        </radialGradient>
-      </defs>
-      <circle cx="150" cy="150" r="60" fill="url(#blush)" opacity=".5"/>
-      <path d="M110 22c-40 0-70 22-70 64 0 24 12 42 30 54 9 6 14 15 14 26 0 12 9 22 21 22h18c12 0 21-10 21-22 0-19 6-33 19-46 12-12 19-28 19-46 0-36-32-52-72-52z" fill="#ffd8c8" stroke="#e7a892" stroke-width="3"/>
-      <path d="M128 78c-16-8-34 2-38 18-4 16 5 28 20 30" fill="none" stroke="#e6ad9b" stroke-width="4" stroke-linecap="round"/>
-      <path d="M132 130c6 10-2 22-12 22" fill="none" stroke="#e6ad9b" stroke-width="4" stroke-linecap="round"/>
-      <circle id="studSpot" cx="140" cy="120" r="3" fill="#d5a824"/>
+
+    <!-- Baby girl side cartoon with real ear and lobe anchor -->
+    <svg class="ear-zoom" id="earSvg" viewBox="0 0 620 520" role="img" aria-label="Baby girl side">
+      <!-- hair -->
+      <path d="M110 240c0-126 182-200 360-90 64 36 102 102 90 138-8 22-30 36-52 34-18-2-34-12-52-24-36-24-92-44-160-46-92-4-164 30-192 50-12 8-26 8-38 0-12-8-20-22-20-40 0-18 8-30 64-22z" fill="#3b2a17"/>
+      <!-- face -->
+      <path d="M226 188c0-60 48-96 106-96s110 36 110 96c0 74-64 126-142 126s-74-68-74-126z" fill="#ffd8c8"/>
+      <!-- eye + smile -->
+      <circle cx="404" cy="240" r="8" fill="#222"/>
+      <path d="M386 230 q18 -12 36 0" stroke="#222" stroke-width="4" fill="none"/>
+      <path d="M384 270 q14 18 34 0" stroke="#cc6b7a" stroke-width="5" fill="none" stroke-linecap="round"/>
+      <!-- ear with precise lobe anchor -->
+      <g id="earGroup2">
+        <path d="M446 246c12 12 16 36 0 52-8 10-22 14-28 6-6-8 4-18 8-26 4-10-2-22 6-30 4-4 10-4 14-2z" fill="#ffd3c6" stroke="#e7a892" stroke-width="3"/>
+        <circle id="lobe" cx="440" cy="286" r="3.5" fill="#bb9a23"/>
+      </g>
+      <!-- bow + bindi -->
+      <g transform="translate(332,152) rotate(-14)">
+        <ellipse cx="-18" cy="0" rx="18" ry="12" fill="#ff9bcf"/>
+        <ellipse cx="18" cy="0" rx="18" ry="12" fill="#ff9bcf"/>
+        <circle cx="0" cy="0" r="7" fill="#ff7eb9"/>
+      </g>
+      <circle cx="396" cy="210" r="3.5" fill="#d9480f"/>
     </svg>
-    <!-- earring flies in -->
+
+    <!-- long jhumka flies in and docks to lobe -->
     <div class="earring-fly" id="earFly" aria-hidden="true">
-      <svg viewBox="0 0 64 64" class="earring-svg">
-        <circle cx="32" cy="18" r="10" fill="var(--gold)" stroke="#d5a824" stroke-width="3"/>
-        <line x1="32" y1="28" x2="32" y2="40" stroke="#d5a824" stroke-width="3"/>
-        <g transform="translate(32,48)">
-          <circle r="8" fill="#ffe7f1" stroke="#ffbdd7" stroke-width="3"/>
-          <circle r="2" fill="#ff7eb9"/>
+      <svg viewBox="0 0 120 220" class="earring-svg">
+        <circle cx="60" cy="20" r="12" fill="var(--gold)" stroke="var(--gold2)" stroke-width="4"/>
+        <rect x="58" y="32" width="4" height="64" rx="2" fill="var(--gold2)"/>
+        <path d="M20 120 q40 -36 80 0 v48 H20z" fill="#ffdfa3" stroke="var(--gold2)" stroke-width="4"/>
+        <g>
+          <circle cx="28" cy="172" r="6" fill="#ffb6d1" stroke="#e88cb2" stroke-width="3"/>
+          <circle cx="46" cy="182" r="6" fill="#ffe38f" stroke="#e0b54f" stroke-width="3"/>
+          <circle cx="74" cy="182" r="6" fill="#ffe38f" stroke="#e0b54f" stroke-width="3"/>
+          <circle cx="92" cy="172" r="6" fill="#ffb6d1" stroke="#e88cb2" stroke-width="3"/>
         </g>
       </svg>
     </div>
+
     <!-- mini marigold line -->
     <div class="mini-garland" aria-hidden="true"><span>🌼</span><span>🌼</span><span>🌼</span><span>🌼</span><span>🌼</span></div>
   </div>
-  <p class="small" id="earHint">Scroll to watch the earring come closer</p>
 </section>
 
-<div class="actions">
-  <a class="btn" href="https://www.google.com/maps/search/?api=1&query=JC+Residency+Madurai" target="_blank" rel="noopener">Open map</a>
-  <button class="btn ghost" id="addCal">Add to calendar</button>
-  <button class="btn" id="shareBtn">Share</button>
-</div>
-
-<div class="qr">
-  <img alt="QR for location" src="https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=https%3A%2F%2Fwww.google.com%2Fmaps%2Fsearch%2F%3Fapi%3D1%26query%3DJC%2BResidency%2BMadurai"/>
-  <p class="small">Scan for directions</p>
+<!-- Aligned actions + QR -->
+<div class="info-grid">
+  <div class="actions">
+    <a class="btn" href="https://www.google.com/maps/search/?api=1&query=JC+Residency+Madurai" target="_blank" rel="noopener">Open map</a>
+    <button class="btn ghost" id="addCal">Add to calendar</button>
+    <button class="btn" id="shareBtn">Share</button>
+  </div>
+  <div class="qr">
+    <img alt="QR for location" src="https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=https%3A%2F%2Fwww.google.com%2Fmaps%2Fsearch%2F%3Fapi%3D1%26query%3DJC%2BResidency%2BMadurai"/>
+    <p class="small">Scan for directions</p>
+  </div>
 </div>
 
 <p class="footer">With love — family and friends</p>
@@ -204,48 +250,50 @@ END:VCALENDAR`;
   });
 })();
 
-// scroll-driven ear zoom + earring attach
+// scroll-driven: zoom baby and fly jhumka to exact lobe
 (function(){
   const scene=document.getElementById('earScene');
-  const ear=document.getElementById('earSvg');
+  const earSvg=document.getElementById('earSvg');
   const fly=document.getElementById('earFly');
-  const hint=document.getElementById('earHint');
-  if(!scene||!ear||!fly) return;
+  const lobe=document.getElementById('lobe');
+  if(!scene||!earSvg||!fly||!lobe) return;
+
   const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
 
   function onscroll(){
     const r=scene.getBoundingClientRect();
     const vh=window.innerHeight||document.documentElement.clientHeight;
-    // progress: 0 at enter, 1 near center
     let p=(vh*0.8 - r.top)/(r.height+vh*0.4); p=clamp(p,0,1);
 
-    // ear zoom
+    // zoom gentle
     const scale=0.7 + 0.6*p;
-    ear.style.transform=`scale(${scale}) translateY(${(1-p)*20}px)`;
+    earSvg.style.transform=`scale(${scale}) translateY(${(1-p)*16}px)`;
 
-    // earring flight to stud spot
-    const spot=ear.querySelector('#studSpot');
-    const bb=spot.getBoundingClientRect();
+    // compute target in scene coordinates for exact docking
+    const bb=lobe.getBoundingClientRect();
     const sc=scene.getBoundingClientRect();
     const cx=bb.left + bb.width/2 - sc.left;
     const cy=bb.top + bb.height/2 - sc.top;
 
-    const startX=sc.width*0.75, startY=-sc.height*0.2; // from top-right
-    const x=startX + (cx - startX)*p;
-    const y=startY + (cy - startY)*p;
-    const s=0.6 + 0.5*p, rot=45*(1-p);
+    // earring stud center is at (60,20) in its own SVG, we offset so that stud center reaches lobe
+    const studOffsetX=60, studOffsetY=20;
 
-    fly.style.transform=`translate(${x - sc.width/2}px, ${y - sc.height/2}px) rotate(${rot}deg) scale(${s})`;
+    // start far top-right
+    const startX=sc.width*0.82, startY=-sc.height*0.25;
+
+    const x = startX + (cx - studOffsetX - startX)*p;
+    const y = startY + (cy - studOffsetY - startY)*p;
+
+    const s = 0.75 + 0.35*p;
+    const rot = 10*(1-p);
+
+    fly.style.transform=`translate(${x}px, ${y}px) rotate(${rot}deg) scale(${s})`;
     fly.style.opacity=0.2 + 0.8*p;
 
-    if(p>0.98){
-      scene.classList.add('attached');
-      hint.textContent='இப்போது தயார் • see you soon';
-    }else{
-      scene.classList.remove('attached');
-      hint.textContent='Scroll to watch the earring come closer';
-    }
+    if(p>0.98){ scene.classList.add('attached'); }
+    else { scene.classList.remove('attached'); }
   }
+
   onscroll();
   document.addEventListener('scroll',onscroll,{passive:true});
   window.addEventListener('resize',onscroll);
