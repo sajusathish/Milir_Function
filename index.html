@@ -13,15 +13,16 @@
 :root{
   --ink:#222; --muted:#6b6b6b; --bg:#faf7f2; --card:#fff;
   --marigold:#f2a900; --leaf:#2f9e44; --verm:#d9480f;
+  --gold:#f4c542; --gold2:#bb9a23;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:Poppins,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
-img,canvas{max-width:100%;display:block}
+img,canvas,svg{max-width:100%;display:block}
 .wrap{min-height:100svh;display:grid;place-items:center;padding:16px}
 .card{position:relative;background:var(--card);border:1px solid #00000010;border-radius:22px;max-width:560px;width:100%;padding:18px 18px 24px;box-shadow:0 18px 60px rgba(0,0,0,.08);overflow:hidden}
 
-/* Toran (marigold garland) */
+/* Toran */
 .toran{position:absolute;left:-6%;right:-6%;top:-2px;height:120px;pointer-events:none}
 .string{position:absolute;left:0;right:0;top:22px;height:2px;background:#00000018;border-radius:2px}
 .flowers{position:absolute;left:0;right:0;top:0;display:flex;justify-content:space-between;padding:0 22px}
@@ -52,24 +53,20 @@ img,canvas{max-width:100%;display:block}
 .badge{background:#f6f3ed;border:1px solid #00000010;border-radius:999px;padding:8px 14px;font-size:14px}
 .small{font-size:13px;color:var(--muted);text-align:center}
 
-/* Playful tonsure scene: hair flies away on scroll */
+/* Scenes */
 .scene{border:1px dashed #00000014;border-radius:14px;background:#fff;padding:12px;margin:12px 0;position:relative;overflow:hidden}
 .scene h3{margin:0 0 8px 0;text-align:center;font-weight:800;font-size:16px}
 
-.mottai{position:relative}
-.stack{position:relative;border-radius:14px;overflow:hidden}
-.stack .frame{position:relative;width:100%;aspect-ratio:4/5;background:#fff;overflow:hidden;border:1px solid #00000010;border-radius:14px}
-.stack img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center}
+/* Mottai: scroll crossfade + hair confetti */
+.mottai .frame{position:relative;width:100%;aspect-ratio:4/5;background:#fff;overflow:hidden;border:1px solid #00000010;border-radius:14px}
+.mottai img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center}
 #withHair{opacity:1;transform:translateY(0)}
 #bald{opacity:0}
+#hairConfetti{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none}
 .hint{margin:6px 0 0;text-align:center;font-size:12px;color:var(--muted)}
 
-/* canvas floats above the images */
-#hairConfetti{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none}
-
-/* Ear piercing micro scene (simple, no baby) */
-.pierce{position:relative}
-.pierce .stage{position:relative;border:1px solid #00000010;border-radius:14px;overflow:hidden;background:linear-gradient(180deg,#fff,#fff6f6)}
+/* Ear-piercing mini scene (simple) */
+.pierce .stage{position:relative;border:1px solid #00000010;border-radius:14px;overflow:hidden;background:linear-gradient(180deg,#fff,#fff6f6);aspect-ratio:4/3}
 .jhumka{position:absolute;left:50%;top:8%;transform-origin:50% 12%;transform:translateX(-50%) rotate(-28deg) scale(.92);opacity:0;filter:drop-shadow(0 6px 14px rgba(0,0,0,.12))}
 .swing .jhumka{animation:swingIn 1.15s cubic-bezier(.2,.8,.2,1) forwards}
 @keyframes swingIn{
@@ -85,12 +82,10 @@ img,canvas{max-width:100%;display:block}
 .feet{display:flex;gap:12px;justify-content:center;margin:8px 0 2px;opacity:.8}
 .feet svg{width:30px;height:30px}
 
-/* Actions */
+/* Actions + QR */
 .actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:10px}
 .btn{appearance:none;border:0;background:#111;color:#fff;border-radius:12px;padding:12px 16px;font-weight:700;cursor:pointer;text-decoration:none}
 .btn.ghost{background:#fff;color:#111;border:1px solid #00000020}
-
-/* QR */
 .qr{display:grid;place-items:center;margin-top:10px}
 .qr img{width:132px;height:132px;border-radius:12px;border:1px solid #00000010}
 
@@ -136,23 +131,21 @@ img,canvas{max-width:100%;display:block}
     <span class="badge">🕙 10:00 am</span>
   </section>
 
-  <!-- PLAYFUL TONsure: hair flies away -->
+  <!-- Mottai: playful scroll transition -->
   <section class="scene mottai" id="mottaiScene" aria-label="Mottai">
     <h3>Mottai Ceremony</h3>
-    <div class="stack">
-      <div class="frame" id="frameBox">
-        <img id="withHair" src="assets/baby_with_hair.jpg" alt="Baby with hair">
-        <img id="bald"     src="assets/baby_bald.jpg" alt="Baby after tonsure">
-        <canvas id="hairConfetti"></canvas>
-      </div>
+    <div class="frame" id="frameBox">
+      <img id="withHair" src="assets/baby_with_hair.png" alt="Baby with hair">
+      <img id="bald"     src="assets/bald_baby.png"   alt="Baby after tonsure">
+      <canvas id="hairConfetti"></canvas>
     </div>
     <p class="hint">Scroll to watch the hair float away</p>
   </section>
 
-  <!-- EAR PIERCING mini scene (kept simple; no baby) -->
+  <!-- Ear piercing mini scene -->
   <section class="scene pierce" id="pierceScene" aria-label="Ear Piercing">
     <h3>Ear Piercing</h3>
-    <div class="stage" style="aspect-ratio:4/3; position:relative;">
+    <div class="stage">
       <svg class="jhumka" viewBox="0 0 140 240" width="120" aria-hidden="true">
         <circle cx="70" cy="20" r="12" fill="#f4c542" stroke="#bb9a23" stroke-width="4"/>
         <rect x="68" y="32" width="4" height="72" rx="2" fill="#bb9a23"/>
@@ -205,7 +198,7 @@ const EVENT_ISO = "2025-10-05T10:00:00+05:30";
     const t=document.createElement('div');
     t.className='tile';
     t.innerHTML=`<div class="num">0</div><div class="lbl">${l}</div>`;
-    el.appendChild(t);return t;
+    el.appendChild(t); return t;
   });
   function tick(){
     const now=new Date(), target=new Date(EVENT_ISO);
@@ -260,7 +253,7 @@ END:VCALENDAR`;
   });
 })();
 
-/* Playful Mottai: crossfade + floating hair confetti */
+/* Mottai: crossfade + floating hair confetti */
 (function(){
   const section = document.getElementById('mottaiScene');
   const withHair = document.getElementById('withHair');
@@ -294,10 +287,9 @@ END:VCALENDAR`;
     withHair.style.transform = `translateY(${-12*e}px)`;
     bald.style.opacity = e;
 
-    // emit particles when progress increases
     const dp = Math.max(0, p - lastP);
     if(dp > 0){
-      const emitCount = Math.floor(dp*140); // density
+      const emitCount = Math.floor(dp*140);
       emit(emitCount);
     }
     lastP = p;
@@ -305,7 +297,7 @@ END:VCALENDAR`;
 
   function emit(n){
     const w = canvas.width, h = canvas.height;
-    const headX = w*0.5, headY = h*0.28;   // rough hairline area
+    const headX = w*0.5, headY = h*0.28;   // rough hairline
     for(let i=0;i<n;i++){
       const ang = (Math.random()*0.8 - 0.4) - Math.PI/2;
       const speed = 40 + Math.random()*80;
@@ -314,15 +306,14 @@ END:VCALENDAR`;
         y: headY + (Math.random()*20 - 10),
         vx: Math.cos(ang)*speed*0.008,
         vy: Math.sin(ang)*speed*0.008,
-        g: -0.002 - Math.random()*0.002, // gentle upward drift
+        g: -0.002 - Math.random()*0.002,
         r: 1.5 + Math.random()*2.2,
         rot: Math.random()*Math.PI,
         vr: (Math.random()*2 - 1)*0.06,
         life: 60 + Math.random()*60,
-        hue: 24 + Math.random()*12 // warm brown range
+        hue: 24 + Math.random()*12
       });
     }
-    // cap to avoid overload
     if(particles.length > 300) particles = particles.slice(-300);
   }
 
@@ -338,7 +329,6 @@ END:VCALENDAR`;
       p.rot += p.vr;
       p.life -= 1;
 
-      // draw as tiny curved strand
       ctx.save();
       ctx.translate(p.x,p.y);
       ctx.rotate(p.rot);
