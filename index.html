@@ -14,6 +14,7 @@
   --ink:#222; --muted:#6b6b6b; --bg:#faf7f2; --card:#fff;
   --c1:#ff7eb9; --c2:#ffd166; --c3:#90cdf4; --c4:#95e1d3; --c5:#a29bfe;
   --line:#00000018; --light:#f2f2f2; --light2:#e8e8e8; --border:#dddddd;
+  --bottom-pad: calc(40px + env(safe-area-inset-bottom, 0px));
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
@@ -28,7 +29,12 @@ img,svg,canvas{max-width:100%;display:block}
 
 /* layout */
 .wrap{min-height:100svh;display:grid;place-items:center;padding:16px;position:relative;z-index:2}
-.card{position:relative;background:var(--card);border:1px solid #00000010;border-radius:22px;max-width:560px;width:100%;padding:18px 18px 24px;box-shadow:0 18px 60px rgba(0,0,0,.08);overflow:hidden}
+.card{
+  position:relative;background:var(--card);border:1px solid #00000010;border-radius:22px;
+  max-width:560px;width:100%;
+  padding:18px 18px var(--bottom-pad);
+  box-shadow:0 18px 60px rgba(0,0,0,.08);overflow:hidden
+}
 
 /* decorative corners */
 .corner{position:absolute;width:90px;height:90px;opacity:.25}
@@ -102,11 +108,13 @@ img,svg,canvas{max-width:100%;display:block}
 .btn.light{background:var(--light);color:#111}
 .btn.light:hover{background:var(--light2)}
 .btn.dark{background:#111;color:#fff;border-color:transparent}
-.qr{display:grid;place-items:center;margin-top:10px}
-.qr img{width:132px;height:132px;border-radius:12px;border:1px solid #00000010}
+.qr{display:grid;place-items:center;margin-top:10px;margin-bottom:18px}
 
 /* Footer */
 .footer{text-align:center;color:var(--muted);font-size:12px;margin-top:12px}
+
+/* Extra buffer at page end */
+.buffer{height:72px}
 
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce){
@@ -185,6 +193,9 @@ img,svg,canvas{max-width:100%;display:block}
   </div>
 
   <p class="footer">With love, family and friends</p>
+
+  <!-- end buffer -->
+  <div class="buffer" aria-hidden="true"></div>
 </main>
 </div>
 
@@ -265,17 +276,22 @@ function partiallyVisible(el, margin=6){
   const vh = window.innerHeight || document.documentElement.clientHeight;
   return (r.top < vh - margin) && (r.bottom > margin) && !fullyVisible(el, margin);
 }
-function snapFullyVisible(el, margin=6){
+
+/* smooth snap utility with guard so it doesn't fight user scroll */
+let isSnapping = false;
+function smoothSnapFullyVisible(el, margin=6){
   const r = el.getBoundingClientRect();
-  const targetDelta = r.top - margin;
-  if(Math.abs(targetDelta) > 1){
-    window.scrollBy(0, targetDelta); // immediate snap
-  }
+  const delta = r.top - margin;
+  if(Math.abs(delta) < 1) return;
+  isSnapping = true;
+  window.scrollTo({ top: window.scrollY + delta, left: 0, behavior: 'smooth' });
+  // end snap after it settles
+  setTimeout(()=>{ isSnapping = false; }, 280);
 }
 
 /* Global confetti engine - starts after transition */
 const Confetti = (function(){
-  let started=false, rafId=null, canvas, ctx, W, H, parts;
+  let started=false, canvas, ctx, W, H, parts;
   const colors=['#ff7eb9','#ffd166','#90cdf4','#95e1d3','#a29bfe','#fca5a5','#fcd34d','#c6f6d5'];
   const N=140;
   function size(){ W=canvas.width=window.innerWidth; H=canvas.height=window.innerHeight; }
@@ -299,7 +315,7 @@ const Confetti = (function(){
       ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h); ctx.restore();
       if(p.y>H+24 || p.x<-40 || p.x>W+40 || p.life<=0) resetPiece(p,true);
     }
-    rafId=requestAnimationFrame(loop);
+    requestAnimationFrame(loop);
   }
   function start(){
     if(started) return;
@@ -312,7 +328,7 @@ const Confetti = (function(){
   return { start };
 })();
 
-/* Mottai interaction with pre-lock and pre-hold */
+/* Mottai interaction with pre-lock (fast only), pre-hold, and smooth snap */
 (function(){
   const scene    = document.getElementById('mottaiScene');
   const hairImg  = document.getElementById('withHair');
@@ -326,11 +342,13 @@ const Confetti = (function(){
   let postHold = 0;           // extra scrolls after complete
   const postHoldNeeded = 2;
 
-  // NEW: pre-hold after fully visible before starting transition
+  // pre-hold after fully visible before starting transition
   let preHold = 0;
   const preHoldNeeded = 2;
 
   const margin = 6;
+  const WHEEL_FAST = 80;  // fast swipe threshold for wheel/touchpad
+  const TOUCH_FAST = 24;  // fast swipe threshold in px for touch
 
   function render(){
     const p = Math.max(0, Math.min(1, progress));
@@ -340,31 +358,32 @@ const Confetti = (function(){
   }
   render();
 
-  function approachingDown(){
-    const vh = window.innerHeight || document.documentElement.clientHeight;
-    const topAbs = scene.getBoundingClientRect().top;
-    return topAbs < vh * 0.6; // about to enter view
-  }
-
   function canStart(){ return fullyVisible(scene, margin); }
 
-  function inPreHold(delta){
-    return delta>0 && progress===0 && !completed && fullyVisible(scene, margin) && preHold < preHoldNeeded;
+  function isFast(deltaAbs, isTouch){
+    return isTouch ? (deltaAbs > TOUCH_FAST) : (deltaAbs > WHEEL_FAST);
   }
 
-  function shouldHijack(delta){
-    if(delta>0){
-      // pre-lock: if we're coming in fast, snap to fully visible
-      if(approachingDown() && !fullyVisible(scene, margin)){
-        snapFullyVisible(scene, margin);
-        return true;
-      }
-    }
-    // during pre-hold, we hijack to count the gestures
-    if(inPreHold(delta)) return true;
+  function shouldHijack(delta, isTouch=false){
+    if(isSnapping) return false;
 
-    // normal rules
-    if(!canStart() && !partiallyVisible(scene, margin)) return false;
+    // If partially visible and the user swipes FAST down, smooth-snap then hijack.
+    if(delta>0 && partiallyVisible(scene, margin) && !fullyVisible(scene, margin) && isFast(Math.abs(delta), isTouch)){
+      smoothSnapFullyVisible(scene, margin);
+      return true;
+    }
+
+    // If not fully visible and the user scrolls slowly, don't hijack; let it naturally reach full view.
+    if(!canStart()){
+      return false;
+    }
+
+    // Pre-hold when fully visible and at start
+    if(delta>0 && progress===0 && !completed && preHold < preHoldNeeded){
+      return true; // hijack to count the pre-hold taps
+    }
+
+    // Normal rules when fully visible
     if(completed){
       if(delta>0 && postHold < postHoldNeeded) return true;
       if(delta<0 && progress > 0) return true;
@@ -381,7 +400,7 @@ const Confetti = (function(){
     render();
     if(prev < 1 && progress === 1){
       completed = true; postHold = 0;
-      Confetti.start(); // celebration
+      Confetti.start();
     }
     if(prev === 1 && progress < 1){
       completed = false;
@@ -391,87 +410,83 @@ const Confetti = (function(){
   // wheel
   window.addEventListener('wheel', (e)=>{
     const delta = e.deltaY;
-    if(shouldHijack(delta)){
+    if(shouldHijack(delta, false)){
       e.preventDefault();
 
-      // handle pre-hold first
-      if(inPreHold(delta)){
+      // pre-hold first
+      if(delta>0 && progress===0 && !completed && preHold < preHoldNeeded){
         preHold++;
-        return; // do not advance yet
+        return;
       }
 
       if(delta>0){
-        if(completed){ postHold++; }
-        else{
-          // ensure fully visible before advancing
-          if(!fullyVisible(scene, margin)) snapFullyVisible(scene, margin);
-          onAdvance(stepWheel);
-        }
+        if(completed){ postHold++; } else { onAdvance(stepWheel); }
       }else{
-        // reverse up
         onAdvance(-stepWheel);
       }
     }
   }, {passive:false});
 
   // touch
-  let touchY=null;
+  let touchY=null, lastMoveTime=0;
   window.addEventListener('touchstart', (e)=>{
     touchY = e.touches && e.touches.length ? e.touches[0].clientY : null;
+    lastMoveTime = performance.now();
   }, {passive:true});
   window.addEventListener('touchmove', (e)=>{
     if(touchY===null) return;
     const y = e.touches[0].clientY;
     const dy = touchY - y; // down swipe => positive
     const delta = dy;
-    if(shouldHijack(delta)){
+    const fast = Math.abs(dy);
+    if(shouldHijack(delta, true)){
       e.preventDefault();
 
-      if(inPreHold(delta)){
-        // accumulate pre-hold with touch distance
-        preHold += Math.max(0, Math.abs(dy) * 0.01);
+      // pre-hold for touch: count by distance
+      if(delta>0 && progress===0 && !completed && preHold < preHoldNeeded){
+        preHold += Math.max(0, fast * 0.01);
         if(preHold > preHoldNeeded) preHold = preHoldNeeded;
         touchY = y;
         return;
       }
 
       if(dy>0){
-        if(completed){ postHold += Math.abs(dy)*0.01; }
-        else{
-          if(!fullyVisible(scene, margin)) snapFullyVisible(scene, margin);
-          onAdvance(stepTouch * dy);
-        }
+        if(completed){ postHold += fast*0.01; }
+        else{ onAdvance(stepTouch * dy); }
       }else{
         onAdvance(stepTouch * dy);
       }
     }
     touchY = y;
+    lastMoveTime = performance.now();
   }, {passive:false});
   window.addEventListener('touchend', ()=>{ touchY=null; }, {passive:true});
 
   // keyboard
   window.addEventListener('keydown', (e)=>{
+    // allow natural scroll to bring scene fully visible
     if(!(canStart() || partiallyVisible(scene, margin))) return;
 
     if(e.key==='ArrowDown' || e.key==='PageDown'){
       e.preventDefault();
-      if(!fullyVisible(scene, margin)) { snapFullyVisible(scene, margin); return; }
-
+      if(!canStart()){
+        smoothSnapFullyVisible(scene, margin);
+        return;
+      }
       // pre-hold via keyboard
       if(progress===0 && !completed && preHold < preHoldNeeded){
         preHold++;
         return;
       }
-
       if(completed){
         if(postHold < postHoldNeeded){ postHold++; }
       }else if(progress < 1){
-        onAdvance(stepWheel);
+        onAdvance(0.06); // same as stepWheel
       }
     }
 
     if(e.key==='ArrowUp' || e.key==='PageUp'){
-      if(progress > 0){ e.preventDefault(); onAdvance(-stepWheel); }
+      if(progress > 0){ e.preventDefault(); onAdvance(-0.06); }
     }
   });
 })();
