@@ -10,11 +10,14 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&family=Playfair+Display:wght@600;800&display=swap" rel="stylesheet">
 <style>
-:root{--ink:#222;--muted:#6b6b6b;--bg:#faf7f2;--card:#fff;--marigold:#f2a900;--leaf:#2f9e44;--verm:#d9480f;--gold:#f4c542;--gold2:#bb9a23}
+:root{
+  --ink:#222; --muted:#6b6b6b; --bg:#faf7f2; --card:#fff;
+  --marigold:#f2a900; --leaf:#2f9e44; --verm:#d9480f;
+}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:Poppins,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
-img,svg{max-width:100%;display:block}
+img,canvas{max-width:100%;display:block}
 .wrap{min-height:100svh;display:grid;place-items:center;padding:16px}
 .card{position:relative;background:var(--card);border:1px solid #00000010;border-radius:22px;max-width:560px;width:100%;padding:18px 18px 24px;box-shadow:0 18px 60px rgba(0,0,0,.08);overflow:hidden}
 
@@ -49,26 +52,28 @@ img,svg{max-width:100%;display:block}
 .badge{background:#f6f3ed;border:1px solid #00000010;border-radius:999px;padding:8px 14px;font-size:14px}
 .small{font-size:13px;color:var(--muted);text-align:center}
 
-/* Ceremony micro-scenes - baby free */
-.scene{border:1px dashed #00000014;border-radius:14px;background:#fff;padding:14px;margin:12px 0;position:relative;overflow:hidden}
+/* Playful tonsure scene: hair flies away on scroll */
+.scene{border:1px dashed #00000014;border-radius:14px;background:#fff;padding:12px;margin:12px 0;position:relative;overflow:hidden}
 .scene h3{margin:0 0 8px 0;text-align:center;font-weight:800;font-size:16px}
 
-/* Tonsure: tuft + scissors */
-.tonsure-wrap{position:relative;height:160px}
-.lock{position:absolute;left:18%;top:26%;width:120px;height:120px;border-radius:60px;background:linear-gradient(160deg,#3b2a17,#2b1c0f);box-shadow:0 10px 24px rgba(0,0,0,.15)}
-.clip{position:absolute;left:18%;top:26%;width:120px;height:120px;border-radius:60px;background:linear-gradient(160deg,#4a3621,#2b1c0f);opacity:0}
-.scissors{position:absolute;right:10%;top:6%;width:86px;height:auto;opacity:0;transform:rotate(12deg)}
-.play .scissors{animation:snip 1s ease-out forwards}
-.play .clip{animation:fallHair .9s .45s cubic-bezier(.2,.8,.2,1) forwards}
-@keyframes snip{0%{opacity:0;transform:translate(30px,-30px) rotate(20deg)}30%{opacity:1}70%{transform:translate(-12px,8px) rotate(-10deg)}100%{transform:translate(0,0) rotate(0)}}
-@keyframes fallHair{to{transform:translateY(150px) rotate(-18deg);opacity:1}}
+.mottai{position:relative}
+.stack{position:relative;border-radius:14px;overflow:hidden}
+.stack .frame{position:relative;width:100%;aspect-ratio:4/5;background:#fff;overflow:hidden;border:1px solid #00000010;border-radius:14px}
+.stack img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center}
+#withHair{opacity:1;transform:translateY(0)}
+#bald{opacity:0}
+.hint{margin:6px 0 0;text-align:center;font-size:12px;color:var(--muted)}
 
-/* Ear piercing: long jhumka swing and settle */
-.pierce-wrap{position:relative;height:200px}
-.jhumka{position:absolute;left:50%;top:8%;transform-origin:50% 12%;transform:translateX(-50%) rotate(-28deg) scale(.9);opacity:0;filter:drop-shadow(0 6px 14px rgba(0,0,0,.12))}
+/* canvas floats above the images */
+#hairConfetti{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none}
+
+/* Ear piercing micro scene (simple, no baby) */
+.pierce{position:relative}
+.pierce .stage{position:relative;border:1px solid #00000010;border-radius:14px;overflow:hidden;background:linear-gradient(180deg,#fff,#fff6f6)}
+.jhumka{position:absolute;left:50%;top:8%;transform-origin:50% 12%;transform:translateX(-50%) rotate(-28deg) scale(.92);opacity:0;filter:drop-shadow(0 6px 14px rgba(0,0,0,.12))}
 .swing .jhumka{animation:swingIn 1.15s cubic-bezier(.2,.8,.2,1) forwards}
 @keyframes swingIn{
-  0%{opacity:0;transform:translateX(-50%) rotate(-28deg) scale(.9)}
+  0%{opacity:0;transform:translateX(-50%) rotate(-28deg) scale(.92)}
   70%{opacity:1;transform:translateX(-50%) rotate(6deg) scale(1)}
   100%{opacity:1;transform:translateX(-50%) rotate(0) scale(1)}
 }
@@ -95,7 +100,6 @@ img,svg{max-width:100%;display:block}
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce){
   .flower{animation:none!important}
-  .play .clip,.swing .jhumka,.swing .sparkles{animation:none!important}
 }
 </style>
 </head>
@@ -103,7 +107,7 @@ img,svg{max-width:100%;display:block}
 <div class="wrap">
 <main class="card">
 
-  <!-- decorative corners -->
+  <!-- corners -->
   <svg class="corner tl" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M5 85 Q45 75 55 35 Q65 10 95 5" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/></svg>
   <svg class="corner br" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M5 85 Q45 75 55 35 Q65 10 95 5" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/></svg>
 
@@ -132,24 +136,27 @@ img,svg{max-width:100%;display:block}
     <span class="badge">🕙 10:00 am</span>
   </section>
 
-  <!-- micro-scenes -->
-  <section class="scene" id="sceneTonsure" aria-label="Mottai">
+  <!-- PLAYFUL TONsure: hair flies away -->
+  <section class="scene mottai" id="mottaiScene" aria-label="Mottai">
     <h3>Mottai Ceremony</h3>
-    <div class="tonsure-wrap">
-      <div class="lock" aria-hidden="true"></div>
-      <div class="clip" aria-hidden="true"></div>
-      <img class="scissors" alt="" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'><g fill='none' stroke='%23222' stroke-width='8' stroke-linecap='round'><circle cx='30' cy='30' r='18'/><circle cx='90' cy='30' r='18'/><path d='M30 30 L60 60 L90 30 M30 90 L60 60 L90 90'/></g></svg>"/>
+    <div class="stack">
+      <div class="frame" id="frameBox">
+        <img id="withHair" src="assets/baby_with_hair.jpg" alt="Baby with hair">
+        <img id="bald"     src="assets/baby_bald.jpg" alt="Baby after tonsure">
+        <canvas id="hairConfetti"></canvas>
+      </div>
     </div>
+    <p class="hint">Scroll to watch the hair float away</p>
   </section>
 
-  <section class="scene" id="scenePierce" aria-label="Ear piercing">
+  <!-- EAR PIERCING mini scene (kept simple; no baby) -->
+  <section class="scene pierce" id="pierceScene" aria-label="Ear Piercing">
     <h3>Ear Piercing</h3>
-    <div class="pierce-wrap">
-      <!-- long jhumka -->
-      <svg class="jhumka" viewBox="0 0 140 240" aria-hidden="true">
-        <circle cx="70" cy="20" r="12" fill="var(--gold)" stroke="var(--gold2)" stroke-width="4"/>
-        <rect x="68" y="32" width="4" height="72" rx="2" fill="var(--gold2)"/>
-        <path d="M26 128 q44 -40 88 0 v54 H26z" fill="#ffdfa3" stroke="var(--gold2)" stroke-width="4"/>
+    <div class="stage" style="aspect-ratio:4/3; position:relative;">
+      <svg class="jhumka" viewBox="0 0 140 240" width="120" aria-hidden="true">
+        <circle cx="70" cy="20" r="12" fill="#f4c542" stroke="#bb9a23" stroke-width="4"/>
+        <rect x="68" y="32" width="4" height="72" rx="2" fill="#bb9a23"/>
+        <path d="M26 128 q44 -40 88 0 v54 H26z" fill="#ffdfa3" stroke="#bb9a23" stroke-width="4"/>
         <g>
           <circle cx="36" cy="184" r="6" fill="#ffb6d1" stroke="#e88cb2" stroke-width="3"/>
           <circle cx="56" cy="196" r="6" fill="#ffe38f" stroke="#e0b54f" stroke-width="3"/>
@@ -157,7 +164,6 @@ img,svg{max-width:100%;display:block}
           <circle cx="104" cy="184" r="6" fill="#ffb6d1" stroke="#e88cb2" stroke-width="3"/>
         </g>
       </svg>
-      <!-- sparkle -->
       <svg class="sparkles" viewBox="0 0 100 100" width="86" height="86">
         <g fill="#ffdca8" stroke="#d5ac52" stroke-width="2" opacity=".9">
           <path d="M50 8 L56 28 L72 34 L56 40 L50 60 L44 40 L28 34 L44 28 Z"/>
@@ -192,10 +198,37 @@ img,svg{max-width:100%;display:block}
 const EVENT_ISO = "2025-10-05T10:00:00+05:30";
 
 /* countdown */
-(function(){const el=document.getElementById('countdown');const parts=['Days','Hours','Mins','Secs'];const tiles=parts.map(l=>{const t=document.createElement('div');t.className='tile';t.innerHTML=`<div class="num">0</div><div class="lbl">${l}</div>`;el.appendChild(t);return t});function tick(){const now=new Date();const target=new Date(EVENT_ISO);let diff=target-now;diff=Math.max(0,diff);const s=Math.floor(diff/1000);const d=Math.floor(s/86400);const h=Math.floor((s%86400)/3600);const m=Math.floor((s%3600)/60);const sec=s%60;[d,h,m,sec].forEach((v,i)=>tiles[i].querySelector('.num').textContent=v);if(s===0)clearInterval(int)}const int=setInterval(tick,1000);tick();})();
+(function(){
+  const el=document.getElementById('countdown');
+  const parts=['Days','Hours','Mins','Secs'];
+  const tiles=parts.map(l=>{
+    const t=document.createElement('div');
+    t.className='tile';
+    t.innerHTML=`<div class="num">0</div><div class="lbl">${l}</div>`;
+    el.appendChild(t);return t;
+  });
+  function tick(){
+    const now=new Date(), target=new Date(EVENT_ISO);
+    const s=Math.max(0, Math.floor((target-now)/1000));
+    const d=Math.floor(s/86400);
+    const h=Math.floor((s%86400)/3600);
+    const m=Math.floor((s%3600)/60);
+    const sec=s%60;
+    [d,h,m,sec].forEach((v,i)=>tiles[i].querySelector('.num').textContent=v);
+  }
+  setInterval(tick,1000); tick();
+})();
 
 /* add to calendar */
-(function(){const btn=document.getElementById('addCal');if(!btn)return;btn.addEventListener('click',()=>{const title='Milir | Tonsure & Ear Piercing';const dtStart=new Date(EVENT_ISO);const dtEnd=new Date(dtStart.getTime()+2*60*60*1000);const fmt=d=>d.toISOString().replace(/[-:]/g,'').split('.')[0]+'Z';const ics=`BEGIN:VCALENDAR
+(function(){
+  const btn=document.getElementById('addCal');
+  if(!btn) return;
+  btn.addEventListener('click',()=>{
+    const title='Milir | Tonsure & Ear Piercing';
+    const dtStart=new Date(EVENT_ISO);
+    const dtEnd=new Date(dtStart.getTime()+2*60*60*1000);
+    const fmt=d=>d.toISOString().replace(/[-:]/g,'').split('.')[0]+'Z';
+    const ics=`BEGIN:VCALENDAR
 VERSION:2.0
 BEGIN:VEVENT
 DTSTART:${fmt(dtStart)}
@@ -204,20 +237,134 @@ SUMMARY:${title}
 LOCATION:JC Residency, Madurai
 DESCRIPTION:Join us to bless Milir.
 END:VEVENT
-END:VCALENDAR`;const blob=new Blob([ics],{type:'text/calendar'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='milir-ceremony.ics';a.click();URL.revokeObjectURL(url)});})();
+END:VCALENDAR`;
+    const blob=new Blob([ics],{type:'text/calendar'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a'); a.href=url; a.download='milir-ceremony.ics'; a.click();
+    URL.revokeObjectURL(url);
+  });
+})();
 
 /* share */
-(function(){const btn=document.getElementById('shareBtn');if(!btn)return;btn.addEventListener('click',async()=>{try{if(navigator.share){await navigator.share({title:document.title,text:'Join us on 5 Oct 2025 at JC Residency, Madurai',url:location.href});}else{alert('Copy the link: '+location.href)}}catch{}})} )();
-
-/* play micro-scenes when visible */
 (function(){
-  const tonsure = document.getElementById('sceneTonsure');
-  const pierce  = document.getElementById('scenePierce');
+  const btn=document.getElementById('shareBtn');
+  if(!btn) return;
+  btn.addEventListener('click',async()=>{
+    try{
+      if(navigator.share){
+        await navigator.share({title:document.title,text:'Join us on 5 Oct 2025 at JC Residency, Madurai',url:location.href});
+      }else{
+        alert('Copy the link: '+location.href);
+      }
+    }catch{}
+  });
+})();
 
-  const io1=new IntersectionObserver(([e])=>{ if(e.isIntersecting) tonsure.classList.add('play'); },{threshold:.55});
-  const io2=new IntersectionObserver(([e])=>{ if(e.isIntersecting) pierce.classList.add('swing'); },{threshold:.55});
+/* Playful Mottai: crossfade + floating hair confetti */
+(function(){
+  const section = document.getElementById('mottaiScene');
+  const withHair = document.getElementById('withHair');
+  const bald = document.getElementById('bald');
+  const canvas = document.getElementById('hairConfetti');
+  const frame = document.getElementById('frameBox');
+  if(!section || !withHair || !bald || !canvas || !frame) return;
 
-  io1.observe(tonsure); io2.observe(pierce);
+  const ctx = canvas.getContext('2d');
+  let particles = [];
+  let lastP = 0;
+
+  function resize(){
+    canvas.width = frame.clientWidth;
+    canvas.height = frame.clientHeight;
+  }
+  window.addEventListener('resize', resize, {passive:true});
+  resize();
+
+  function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
+  function ease(t){return t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2}
+
+  function onScroll(){
+    const r = section.getBoundingClientRect();
+    const vh = window.innerHeight || document.documentElement.clientHeight;
+    let p = (vh*0.75 - r.top)/(r.height+vh*0.5);
+    p = clamp(p,0,1);
+    const e = ease(p);
+
+    withHair.style.opacity = 1 - e;
+    withHair.style.transform = `translateY(${-12*e}px)`;
+    bald.style.opacity = e;
+
+    // emit particles when progress increases
+    const dp = Math.max(0, p - lastP);
+    if(dp > 0){
+      const emitCount = Math.floor(dp*140); // density
+      emit(emitCount);
+    }
+    lastP = p;
+  }
+
+  function emit(n){
+    const w = canvas.width, h = canvas.height;
+    const headX = w*0.5, headY = h*0.28;   // rough hairline area
+    for(let i=0;i<n;i++){
+      const ang = (Math.random()*0.8 - 0.4) - Math.PI/2;
+      const speed = 40 + Math.random()*80;
+      particles.push({
+        x: headX + (Math.random()*40 - 20),
+        y: headY + (Math.random()*20 - 10),
+        vx: Math.cos(ang)*speed*0.008,
+        vy: Math.sin(ang)*speed*0.008,
+        g: -0.002 - Math.random()*0.002, // gentle upward drift
+        r: 1.5 + Math.random()*2.2,
+        rot: Math.random()*Math.PI,
+        vr: (Math.random()*2 - 1)*0.06,
+        life: 60 + Math.random()*60,
+        hue: 24 + Math.random()*12 // warm brown range
+      });
+    }
+    // cap to avoid overload
+    if(particles.length > 300) particles = particles.slice(-300);
+  }
+
+  function tick(){
+    requestAnimationFrame(tick);
+    const w = canvas.width, h = canvas.height;
+    ctx.clearRect(0,0,w,h);
+    for(let i=particles.length-1;i>=0;i--){
+      const p = particles[i];
+      p.vy += p.g;
+      p.x += p.vx;
+      p.y += p.vy;
+      p.rot += p.vr;
+      p.life -= 1;
+
+      // draw as tiny curved strand
+      ctx.save();
+      ctx.translate(p.x,p.y);
+      ctx.rotate(p.rot);
+      ctx.fillStyle = `hsl(${p.hue} 40% 35% / ${clamp(p.life/60,0,1)})`;
+      ctx.beginPath();
+      ctx.ellipse(0,0,p.r*1.8,p.r,0,0,Math.PI*2);
+      ctx.fill();
+      ctx.restore();
+
+      if(p.life<=0 || p.y < -20 || p.x<-20 || p.x>w+20) particles.splice(i,1);
+    }
+  }
+  tick();
+
+  document.addEventListener('scroll', onScroll, {passive:true});
+  window.addEventListener('resize', onScroll);
+  onScroll();
+})();
+
+/* Ear Piercing swing when visible */
+(function(){
+  const pierce = document.getElementById('pierceScene');
+  const io = new IntersectionObserver(([e])=>{
+    if(e.isIntersecting){ pierce.classList.add('swing'); }
+  }, {threshold:.55});
+  io.observe(pierce);
 })();
 </script>
 </body>
