@@ -94,8 +94,8 @@ img,svg,canvas{max-width:100%;display:block}
   border-radius:12px;
   padding:12px 16px;
   font-weight:700;
-  font-family:inherit; /* ensure same font on <a> and <button> */
-  line-height:1;       /* normalize */
+  font-family:inherit;
+  line-height:1;
   display:inline-flex; align-items:center; justify-content:center;
   cursor:pointer; text-decoration:none;
 }
@@ -254,11 +254,23 @@ END:VCALENDAR`;
   });
 })();
 
-/* helper */
+/* helpers */
 function fullyVisible(el, margin=6){
   const r = el.getBoundingClientRect();
   const vh = window.innerHeight || document.documentElement.clientHeight;
   return (r.top >= margin) && (r.bottom <= vh - margin);
+}
+function partiallyVisible(el, margin=6){
+  const r = el.getBoundingClientRect();
+  const vh = window.innerHeight || document.documentElement.clientHeight;
+  return (r.top < vh - margin) && (r.bottom > margin) && !fullyVisible(el, margin);
+}
+function snapFullyVisible(el, margin=6){
+  const r = el.getBoundingClientRect();
+  const targetDelta = r.top - margin;
+  if(Math.abs(targetDelta) > 1){
+    window.scrollBy(0, targetDelta); // immediate snap
+  }
 }
 
 /* Global confetti engine - starts after transition */
@@ -300,8 +312,7 @@ const Confetti = (function(){
   return { start };
 })();
 
-/* Mottai interaction: start only when fully visible, hijack during fade,
-   hold 2 more scrolls, confetti starts after completion, reverse on scroll up */
+/* Mottai interaction with pre-lock so fast swipes can't skip */
 (function(){
   const scene    = document.getElementById('mottaiScene');
   const hairImg  = document.getElementById('withHair');
@@ -309,11 +320,12 @@ const Confetti = (function(){
   if(!scene||!hairImg||!baldImg) return;
 
   let progress = 0;           // 0 hair -> 1 bald
-  const stepWheel = 0.04;     // slower: about double the scrolls
-  const stepTouch = 0.0015;   // slower touch
+  const stepWheel = 0.06;     // your requested speed
+  const stepTouch = 0.0022;   // your requested speed
   let completed = false;
   let postHold = 0;           // extra scrolls after complete
   const postHoldNeeded = 2;
+  const margin = 6;
 
   function render(){
     const p = Math.max(0, Math.min(1, progress));
@@ -323,9 +335,24 @@ const Confetti = (function(){
   }
   render();
 
-  function canStart(){ return fullyVisible(scene, 6); }
+  function approachingDown(){
+    const vh = window.innerHeight || document.documentElement.clientHeight;
+    const topAbs = scene.getBoundingClientRect().top;
+    return topAbs < vh * 0.6; // about to enter view
+  }
+
+  function canStart(){ return fullyVisible(scene, margin); }
+
   function shouldHijack(delta){
-    if(!canStart()) return false;
+    if(delta>0){
+      // if we're coming in hot from the top, pre-lock and snap to fully visible
+      if(approachingDown() && !fullyVisible(scene, margin)){
+        snapFullyVisible(scene, margin);
+        return true; // start consuming this gesture
+      }
+    }
+    // normal rules
+    if(!canStart() && !partiallyVisible(scene, margin)) return false;
     if(completed){
       if(delta>0 && postHold < postHoldNeeded) return true;
       if(delta<0 && progress > 0) return true;
@@ -335,13 +362,14 @@ const Confetti = (function(){
     if(delta<0 && progress > 0) return true;
     return false;
   }
+
   function onAdvance(amount){
     const prev = progress;
     progress = Math.max(0, Math.min(1, progress + amount));
     render();
     if(prev < 1 && progress === 1){
       completed = true; postHold = 0;
-      Confetti.start(); // start global confetti after transition
+      Confetti.start(); // celebration
     }
     if(prev === 1 && progress < 1){
       completed = false;
@@ -369,13 +397,17 @@ const Confetti = (function(){
   window.addEventListener('touchmove', (e)=>{
     if(touchY===null) return;
     const y = e.touches[0].clientY;
-    const dy = touchY - y;
+    const dy = touchY - y; // down swipe => positive
     const delta = dy;
     if(shouldHijack(delta)){
       e.preventDefault();
       if(dy>0){
         if(completed){ postHold += Math.abs(dy)*0.01; }
-        else{ onAdvance(stepTouch * dy); }
+        else{
+          // if not fully visible yet, snap before advancing
+          if(!fullyVisible(scene, margin)) snapFullyVisible(scene, margin);
+          onAdvance(stepTouch * dy);
+        }
       }else{
         onAdvance(stepTouch * dy);
       }
@@ -386,8 +418,9 @@ const Confetti = (function(){
 
   // keyboard
   window.addEventListener('keydown', (e)=>{
-    if(!canStart()) return;
+    if(!(canStart() || partiallyVisible(scene, margin))) return;
     if(e.key==='ArrowDown' || e.key==='PageDown'){
+      if(!fullyVisible(scene, margin)) { e.preventDefault(); snapFullyVisible(scene, margin); return; }
       if(completed){
         if(postHold < postHoldNeeded){ e.preventDefault(); postHold++; }
       }else if(progress < 1){
