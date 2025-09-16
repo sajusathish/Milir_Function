@@ -17,7 +17,7 @@
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:Poppins,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
-img,svg{max-width:100%;display:block}
+img,svg,canvas{max-width:100%;display:block}
 .wrap{min-height:100svh;display:grid;place-items:center;padding:16px}
 .card{position:relative;background:var(--card);border:1px solid #00000010;border-radius:22px;max-width:560px;width:100%;padding:18px 18px 24px;box-shadow:0 18px 60px rgba(0,0,0,.08);overflow:hidden}
 
@@ -52,32 +52,18 @@ img,svg{max-width:100%;display:block}
 .badge{background:#f6f3ed;border:1px solid #00000010;border-radius:999px;padding:8px 14px;font-size:14px}
 .small{font-size:13px;color:var(--muted);text-align:center}
 
-/* Scenes */
+/* Scene container */
 .scene{border:1px dashed #00000014;border-radius:14px;background:#fff;padding:12px;margin:12px 0;position:relative;overflow:hidden}
 .scene h3{margin:0 0 8px 0;text-align:center;font-weight:800;font-size:16px}
 
-/* Mottai: crossfade that hijacks scroll while fully visible */
+/* Mottai frame */
 .mottai .frame{position:relative;width:100%;aspect-ratio:4/5;background:#fff;overflow:hidden;border:1px solid #00000010;border-radius:14px}
 .mottai img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;transition:opacity .12s linear, transform .12s linear}
-#withHair{opacity:1;transform:translateY(0)} /* start with hair fully visible */
+#withHair{opacity:1;transform:translateY(0)} /* start fully */
 #bald{opacity:0}
 
-/* Ear-piercing mini scene */
-.pierce .stage{position:relative;border:1px solid #00000010;border-radius:14px;overflow:hidden;background:linear-gradient(180deg,#fff,#fff6f6);aspect-ratio:4/3}
-.jhumka{position:absolute;left:50%;top:8%;transform-origin:50% 12%;transform:translateX(-50%) rotate(-28deg) scale(.92);opacity:0;filter:drop-shadow(0 6px 14px rgba(0,0,0,.12))}
-.swing .jhumka{animation:swingIn 1.15s cubic-bezier(.2,.8,.2,1) forwards}
-@keyframes swingIn{
-  0%{opacity:0;transform:translateX(-50%) rotate(-28deg) scale(.92)}
-  70%{opacity:1;transform:translateX(-50%) rotate(6deg) scale(1)}
-  100%{opacity:1;transform:translateX(-50%) rotate(0) scale(1)}
-}
-.sparkles{position:absolute;left:50%;top:62%;transform:translate(-50%,-50%);opacity:0}
-.swing .sparkles{animation:pop .55s .9s ease-out forwards}
-@keyframes pop{0%{transform:translate(-50%,-50%) scale(.7);opacity:0}60%{transform:translate(-50%,-50%) scale(1.25);opacity:1}100%{transform:translate(-50%,-50%) scale(1);opacity:1}}
-
-/* Footprints */
-.feet{display:flex;gap:12px;justify-content:center;margin:8px 0 2px;opacity:.8}
-.feet svg{width:30px;height:30px}
+/* Confetti canvas overlays the frame */
+#confetti{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none}
 
 /* Actions + QR */
 .actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:10px}
@@ -128,38 +114,13 @@ img,svg{max-width:100%;display:block}
     <span class="badge">🕙 10:00 am</span>
   </section>
 
-  <!-- Mottai crossfade -->
+  <!-- Mottai scene -->
   <section class="scene mottai" id="mottaiScene" aria-label="Mottai">
     <h3>Mottai Ceremony</h3>
     <div class="frame" id="frameBox">
       <img id="withHair" src="assets/baby_with_hair.png" alt="Baby with hair">
       <img id="bald"     src="assets/bald_baby.png"   alt="Baby after tonsure">
-    </div>
-    <p class="hint">Scroll slowly to reveal the tonsure</p>
-  </section>
-
-  <!-- Ear piercing mini scene -->
-  <section class="scene pierce" id="pierceScene" aria-label="Ear Piercing">
-    <h3>Ear Piercing</h3>
-    <div class="stage">
-      <svg class="jhumka" viewBox="0 0 140 240" width="120" aria-hidden="true">
-        <circle cx="70" cy="20" r="12" fill="#f4c542" stroke="#bb9a23" stroke-width="4"/>
-        <rect x="68" y="32" width="4" height="72" rx="2" fill="#bb9a23"/>
-        <path d="M26 128 q44 -40 88 0 v54 H26z" fill="#ffdfa3" stroke="#bb9a23" stroke-width="4"/>
-        <g>
-          <circle cx="36" cy="184" r="6" fill="#ffb6d1" stroke="#e88cb2" stroke-width="3"/>
-          <circle cx="56" cy="196" r="6" fill="#ffe38f" stroke="#e0b54f" stroke-width="3"/>
-          <circle cx="84" cy="196" r="6" fill="#ffe38f" stroke="#e0b54f" stroke-width="3"/>
-          <circle cx="104" cy="184" r="6" fill="#ffb6d1" stroke="#e88cb2" stroke-width="3"/>
-        </g>
-      </svg>
-      <svg class="sparkles" viewBox="0 0 100 100" width="86" height="86">
-        <g fill="#ffdca8" stroke="#d5ac52" stroke-width="2" opacity=".9">
-          <path d="M50 8 L56 28 L72 34 L56 40 L50 60 L44 40 L28 34 L44 28 Z"/>
-          <circle cx="78" cy="60" r="6"/>
-          <circle cx="24" cy="56" r="4"/>
-        </g>
-      </svg>
+      <canvas id="confetti"></canvas>
     </div>
   </section>
 
@@ -253,51 +214,153 @@ END:VCALENDAR`;
 function fullyVisible(el, margin=6){
   const r = el.getBoundingClientRect();
   const vh = window.innerHeight || document.documentElement.clientHeight;
-  const topOk = r.top >= margin;
-  const botOk = r.bottom <= vh - margin;
-  return topOk && botOk;
+  return (r.top >= margin) && (r.bottom <= vh - margin);
 }
 
-/* Mottai: start only when fully visible. While transitioning, hijack scroll globally. */
+/* Confetti engine */
+function confettiBurst(canvas, opts={}){
+  const ctx = canvas.getContext('2d');
+  const w = canvas.width = canvas.clientWidth;
+  const h = canvas.height = canvas.clientHeight;
+  const colors = ['#ff8fb1','#ffd166','#95e1d3','#a29bfe','#fca5a5','#fcd34d'];
+  const count = opts.count || 120;
+  const originX = (opts.x!=null? opts.x : w*0.5);
+  const originY = (opts.y!=null? opts.y : h*0.35);
+  const gravity = 0.12;
+  const drag = 0.008;
+  let parts = [];
+  for(let i=0;i<count;i++){
+    const ang = Math.random()*Math.PI - Math.PI/2; // up left/right
+    const speed = 6 + Math.random()*8;
+    parts.push({
+      x: originX, y: originY,
+      vx: Math.cos(ang)*speed,
+      vy: Math.sin(ang)*speed - 2,
+      w: 4 + Math.random()*3,
+      h: 10 + Math.random()*6,
+      rot: Math.random()*Math.PI, vr: (Math.random()*2-1)*0.15,
+      life: 80 + Math.random()*40,
+      color: colors[Math.floor(Math.random()*colors.length)]
+    });
+  }
+  let rafId;
+  (function tick(){
+    ctx.clearRect(0,0,w,h);
+    for(let i=parts.length-1;i>=0;i--){
+      const p=parts[i];
+      p.vy += gravity;
+      p.vx *= (1-drag);
+      p.vy *= (1-drag*0.6);
+      p.x += p.vx;
+      p.y += p.vy;
+      p.rot += p.vr;
+      p.life -= 1;
+      ctx.save();
+      ctx.translate(p.x,p.y);
+      ctx.rotate(p.rot);
+      ctx.fillStyle = p.color + Math.floor(180+75*Math.random()).toString(16);
+      ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);
+      ctx.restore();
+      if(p.life<=0 || p.y>h+40 || p.x<-40 || p.x>w+40) parts.splice(i,1);
+    }
+    if(parts.length){
+      rafId = requestAnimationFrame(tick);
+    }else{
+      ctx.clearRect(0,0,w,h);
+      cancelAnimationFrame(rafId);
+    }
+  })();
+}
+
+/* Mottai interaction:
+   - start only when frame fully visible
+   - hijack scroll globally while transitioning
+   - after complete, require 2 extra scrolls to move on
+   - confetti burst on completion
+   - reverse on scroll up
+*/
 (function(){
   const scene    = document.getElementById('mottaiScene');
-  const withHair = document.getElementById('withHair');
-  const bald     = document.getElementById('bald');
-  if(!scene || !withHair || !bald) return;
+  const frame    = document.getElementById('frameBox');
+  const hairImg  = document.getElementById('withHair');
+  const baldImg  = document.getElementById('bald');
+  const confetti = document.getElementById('confetti');
+  if(!scene||!frame||!hairImg||!baldImg||!confetti) return;
 
-  let progress = 0;                 // 0 = hair, 1 = bald
-  const stepWheel = 0.08;           // wheel step
-  const stepTouch = 0.003;          // touch sensitivity
-  const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
+  let progress = 0;              // 0 hair -> 1 bald
+  const stepWheel = 0.08;        // per wheel notch
+  const stepTouch = 0.003;       // per touch delta
+  let completed = false;
+  let postHold = 0;              // count of extra scrolls after complete
+  const postHoldNeeded = 2;      // "couple of scrolls"
 
   function render(){
-    const p = clamp(progress,0,1);
-    withHair.style.opacity = 1 - p;
-    withHair.style.transform = `translateY(${(-12*p)}px)`;
-    bald.style.opacity = p;
+    const p = Math.max(0, Math.min(1, progress));
+    hairImg.style.opacity = 1 - p;
+    hairImg.style.transform = `translateY(${(-12*p)}px)`;
+    baldImg.style.opacity = p;
   }
   render();
 
+  function canStart(){
+    // photo must be fully visible to start hijack
+    return fullyVisible(scene, 6);
+  }
+
   function shouldHijack(delta){
-    // Only hijack if the scene is fully visible and we are able to change progress in the scroll direction.
-    if(!fullyVisible(scene)) return false;
-    if(delta > 0 && progress < 1) return true;   // scrolling down and can go toward bald
-    if(delta < 0 && progress > 0) return true;   // scrolling up and can go toward hair
+    if(!canStart()) return false;
+    if(completed){
+      // after finishing, allow two extra scrolls before releasing
+      if(delta>0 && postHold < postHoldNeeded){ return true; }
+      if(delta<0 && progress>0){ return true; } // allow reverse immediately
+      return false;
+    }
+    // during transition
+    if(delta>0 && progress < 1) return true;
+    if(delta<0 && progress > 0) return true;
     return false;
   }
 
-  // Global wheel
+  function onAdvance(amount){
+    const prev = progress;
+    progress = Math.max(0, Math.min(1, progress + amount));
+    render();
+
+    // reached completion
+    if(prev < 1 && progress === 1){
+      completed = true;
+      postHold = 0;
+      // fire confetti
+      confetti.width = frame.clientWidth;
+      confetti.height = frame.clientHeight;
+      confettiBurst(confetti, {count: 140});
+    }
+    // reversed back
+    if(prev === 1 && progress < 1){
+      completed = false;
+    }
+  }
+
+  // Wheel - global
   window.addEventListener('wheel', (e)=>{
     const delta = e.deltaY;
     if(shouldHijack(delta)){
       e.preventDefault();
-      progress = clamp(progress + (delta>0 ? stepWheel : -stepWheel), 0, 1);
-      render();
+      if(delta>0){
+        if(completed){
+          postHold++;
+          // still hold until quota met, do not move page
+        }else{
+          onAdvance(stepWheel);
+        }
+      }else{
+        // reverse up
+        onAdvance(-stepWheel);
+      }
     }
-    // If we are at 0 or 1, do not preventDefault, allow page to continue scrolling.
   }, {passive:false});
 
-  // Global touch
+  // Touch - global
   let touchY=null;
   window.addEventListener('touchstart', (e)=>{
     touchY = e.touches && e.touches.length ? e.touches[0].clientY : null;
@@ -306,38 +369,55 @@ function fullyVisible(el, margin=6){
   window.addEventListener('touchmove', (e)=>{
     if(touchY===null) return;
     const y = e.touches[0].clientY;
-    const dy = touchY - y; // up = positive (like wheel delta > 0)
-    const delta = dy;      // use sign only
+    const dy = touchY - y; // up = positive
+    const delta = dy;
     if(shouldHijack(delta)){
       e.preventDefault();
-      progress = clamp(progress + (dy>0 ? stepTouch*dy : stepTouch*dy), 0, 1);
-      render();
+      if(dy>0){
+        if(completed){
+          postHold += Math.abs(dy)*0.01; // accumulate touch gestures
+        }else{
+          onAdvance(stepTouch * dy);
+        }
+      }else{
+        onAdvance(stepTouch * dy); // negative dy reduces progress
+      }
     }
     touchY = y;
   }, {passive:false});
 
   window.addEventListener('touchend', ()=>{ touchY=null; }, {passive:true});
 
-  // Keyboard for accessibility (only when fully visible)
+  // Keyboard for accessibility
   window.addEventListener('keydown', (e)=>{
-    if(!fullyVisible(scene)) return;
+    if(!canStart()) return;
     if(e.key==='ArrowDown' || e.key==='PageDown'){
-      if(progress < 1){ e.preventDefault(); progress = clamp(progress + stepWheel, 0, 1); render(); }
+      if(completed){
+        if(postHold < postHoldNeeded){ e.preventDefault(); postHold++; }
+      }else if(progress < 1){
+        e.preventDefault(); onAdvance(stepWheel);
+      }
     }
     if(e.key==='ArrowUp' || e.key==='PageUp'){
-      if(progress > 0){ e.preventDefault(); progress = clamp(progress - stepWheel, 0, 1); render(); }
+      if(progress > 0){ e.preventDefault(); onAdvance(-stepWheel); }
     }
+  });
+
+  // Recompute canvas size on resize
+  window.addEventListener('resize', ()=>{
+    confetti.width = frame.clientWidth;
+    confetti.height = frame.clientHeight;
   });
 })();
 
-/* Ear Piercing swing when visible */
-(function(){
-  const pierce = document.getElementById('pierceScene');
-  const io = new IntersectionObserver(([e])=>{
-    if(e.isIntersecting){ pierce.classList.add('swing'); }
-  }, {threshold:.55});
-  io.observe(pierce);
-})();
+/* Ear-piercing section was removed per your request */
+
+/* helper from earlier */
+function fullyVisible(el, margin=6){
+  const r = el.getBoundingClientRect();
+  const vh = window.innerHeight || document.documentElement.clientHeight;
+  return (r.top >= margin) && (r.bottom <= vh - margin);
+}
 </script>
 </body>
 </html>
