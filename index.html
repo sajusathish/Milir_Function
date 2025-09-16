@@ -21,32 +21,23 @@ html,body{height:100%}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:Poppins,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
 img,svg,canvas{max-width:100%;display:block}
 
-/* global confetti on top - starts after transition */
-#confettiGlobal{
-  position:fixed; inset:0; width:100vw; height:100vh; pointer-events:none;
-  z-index:9999; opacity:0; transition:opacity .25s ease;
-}
+/* global confetti on top */
+#confettiGlobal{position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:9999;opacity:0;transition:opacity .25s}
 
 /* layout */
 .wrap{min-height:100svh;display:grid;place-items:center;padding:16px;position:relative;z-index:2}
-.card{
-  position:relative;background:var(--card);border:1px solid #00000010;border-radius:22px;
-  max-width:560px;width:100%;
-  padding:18px 18px var(--bottom-pad);
-  box-shadow:0 18px 60px rgba(0,0,0,.08);overflow:hidden
-}
+.card{position:relative;background:var(--card);border:1px solid #00000010;border-radius:22px;max-width:560px;width:100%;padding:18px 18px var(--bottom-pad);box-shadow:0 18px 60px rgba(0,0,0,.08);overflow:hidden}
 
-/* decorative corners */
+/* corners */
 .corner{position:absolute;width:90px;height:90px;opacity:.25}
 .corner.tl{top:6px;left:6px}
 .corner.br{bottom:6px;right:6px;transform:scale(-1,-1)}
 
-/* PARTY BAR (bunting + balloons) */
+/* party bar */
 .partybar{position:absolute;left:-6%;right:-6%;top:0;height:120px;pointer-events:none;animation:breeze 6.5s ease-in-out infinite}
 .partybar .string{position:absolute;left:0;right:0;top:24px;height:2px;background:var(--line);border-radius:2px}
 .flags{position:absolute;left:0;right:0;top:26px;display:flex;justify-content:space-between;padding:0 20px}
-.flag{width:0;height:0;border-left:18px solid transparent;border-right:18px solid transparent;border-top:28px solid var(--c1);
-  transform-origin:top center;animation:flagSway 4.2s ease-in-out infinite}
+.flag{width:0;height:0;border-left:18px solid transparent;border-right:18px solid transparent;border-top:28px solid var(--c1);transform-origin:top center;animation:flagSway 4.2s ease-in-out infinite}
 .flag:nth-child(2){border-top-color:var(--c2);animation-delay:.2s}
 .flag:nth-child(3){border-top-color:var(--c3);animation-delay:.4s}
 .flag:nth-child(4){border-top-color:var(--c4);animation-delay:.1s}
@@ -58,83 +49,66 @@ img,svg,canvas{max-width:100%;display:block}
 .flag:nth-child(10){border-top-color:var(--c5);animation-delay:.35s}
 .balloons{position:absolute;left:0;right:0;top:-6px;display:flex;justify-content:space-around;padding:0 30px}
 .balloon{width:54px;height:72px;animation:floatBob 5.5s ease-in-out infinite}
-.balloon.f2{animation-duration:6.2s; animation-delay:-.6s}
-.balloon.f3{animation-duration:5.8s; animation-delay:-.2s}
+.balloon.f2{animation-duration:6.2s;animation-delay:-.6s}
+.balloon.f3{animation-duration:5.8s;animation-delay:-.2s}
 .balloon .b{filter:drop-shadow(0 6px 10px rgba(0,0,0,.12))}
 .balloon .s{stroke:#555;stroke-width:2;fill:none;stroke-linecap:round;opacity:.6}
 @keyframes breeze{0%,100%{transform:translateY(0)}50%{transform:translateY(6px)}}
 @keyframes flagSway{0%,100%{transform:rotate(-6deg) translateY(0)}50%{transform:rotate(6deg) translateY(3px)}}
 @keyframes floatBob{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(9px) rotate(1deg)}}
 
-/* Typography */
+/* type */
 .kicker{margin-top:92px;text-align:center;letter-spacing:.14em;text-transform:uppercase;font-size:12px;color:var(--muted)}
 .title{font-family:"Playfair Display",serif;font-weight:800;font-size:clamp(36px,7vw,60px);line-height:1.04;text-align:center;margin:6px 0}
 .sub{font-size:15px;text-align:center;color:#333}
 
-/* Countdown */
+/* countdown */
 .countdown{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:12px 0 4px}
 .tile{min-width:68px;background:#fff;border:1px solid #00000012;border-radius:14px;padding:10px 10px;text-align:center;box-shadow:0 6px 16px rgba(0,0,0,.05)}
 .num{font-size:26px;font-weight:800;font-family:"Playfair Display",serif}
 .lbl{font-size:11px;color:var(--muted)}
 
-/* Details */
+/* details */
 .details{margin:14px auto 10px;display:grid;gap:6px;justify-items:center}
 .badge{background:#f6f3ed;border:1px solid #00000010;border-radius:999px;padding:8px 14px;font-size:14px}
 .small{font-size:13px;color:var(--muted);text-align:center}
 
-/* Scene */
+/* scene */
 .scene{border:1px dashed #00000014;border-radius:14px;background:#fff;padding:12px;margin:12px 0;position:relative;overflow:hidden}
-.scene h3{margin:0 0 8px 0;text-align:center;font-weight:800;font-size:16px}
+.scene h3{margin:0 0 8px;text-align:center;font-weight:800;font-size:16px}
 
-/* Mottai frame */
+/* frame */
 .mottai .frame{position:relative;width:100%;aspect-ratio:4/5;background:#fff;overflow:hidden;border:1px solid #00000010;border-radius:14px}
 .mottai img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;transition:opacity .12s linear, transform .12s linear}
 #withHair{opacity:1;transform:translateY(0)}
 #bald{opacity:0}
 
-/* Actions + QR */
+/* actions + qr */
 .actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:10px}
-.btn{
-  appearance:none; -webkit-appearance:none;
-  border:1px solid var(--border);
-  border-radius:12px;
-  padding:12px 16px;
-  font-weight:700;
-  font-family:inherit;
-  line-height:1;
-  display:inline-flex; align-items:center; justify-content:center;
-  cursor:pointer; text-decoration:none;
-}
+.btn{appearance:none;-webkit-appearance:none;border:1px solid var(--border);border-radius:12px;padding:12px 16px;font-weight:700;font-family:inherit;line-height:1;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;text-decoration:none}
 .btn.light{background:var(--light);color:#111}
 .btn.light:hover{background:var(--light2)}
 .btn.dark{background:#111;color:#fff;border-color:transparent}
 .qr{display:grid;place-items:center;margin-top:10px;margin-bottom:18px}
+.qr img{width:132px;height:132px;border-radius:12px;border:1px solid #00000010}
 
-/* Footer */
+/* footer + buffer */
 .footer{text-align:center;color:var(--muted);font-size:12px;margin-top:12px}
-
-/* Extra buffer at page end */
 .buffer{height:72px}
 
-/* Reduced motion */
-@media (prefers-reduced-motion: reduce){
-  .flag,.balloon,.partybar{animation:none!important}
-}
+/* reduced motion */
+@media (prefers-reduced-motion: reduce){.flag,.balloon,.partybar{animation:none!important}}
 </style>
 </head>
 <body>
-
-<!-- global confetti on top - starts after transition -->
 <canvas id="confettiGlobal" aria-hidden="true"></canvas>
 
 <div class="wrap">
 <main class="card">
 
-  <!-- corners -->
   <svg class="corner tl" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M5 85 Q45 75 55 35 Q65 10 95 5" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/></svg>
   <svg class="corner br" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M5 85 Q45 75 55 35 Q65 10 95 5" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/></svg>
 
-  <!-- party bunting + balloons -->
   <div class="partybar" aria-hidden="true">
     <div class="string"></div>
     <div class="flags">
@@ -143,19 +117,13 @@ img,svg,canvas{max-width:100%;display:block}
     </div>
     <div class="balloons">
       <svg class="balloon f1" viewBox="0 0 80 120" aria-hidden="true">
-        <ellipse class="b" cx="40" cy="38" rx="22" ry="28" fill="#ff7eb9"/>
-        <path d="M40 66 L36 74 L44 74 Z" fill="#ff7eb9"/>
-        <path class="s" d="M40 74 C38 86, 50 96, 40 112" />
+        <ellipse class="b" cx="40" cy="38" rx="22" ry="28" fill="#ff7eb9"/><path d="M40 66 L36 74 L44 74 Z" fill="#ff7eb9"/><path class="s" d="M40 74 C38 86, 50 96, 40 112"/>
       </svg>
       <svg class="balloon f2" viewBox="0 0 80 120" aria-hidden="true">
-        <ellipse class="b" cx="40" cy="38" rx="22" ry="28" fill="#ffd166"/>
-        <path d="M40 66 L36 74 L44 74 Z" fill="#ffd166"/>
-        <path class="s" d="M40 74 C42 90, 30 98, 40 112" />
+        <ellipse class="b" cx="40" cy="38" rx="22" ry="28" fill="#ffd166"/><path d="M40 66 L36 74 L44 74 Z" fill="#ffd166"/><path class="s" d="M40 74 C42 90, 30 98, 40 112"/>
       </svg>
       <svg class="balloon f3" viewBox="0 0 80 120" aria-hidden="true">
-        <ellipse class="b" cx="40" cy="38" rx="22" ry="28" fill="#90cdf4"/>
-        <path d="M40 66 L36 74 L44 74 Z" fill="#90cdf4"/>
-        <path class="s" d="M40 74 C36 86, 48 98, 40 112" />
+        <ellipse class="b" cx="40" cy="38" rx="22" ry="28" fill="#90cdf4"/><path d="M40 66 L36 74 L44 74 Z" fill="#90cdf4"/><path class="s" d="M40 74 C36 86, 48 98, 40 112"/>
       </svg>
     </div>
   </div>
@@ -172,12 +140,11 @@ img,svg,canvas{max-width:100%;display:block}
     <span class="badge">🕙 10:00 am</span>
   </section>
 
-  <!-- Mottai scene -->
   <section class="scene mottai" id="mottaiScene" aria-label="Mottai">
     <h3>Mottai & Kathukuthu Thiruvizha</h3>
     <div class="frame" id="frameBox">
       <img id="withHair" src="assets/baby_with_hair.png" alt="Baby with hair">
-      <img id="bald"     src="assets/bald_baby.png"   alt="Baby after tonsure">
+      <img id="bald" src="assets/bald_baby.png" alt="Baby after tonsure">
     </div>
   </section>
 
@@ -193,32 +160,22 @@ img,svg,canvas{max-width:100%;display:block}
   </div>
 
   <p class="footer">With love, family and friends</p>
-
-  <!-- end buffer -->
   <div class="buffer" aria-hidden="true"></div>
 </main>
 </div>
 
 <script>
-const EVENT_ISO = "2025-10-05T10:00:00+05:30";
+const EVENT_ISO="2025-10-05T10:00:00+05:30";
 
 /* countdown */
 (function(){
   const el=document.getElementById('countdown');
   const parts=['Days','Hours','Mins','Secs'];
-  const tiles=parts.map(l=>{
-    const t=document.createElement('div');
-    t.className='tile';
-    t.innerHTML=`<div class="num">0</div><div class="lbl">${l}</div>`;
-    el.appendChild(t); return t;
-  });
+  const tiles=parts.map(l=>{const t=document.createElement('div');t.className='tile';t.innerHTML=`<div class="num">0</div><div class="lbl">${l}</div>`;el.appendChild(t);return t});
   function tick(){
     const now=new Date(), target=new Date(EVENT_ISO);
-    const s=Math.max(0, Math.floor((target-now)/1000));
-    const d=Math.floor(s/86400);
-    const h=Math.floor((s%86400)/3600);
-    const m=Math.floor((s%3600)/60);
-    const sec=s%60;
+    const s=Math.max(0,Math.floor((target-now)/1000));
+    const d=Math.floor(s/86400), h=Math.floor((s%86400)/3600), m=Math.floor((s%3600)/60), sec=s%60;
     [d,h,m,sec].forEach((v,i)=>tiles[i].querySelector('.num').textContent=v);
   }
   setInterval(tick,1000); tick();
@@ -226,8 +183,7 @@ const EVENT_ISO = "2025-10-05T10:00:00+05:30";
 
 /* add to calendar */
 (function(){
-  const btn=document.getElementById('addCal');
-  if(!btn) return;
+  const btn=document.getElementById('addCal'); if(!btn) return;
   btn.addEventListener('click',()=>{
     const title="Milir's | Tonsure & Ear Piercing";
     const dtStart=new Date(EVENT_ISO);
@@ -252,241 +208,154 @@ END:VCALENDAR`;
 
 /* share */
 (function(){
-  const btn=document.getElementById('shareBtn');
-  if(!btn) return;
+  const btn=document.getElementById('shareBtn'); if(!btn) return;
   btn.addEventListener('click',async()=>{
     try{
       if(navigator.share){
         await navigator.share({title:document.title,text:"Join us on 5 Oct 2025 at JC Residency, Madurai",url:location.href});
-      }else{
-        alert('Copy the link: '+location.href);
-      }
+      }else{ alert('Copy the link: '+location.href); }
     }catch{}
   });
 })();
 
 /* helpers */
 function fullyVisible(el, margin=6){
-  const r = el.getBoundingClientRect();
-  const vh = window.innerHeight || document.documentElement.clientHeight;
-  return (r.top >= margin) && (r.bottom <= vh - margin);
-}
-function partiallyVisible(el, margin=6){
-  const r = el.getBoundingClientRect();
-  const vh = window.innerHeight || document.documentElement.clientHeight;
-  return (r.top < vh - margin) && (r.bottom > margin) && !fullyVisible(el, margin);
+  const r=el.getBoundingClientRect(); const vh=window.innerHeight||document.documentElement.clientHeight;
+  return (r.top>=margin)&&(r.bottom<=vh-margin);
 }
 
-/* smooth snap utility with guard so it doesn't fight user scroll */
-let isSnapping = false;
-function smoothSnapFullyVisible(el, margin=6){
-  const r = el.getBoundingClientRect();
-  const delta = r.top - margin;
-  if(Math.abs(delta) < 1) return;
-  isSnapping = true;
-  window.scrollTo({ top: window.scrollY + delta, left: 0, behavior: 'smooth' });
-  // end snap after it settles
-  setTimeout(()=>{ isSnapping = false; }, 280);
-}
-
-/* Global confetti engine - starts after transition */
-const Confetti = (function(){
-  let started=false, canvas, ctx, W, H, parts;
+/* confetti */
+const Confetti=(function(){
+  let started=false,canvas,ctx,W,H,parts;
   const colors=['#ff7eb9','#ffd166','#90cdf4','#95e1d3','#a29bfe','#fca5a5','#fcd34d','#c6f6d5'];
   const N=140;
-  function size(){ W=canvas.width=window.innerWidth; H=canvas.height=window.innerHeight; }
-  function resetPiece(p, fromTop){
-    p.x=Math.random()*W;
-    p.y=fromTop?(-20 - Math.random()*H*0.3):(Math.random()*H);
-    p.w=4+Math.random()*3; p.h=10+Math.random()*6;
-    p.color=colors[Math.floor(Math.random()*colors.length)];
-    p.vx=(Math.random()*2-1)*0.6; p.vy=1.2+Math.random()*1.6;
-    p.rot=Math.random()*Math.PI; p.vr=(Math.random()*2-1)*0.04;
-    p.swing=Math.random()*0.8+0.2; p.life=300+Math.random()*300;
-  }
+  function size(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight}
+  function reset(p,fromTop){p.x=Math.random()*W;p.y=fromTop?(-20-Math.random()*H*0.3):(Math.random()*H);p.w=4+Math.random()*3;p.h=10+Math.random()*6;p.color=colors[Math.floor(Math.random()*colors.length)];p.vx=(Math.random()*2-1)*0.6;p.vy=1.2+Math.random()*1.6;p.rot=Math.random()*Math.PI;p.vr=(Math.random()*2-1)*0.04;p.swing=Math.random()*0.8+0.2;p.life=300+Math.random()*300}
   function loop(){
-    if(!started) return;
+    if(!started)return;
     ctx.clearRect(0,0,W,H);
     const t=performance.now()*0.001;
     for(let i=0;i<parts.length;i++){
-      const p=parts[i]; p.life-=1;
-      p.x += p.vx + Math.sin(t+i)*p.swing*0.3; p.y += p.vy; p.rot += p.vr;
-      ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot); ctx.fillStyle=p.color;
-      ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h); ctx.restore();
-      if(p.y>H+24 || p.x<-40 || p.x>W+40 || p.life<=0) resetPiece(p,true);
+      const p=parts[i]; p.life-=1; p.x+=p.vx+Math.sin(t+i)*p.swing*0.3; p.y+=p.vy; p.rot+=p.vr;
+      ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot);ctx.fillStyle=p.color;ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);ctx.restore();
+      if(p.y>H+24||p.x<-40||p.x>W+40||p.life<=0) reset(p,true);
     }
     requestAnimationFrame(loop);
   }
   function start(){
-    if(started) return;
-    canvas=document.getElementById('confettiGlobal'); if(!canvas) return;
+    if(started)return;
+    canvas=document.getElementById('confettiGlobal'); if(!canvas)return;
     ctx=canvas.getContext('2d'); size();
-    parts=new Array(N).fill(0).map(()=>{const p={}; resetPiece(p,false); return p;});
-    window.addEventListener('resize', size);
+    parts=new Array(N).fill(0).map(()=>{const p={};reset(p,false);return p});
+    window.addEventListener('resize',size);
     started=true; canvas.style.opacity=1; loop();
   }
-  return { start };
+  return {start};
 })();
 
-/* Mottai interaction with pre-lock (fast only), pre-hold, and smooth snap */
+/* interaction: no snap, only when fully visible */
 (function(){
-  const scene    = document.getElementById('mottaiScene');
-  const hairImg  = document.getElementById('withHair');
-  const baldImg  = document.getElementById('bald');
-  if(!scene||!hairImg||!baldImg) return;
+  const scene=document.getElementById('mottaiScene');
+  const hair=document.getElementById('withHair');
+  const bald=document.getElementById('bald');
+  if(!scene||!hair||!bald) return;
 
-  let progress = 0;           // 0 hair -> 1 bald
-  const stepWheel = 0.06;     // requested speed
-  const stepTouch = 0.0022;   // requested speed
-  let completed = false;
-  let postHold = 0;           // extra scrolls after complete
-  const postHoldNeeded = 2;
+  let progress=0;                 // 0 hair -> 1 bald
+  const stepWheel=0.06;           // requested speed
+  const stepTouch=0.0022;         // requested speed
+  let completed=false;
+  let postHold=0;
+  const postHoldNeeded=2;
 
-  // pre-hold after fully visible before starting transition
-  let preHold = 0;
-  const preHoldNeeded = 2;
-
-  const margin = 6;
-  const WHEEL_FAST = 80;  // fast swipe threshold for wheel/touchpad
-  const TOUCH_FAST = 24;  // fast swipe threshold in px for touch
+  let preHold=0;
+  const preHoldNeeded=2;
 
   function render(){
-    const p = Math.max(0, Math.min(1, progress));
-    hairImg.style.opacity = 1 - p;
-    hairImg.style.transform = `translateY(${(-12*p)}px)`;
-    baldImg.style.opacity = p;
+    const p=Math.max(0,Math.min(1,progress));
+    hair.style.opacity=1-p;
+    hair.style.transform=`translateY(${(-12*p)}px)`;
+    bald.style.opacity=p;
   }
   render();
 
-  function canStart(){ return fullyVisible(scene, margin); }
+  function shouldHijack(delta){
+    // Only act when the scene is fully visible. No snap, no partial hijack.
+    if(!fullyVisible(scene,6)) return false;
 
-  function isFast(deltaAbs, isTouch){
-    return isTouch ? (deltaAbs > TOUCH_FAST) : (deltaAbs > WHEEL_FAST);
-  }
+    // Pre-hold at the start
+    if(delta>0 && progress===0 && !completed && preHold<preHoldNeeded) return true;
 
-  function shouldHijack(delta, isTouch=false){
-    if(isSnapping) return false;
-
-    // If partially visible and the user swipes FAST down, smooth-snap then hijack.
-    if(delta>0 && partiallyVisible(scene, margin) && !fullyVisible(scene, margin) && isFast(Math.abs(delta), isTouch)){
-      smoothSnapFullyVisible(scene, margin);
-      return true;
-    }
-
-    // If not fully visible and the user scrolls slowly, don't hijack; let it naturally reach full view.
-    if(!canStart()){
-      return false;
-    }
-
-    // Pre-hold when fully visible and at start
-    if(delta>0 && progress===0 && !completed && preHold < preHoldNeeded){
-      return true; // hijack to count the pre-hold taps
-    }
-
-    // Normal rules when fully visible
     if(completed){
-      if(delta>0 && postHold < postHoldNeeded) return true;
-      if(delta<0 && progress > 0) return true;
+      if(delta>0 && postHold<postHoldNeeded) return true;
+      if(delta<0 && progress>0) return true;
       return false;
     }
-    if(delta>0 && progress < 1) return true;
-    if(delta<0 && progress > 0) return true;
+    if(delta>0 && progress<1) return true;
+    if(delta<0 && progress>0) return true;
     return false;
   }
 
   function onAdvance(amount){
-    const prev = progress;
-    progress = Math.max(0, Math.min(1, progress + amount));
+    const prev=progress;
+    progress=Math.max(0,Math.min(1,progress+amount));
     render();
-    if(prev < 1 && progress === 1){
-      completed = true; postHold = 0;
-      Confetti.start();
-    }
-    if(prev === 1 && progress < 1){
-      completed = false;
-    }
+    if(prev<1 && progress===1){ completed=true; postHold=0; Confetti.start(); }
+    if(prev===1 && progress<1){ completed=false; }
   }
 
   // wheel
-  window.addEventListener('wheel', (e)=>{
-    const delta = e.deltaY;
-    if(shouldHijack(delta, false)){
+  window.addEventListener('wheel',(e)=>{
+    const d=e.deltaY;
+    if(shouldHijack(d)){
       e.preventDefault();
-
-      // pre-hold first
-      if(delta>0 && progress===0 && !completed && preHold < preHoldNeeded){
-        preHold++;
-        return;
-      }
-
-      if(delta>0){
+      if(d>0){
+        if(progress===0 && !completed && preHold<preHoldNeeded){ preHold++; return; }
         if(completed){ postHold++; } else { onAdvance(stepWheel); }
       }else{
         onAdvance(-stepWheel);
       }
     }
-  }, {passive:false});
+  },{passive:false});
 
   // touch
-  let touchY=null, lastMoveTime=0;
-  window.addEventListener('touchstart', (e)=>{
-    touchY = e.touches && e.touches.length ? e.touches[0].clientY : null;
-    lastMoveTime = performance.now();
-  }, {passive:true});
-  window.addEventListener('touchmove', (e)=>{
+  let touchY=null;
+  window.addEventListener('touchstart',(e)=>{
+    touchY=e.touches&&e.touches.length?e.touches[0].clientY:null;
+  },{passive:true});
+  window.addEventListener('touchmove',(e)=>{
     if(touchY===null) return;
-    const y = e.touches[0].clientY;
-    const dy = touchY - y; // down swipe => positive
-    const delta = dy;
-    const fast = Math.abs(dy);
-    if(shouldHijack(delta, true)){
+    const y=e.touches[0].clientY;
+    const dy=touchY-y; // down positive
+    if(shouldHijack(dy)){
       e.preventDefault();
-
-      // pre-hold for touch: count by distance
-      if(delta>0 && progress===0 && !completed && preHold < preHoldNeeded){
-        preHold += Math.max(0, fast * 0.01);
-        if(preHold > preHoldNeeded) preHold = preHoldNeeded;
-        touchY = y;
-        return;
-      }
-
       if(dy>0){
-        if(completed){ postHold += fast*0.01; }
-        else{ onAdvance(stepTouch * dy); }
+        if(progress===0 && !completed && preHold<preHoldNeeded){
+          preHold+=Math.max(0,Math.abs(dy)*0.01);
+          if(preHold>preHoldNeeded) preHold=preHoldNeeded;
+          touchY=y;
+          return;
+        }
+        if(completed){ postHold+=Math.abs(dy)*0.01; }
+        else{ onAdvance(stepTouch*dy); }
       }else{
-        onAdvance(stepTouch * dy);
+        onAdvance(stepTouch*dy);
       }
     }
-    touchY = y;
-    lastMoveTime = performance.now();
-  }, {passive:false});
-  window.addEventListener('touchend', ()=>{ touchY=null; }, {passive:true});
+    touchY=y;
+  },{passive:false});
+  window.addEventListener('touchend',()=>{touchY=null},{passive:true});
 
   // keyboard
-  window.addEventListener('keydown', (e)=>{
-    // allow natural scroll to bring scene fully visible
-    if(!(canStart() || partiallyVisible(scene, margin))) return;
-
-    if(e.key==='ArrowDown' || e.key==='PageDown'){
+  window.addEventListener('keydown',(e)=>{
+    if(!fullyVisible(scene,6)) return;
+    if(e.key==='ArrowDown'||e.key==='PageDown'){
       e.preventDefault();
-      if(!canStart()){
-        smoothSnapFullyVisible(scene, margin);
-        return;
-      }
-      // pre-hold via keyboard
-      if(progress===0 && !completed && preHold < preHoldNeeded){
-        preHold++;
-        return;
-      }
-      if(completed){
-        if(postHold < postHoldNeeded){ postHold++; }
-      }else if(progress < 1){
-        onAdvance(0.06); // same as stepWheel
-      }
+      if(progress===0 && !completed && preHold<preHoldNeeded){ preHold++; return; }
+      if(completed){ if(postHold<postHoldNeeded) postHold++; }
+      else if(progress<1){ onAdvance(0.06); }
     }
-
-    if(e.key==='ArrowUp' || e.key==='PageUp'){
-      if(progress > 0){ e.preventDefault(); onAdvance(-0.06); }
+    if(e.key==='ArrowUp'||e.key==='PageUp'){
+      if(progress>0){ e.preventDefault(); onAdvance(-0.06); }
     }
   });
 })();
