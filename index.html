@@ -15,10 +15,11 @@
   --c1:#ff7eb9; --c2:#ffd166; --c3:#90cdf4; --c4:#95e1d3; --c5:#a29bfe;
   --line:#00000018; --light:#f2f2f2; --light2:#e8e8e8; --border:#dddddd;
   --bottom-pad: calc(40px + env(safe-area-inset-bottom, 0px));
+  --frame-pad: 10px; /* visual buffer so hair isn’t cropped */
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
-html,body{overscroll-behavior-y: contain} /* reduce fling skipping */
+html,body{overscroll-behavior-y: contain}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:Poppins,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
 img,svg,canvas{max-width:100%;display:block}
 
@@ -78,9 +79,20 @@ img,svg,canvas{max-width:100%;display:block}
 .scene{border:1px dashed #00000014;border-radius:14px;background:#fff;padding:12px;margin:12px 0;position:relative;overflow:hidden}
 .scene h3{margin:0 0 8px;text-align:center;font-weight:800;font-size:16px}
 
-/* frame */
-.mottai .frame{position:relative;width:100%;aspect-ratio:4/5;background:#fff;overflow:hidden;border:1px solid #00000010;border-radius:14px}
-.mottai img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;transition:opacity .12s linear, transform .12s linear}
+/* frame (use full image height, keep buffer via inset) */
+.mottai .frame{
+  position:relative;width:100%;aspect-ratio:4/5;background:#fff;overflow:hidden;
+  border:1px solid #00000010;border-radius:14px;
+}
+.mottai img{
+  position:absolute;
+  inset: var(--frame-pad) var(--frame-pad);
+  width:calc(100% - var(--frame-pad)*2);
+  height:calc(100% - var(--frame-pad)*2);
+  object-fit:contain;           /* fit to height with buffer */
+  object-position:center;
+  transition:opacity .12s linear, transform .12s linear;
+}
 #withHair{opacity:1;transform:translateY(0)}
 #bald{opacity:0}
 
@@ -107,8 +119,8 @@ img,svg,canvas{max-width:100%;display:block}
 <div class="wrap">
 <main class="card">
 
-  <svg class="corner tl" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M5 85 Q45 75 55 35 Q65 10 95 5" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/></svg>
-  <svg class="corner br" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M5 85 Q45 75 55 35 Q65 10 95 5" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/></svg>
+  <svg class="corner tl" viewBox="0 0 100 100"><path d="M5 85 Q45 75 55 35 Q65 10 95 5" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/></svg>
+  <svg class="corner br" viewBox="0 0 100 100"><path d="M5 85 Q45 75 55 35 Q65 10 95 5" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/></svg>
 
   <div class="partybar" aria-hidden="true">
     <div class="string"></div>
@@ -144,8 +156,8 @@ img,svg,canvas{max-width:100%;display:block}
   <section class="scene mottai" id="mottaiScene" aria-label="Mottai">
     <h3>Mottai & Kathukuthu Thiruvizha</h3>
     <div class="frame" id="frameBox">
-      <img id="withHair" src="assets/baby_with_hair.png" alt="Baby with hair">
-      <img id="bald" src="assets/bald_baby.png" alt="Baby after tonsure">
+      <img id="withHair" src="./assets/baby_with_hair.png" alt="Baby with hair">
+      <img id="bald" src="./assets/bald_baby.png" alt="Baby after tonsure">
     </div>
   </section>
 
@@ -220,6 +232,14 @@ END:VCALENDAR`;
 })();
 
 /* utils */
+function visibilityRatio(el){
+  const r=el.getBoundingClientRect();
+  const vh=window.innerHeight||document.documentElement.clientHeight;
+  const topClamped=Math.max(r.top,0);
+  const bottomClamped=Math.min(r.bottom,vh);
+  const visibleH=Math.max(0,bottomClamped-topClamped);
+  return Math.min(1, Math.max(0, visibleH / Math.max(1,r.height)));
+}
 function fullyVisible(el, margin=6){
   const r=el.getBoundingClientRect(); const vh=window.innerHeight||document.documentElement.clientHeight;
   return (r.top>=margin)&&(r.bottom<=vh-margin);
@@ -254,7 +274,7 @@ const Confetti=(function(){
   return {start};
 })();
 
-/* interaction: global capture window when scene becomes fully visible */
+/* interaction: viewport-ratio driven capture window, global wheel/touch */
 (function(){
   const scene=document.getElementById('mottaiScene');
   const hair=document.getElementById('withHair');
@@ -262,16 +282,16 @@ const Confetti=(function(){
   if(!scene||!hair||!bald) return;
 
   let progress=0;                 // 0 hair -> 1 bald
-  const stepWheel=0.06;           // speed
-  const stepTouch=0.0022;         // speed
+  const stepWheel=0.06;
+  const stepTouch=0.0022;
   let completed=false;
 
   let postHold=0, postHoldNeeded=2;
   let preHold=0,  preHoldNeeded=2;
 
-  // NEW: capture window in ms after scene first becomes fully visible
+  // capture when the scene is essentially fully visible regardless of pointer
   let captureUntil=0;
-  let wasFullyVisible=false;
+  let lastVis=0;
 
   function render(){
     const p=Math.max(0,Math.min(1,progress));
@@ -281,32 +301,32 @@ const Confetti=(function(){
   }
   render();
 
-  // watch scroll to arm capture window
-  window.addEventListener('scroll', ()=>{
-    const fv=fullyVisible(scene,6);
-    if(fv && !wasFullyVisible){
-      captureUntil=performance.now()+450; // capture for ~0.45s
-      preHold=0; // start pre-hold fresh each time it fully enters
+  // arm the capture window as soon as visibility >= 0.98
+  function checkCapture(){
+    const vis=visibilityRatio(scene);
+    if(vis>=0.98 && lastVis<0.98){
+      captureUntil=performance.now()+600; // short window
+      preHold=0; // fresh pre-hold each time we fully enter
     }
-    wasFullyVisible=fv;
-  }, {passive:true});
+    lastVis=vis;
+  }
+  document.addEventListener('scroll', checkCapture, {passive:true});
+  window.addEventListener('resize', checkCapture, {passive:true});
+  checkCapture();
 
   function canCapture(){
-    const now=performance.now();
-    return fullyVisible(scene,6) && now<=captureUntil;
+    return performance.now()<=captureUntil && visibilityRatio(scene)>=0.98;
   }
 
   function shouldHijack(delta){
-    // If within capture window, always hijack regardless of where the swipe started
+    // during capture window always hijack
     if(canCapture()) return true;
 
-    // Outside capture window, only when fully visible
+    // otherwise only when fully visible
     if(!fullyVisible(scene,6)) return false;
 
-    // Pre-hold at start
+    // handle pre/post holds and normal progression
     if(delta>0 && progress===0 && !completed && preHold<preHoldNeeded) return true;
-
-    // Normal rules
     if(completed){
       if(delta>0 && postHold<postHoldNeeded) return true;
       if(delta<0 && progress>0) return true;
@@ -325,15 +345,13 @@ const Confetti=(function(){
     if(prev===1 && progress<1){ completed=false; }
   }
 
-  // wheel
+  // wheel (global)
   window.addEventListener('wheel',(e)=>{
     const d=e.deltaY;
     if(shouldHijack(d)){
       e.preventDefault();
-      // during capture window, consume the first 2 down-scrolls as pre-hold if at start
       if((canCapture() || (d>0 && progress===0)) && preHold<preHoldNeeded){
-        preHold++;
-        return;
+        preHold++; return;
       }
       if(d>0){
         if(completed){ postHold++; } else { onAdvance(stepWheel); }
@@ -343,7 +361,7 @@ const Confetti=(function(){
     }
   },{passive:false});
 
-  // touch
+  // touch (global)
   let touchY=null;
   window.addEventListener('touchstart',(e)=>{
     touchY=e.touches&&e.touches.length?e.touches[0].clientY:null;
@@ -357,8 +375,7 @@ const Confetti=(function(){
       if((canCapture() || (dy>0 && progress===0)) && preHold<preHoldNeeded){
         preHold+=Math.max(0,Math.abs(dy)*0.01);
         if(preHold>preHoldNeeded) preHold=preHoldNeeded;
-        touchY=y;
-        return;
+        touchY=y; return;
       }
       if(dy>0){
         if(completed){ postHold+=Math.abs(dy)*0.01; }
@@ -373,7 +390,7 @@ const Confetti=(function(){
 
   // keyboard
   window.addEventListener('keydown',(e)=>{
-    if(!fullyVisible(scene,6)) return;
+    if(visibilityRatio(scene)<0.98) return;
     if(e.key==='ArrowDown'||e.key==='PageDown'){
       e.preventDefault();
       if(preHold<preHoldNeeded){ preHold++; return; }
