@@ -18,7 +18,19 @@
 html,body{height:100%}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:Poppins,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
 img,svg,canvas{max-width:100%;display:block}
-.wrap{min-height:100svh;display:grid;place-items:center;padding:16px}
+
+/* global confetti canvas */
+#confettiGlobal{
+  position:fixed;
+  inset:0;
+  width:100vw;
+  height:100vh;
+  pointer-events:none;
+  z-index:1; /* above background, below content */
+}
+
+/* layout */
+.wrap{min-height:100svh;display:grid;place-items:center;padding:16px;position:relative;z-index:2}
 .card{position:relative;background:var(--card);border:1px solid #00000010;border-radius:22px;max-width:560px;width:100%;padding:18px 18px 24px;box-shadow:0 18px 60px rgba(0,0,0,.08);overflow:hidden}
 
 /* Toran */
@@ -52,18 +64,15 @@ img,svg,canvas{max-width:100%;display:block}
 .badge{background:#f6f3ed;border:1px solid #00000010;border-radius:999px;padding:8px 14px;font-size:14px}
 .small{font-size:13px;color:var(--muted);text-align:center}
 
-/* Scene container */
+/* Scene */
 .scene{border:1px dashed #00000014;border-radius:14px;background:#fff;padding:12px;margin:12px 0;position:relative;overflow:hidden}
 .scene h3{margin:0 0 8px 0;text-align:center;font-weight:800;font-size:16px}
 
 /* Mottai frame */
 .mottai .frame{position:relative;width:100%;aspect-ratio:4/5;background:#fff;overflow:hidden;border:1px solid #00000010;border-radius:14px}
 .mottai img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;transition:opacity .12s linear, transform .12s linear}
-#withHair{opacity:1;transform:translateY(0)} /* start fully */
+#withHair{opacity:1;transform:translateY(0)}
 #bald{opacity:0}
-
-/* Confetti canvas overlays the frame */
-#confetti{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none}
 
 /* Actions + QR */
 .actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:10px}
@@ -82,6 +91,10 @@ img,svg,canvas{max-width:100%;display:block}
 </style>
 </head>
 <body>
+
+<!-- global confetti that loops forever -->
+<canvas id="confettiGlobal" aria-hidden="true"></canvas>
+
 <div class="wrap">
 <main class="card">
 
@@ -120,14 +133,8 @@ img,svg,canvas{max-width:100%;display:block}
     <div class="frame" id="frameBox">
       <img id="withHair" src="assets/baby_with_hair.png" alt="Baby with hair">
       <img id="bald"     src="assets/bald_baby.png"   alt="Baby after tonsure">
-      <canvas id="confetti"></canvas>
     </div>
   </section>
-
-  <div class="feet" aria-hidden="true">
-    <svg viewBox="0 0 24 24"><path d="M6 12c-1.8 0-3-.9-3-2.6 0-1.5 1-3.3 2.4-4.1C7.3 4 9 5.5 9 7.4 9 9.7 7.6 12 6 12Z" fill="#d3895b"/><circle cx="4" cy="5" r="1.6" fill="#d3895b"/><circle cx="6.5" cy="4.4" r="1.4" fill="#d3895b"/><circle cx="8.6" cy="5.2" r="1.2" fill="#d3895b"/><circle cx="9.6" cy="6.6" r="1.1" fill="#d3895b"/></svg>
-    <svg viewBox="0 0 24 24"><path d="M18 12c1.8 0 3-.9 3-2.6 0-1.5-1-3.3-2.4-4.1C16.7 4 15 5.5 15 7.4c0 2.3 1.4 4.6 3 4.6Z" fill="#d3895b"/><circle cx="20" cy="5" r="1.6" fill="#d3895b"/><circle cx="17.5" cy="4.4" r="1.4" fill="#d3895b"/><circle cx="15.4" cy="5.2" r="1.2" fill="#d3895b"/><circle cx="14.4" cy="6.6" r="1.1" fill="#d3895b"/></svg>
-  </div>
 
   <div class="actions">
     <a class="btn" href="https://www.google.com/maps/search/?api=1&query=JC+Residency+Madurai" target="_blank" rel="noopener">Open map</a>
@@ -210,89 +217,87 @@ END:VCALENDAR`;
   });
 })();
 
-/* UTIL */
+/* helper */
 function fullyVisible(el, margin=6){
   const r = el.getBoundingClientRect();
   const vh = window.innerHeight || document.documentElement.clientHeight;
   return (r.top >= margin) && (r.bottom <= vh - margin);
 }
 
-/* Confetti engine */
-function confettiBurst(canvas, opts={}){
+/* Global, looping confetti from top */
+(function(){
+  const canvas = document.getElementById('confettiGlobal');
+  if(!canvas) return;
   const ctx = canvas.getContext('2d');
-  const w = canvas.width = canvas.clientWidth;
-  const h = canvas.height = canvas.clientHeight;
-  const colors = ['#ff8fb1','#ffd166','#95e1d3','#a29bfe','#fca5a5','#fcd34d'];
-  const count = opts.count || 120;
-  const originX = (opts.x!=null? opts.x : w*0.5);
-  const originY = (opts.y!=null? opts.y : h*0.35);
-  const gravity = 0.12;
-  const drag = 0.008;
-  let parts = [];
-  for(let i=0;i<count;i++){
-    const ang = Math.random()*Math.PI - Math.PI/2; // up left/right
-    const speed = 6 + Math.random()*8;
-    parts.push({
-      x: originX, y: originY,
-      vx: Math.cos(ang)*speed,
-      vy: Math.sin(ang)*speed - 2,
-      w: 4 + Math.random()*3,
-      h: 10 + Math.random()*6,
-      rot: Math.random()*Math.PI, vr: (Math.random()*2-1)*0.15,
-      life: 80 + Math.random()*40,
-      color: colors[Math.floor(Math.random()*colors.length)]
-    });
+  const colors = ['#ff8fb1','#ffd166','#95e1d3','#a29bfe','#fca5a5','#fcd34d','#90cdf4','#c6f6d5'];
+  let W = canvas.width = window.innerWidth;
+  let H = canvas.height = window.innerHeight;
+
+  window.addEventListener('resize', ()=>{
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  });
+
+  const N = 120; // number of confetti pieces. bump up for denser
+  const parts = [];
+  function resetPiece(p, fromTop=true){
+    p.x = Math.random()*W;
+    p.y = fromTop ? (-20 - Math.random()*H*0.3) : (Math.random()*H);
+    p.w = 4 + Math.random()*3;
+    p.h = 10 + Math.random()*6;
+    p.color = colors[Math.floor(Math.random()*colors.length)];
+    p.vx = (Math.random()*2 - 1) * 0.6;
+    p.vy = 1.2 + Math.random()*1.6;
+    p.rot = Math.random()*Math.PI;
+    p.vr = (Math.random()*2 - 1) * 0.04;
+    p.swing = Math.random()*0.8 + 0.2; // side sway
+    p.life = 300 + Math.random()*300;
   }
-  let rafId;
-  (function tick(){
-    ctx.clearRect(0,0,w,h);
-    for(let i=parts.length-1;i>=0;i--){
-      const p=parts[i];
-      p.vy += gravity;
-      p.vx *= (1-drag);
-      p.vy *= (1-drag*0.6);
-      p.x += p.vx;
+  for(let i=0;i<N;i++){
+    const p = {};
+    resetPiece(p, false);
+    parts.push(p);
+  }
+
+  let t = 0;
+  (function loop(){
+    t += 0.016;
+    ctx.clearRect(0,0,W,H);
+    for(let i=0;i<parts.length;i++){
+      const p = parts[i];
+      p.life -= 1;
+      p.x += p.vx + Math.sin(t + i)*p.swing*0.3;
       p.y += p.vy;
       p.rot += p.vr;
-      p.life -= 1;
+
       ctx.save();
       ctx.translate(p.x,p.y);
       ctx.rotate(p.rot);
-      ctx.fillStyle = p.color + Math.floor(180+75*Math.random()).toString(16);
-      ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
       ctx.restore();
-      if(p.life<=0 || p.y>h+40 || p.x<-40 || p.x>w+40) parts.splice(i,1);
-    }
-    if(parts.length){
-      rafId = requestAnimationFrame(tick);
-    }else{
-      ctx.clearRect(0,0,w,h);
-      cancelAnimationFrame(rafId);
-    }
-  })();
-}
 
-/* Mottai interaction:
-   - start only when frame fully visible
-   - hijack scroll globally while transitioning
-   - after complete, require 2 extra scrolls to move on
-   - confetti burst on completion
-   - reverse on scroll up
-*/
+      if(p.y > H + 24 || p.x < -40 || p.x > W + 40 || p.life <= 0){
+        resetPiece(p, true); // respawn at the top
+      }
+    }
+    requestAnimationFrame(loop);
+  })();
+})();
+
+/* Mottai interaction with scroll hold and reverse */
 (function(){
   const scene    = document.getElementById('mottaiScene');
-  const frame    = document.getElementById('frameBox');
   const hairImg  = document.getElementById('withHair');
   const baldImg  = document.getElementById('bald');
-  const confetti = document.getElementById('confetti');
-  if(!scene||!frame||!hairImg||!baldImg||!confetti) return;
+  if(!scene||!hairImg||!baldImg) return;
 
-  let progress = 0;              // 0 hair -> 1 bald
-  const stepWheel = 0.08;        // per wheel notch
-  const stepTouch = 0.003;       // per touch delta
+  let progress = 0;           // 0 hair -> 1 bald
+  const stepWheel = 0.08;     // per wheel notch
+  const stepTouch = 0.003;    // per touch delta
   let completed = false;
-  let postHold = 0;              // count of extra scrolls after complete
-  const postHoldNeeded = 2;      // "couple of scrolls"
+  let postHold = 0;           // extra scrolls after complete
+  const postHoldNeeded = 2;
 
   function render(){
     const p = Math.max(0, Math.min(1, progress));
@@ -302,93 +307,63 @@ function confettiBurst(canvas, opts={}){
   }
   render();
 
-  function canStart(){
-    // photo must be fully visible to start hijack
-    return fullyVisible(scene, 6);
-  }
-
+  function canStart(){ return fullyVisible(scene, 6); }
   function shouldHijack(delta){
     if(!canStart()) return false;
     if(completed){
-      // after finishing, allow two extra scrolls before releasing
-      if(delta>0 && postHold < postHoldNeeded){ return true; }
-      if(delta<0 && progress>0){ return true; } // allow reverse immediately
+      if(delta>0 && postHold < postHoldNeeded) return true;
+      if(delta<0 && progress > 0) return true;
       return false;
     }
-    // during transition
     if(delta>0 && progress < 1) return true;
     if(delta<0 && progress > 0) return true;
     return false;
   }
-
   function onAdvance(amount){
     const prev = progress;
     progress = Math.max(0, Math.min(1, progress + amount));
     render();
-
-    // reached completion
-    if(prev < 1 && progress === 1){
-      completed = true;
-      postHold = 0;
-      // fire confetti
-      confetti.width = frame.clientWidth;
-      confetti.height = frame.clientHeight;
-      confettiBurst(confetti, {count: 140});
-    }
-    // reversed back
-    if(prev === 1 && progress < 1){
-      completed = false;
-    }
+    if(prev < 1 && progress === 1){ completed = true; postHold = 0; }
+    if(prev === 1 && progress < 1){ completed = false; }
   }
 
-  // Wheel - global
+  // wheel
   window.addEventListener('wheel', (e)=>{
     const delta = e.deltaY;
     if(shouldHijack(delta)){
       e.preventDefault();
       if(delta>0){
-        if(completed){
-          postHold++;
-          // still hold until quota met, do not move page
-        }else{
-          onAdvance(stepWheel);
-        }
+        if(completed){ postHold++; } else { onAdvance(stepWheel); }
       }else{
-        // reverse up
         onAdvance(-stepWheel);
       }
     }
   }, {passive:false});
 
-  // Touch - global
+  // touch
   let touchY=null;
   window.addEventListener('touchstart', (e)=>{
     touchY = e.touches && e.touches.length ? e.touches[0].clientY : null;
   }, {passive:true});
-
   window.addEventListener('touchmove', (e)=>{
     if(touchY===null) return;
     const y = e.touches[0].clientY;
-    const dy = touchY - y; // up = positive
+    const dy = touchY - y;
     const delta = dy;
     if(shouldHijack(delta)){
       e.preventDefault();
       if(dy>0){
-        if(completed){
-          postHold += Math.abs(dy)*0.01; // accumulate touch gestures
-        }else{
-          onAdvance(stepTouch * dy);
-        }
+        if(completed){ postHold += Math.abs(dy)*0.01; }
+        else{ onAdvance(stepTouch * dy); }
       }else{
-        onAdvance(stepTouch * dy); // negative dy reduces progress
+        onAdvance(stepTouch * dy);
       }
     }
     touchY = y;
   }, {passive:false});
-
   window.addEventListener('touchend', ()=>{ touchY=null; }, {passive:true});
 
-  // Keyboard for accessibility
+  // keyboard
   window.addEventListener('keydown', (e)=>{
     if(!canStart()) return;
     if(e.key==='ArrowDown' || e.key==='PageDown'){
@@ -402,22 +377,7 @@ function confettiBurst(canvas, opts={}){
       if(progress > 0){ e.preventDefault(); onAdvance(-stepWheel); }
     }
   });
-
-  // Recompute canvas size on resize
-  window.addEventListener('resize', ()=>{
-    confetti.width = frame.clientWidth;
-    confetti.height = frame.clientHeight;
-  });
 })();
-
-/* Ear-piercing section was removed per your request */
-
-/* helper from earlier */
-function fullyVisible(el, margin=6){
-  const r = el.getBoundingClientRect();
-  const vh = window.innerHeight || document.documentElement.clientHeight;
-  return (r.top >= margin) && (r.bottom <= vh - margin);
-}
 </script>
 </body>
 </html>
