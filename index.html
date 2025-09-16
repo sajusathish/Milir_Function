@@ -312,7 +312,7 @@ const Confetti = (function(){
   return { start };
 })();
 
-/* Mottai interaction with pre-lock so fast swipes can't skip */
+/* Mottai interaction with pre-lock and pre-hold */
 (function(){
   const scene    = document.getElementById('mottaiScene');
   const hairImg  = document.getElementById('withHair');
@@ -320,11 +320,16 @@ const Confetti = (function(){
   if(!scene||!hairImg||!baldImg) return;
 
   let progress = 0;           // 0 hair -> 1 bald
-  const stepWheel = 0.06;     // your requested speed
-  const stepTouch = 0.0022;   // your requested speed
+  const stepWheel = 0.06;     // requested speed
+  const stepTouch = 0.0022;   // requested speed
   let completed = false;
   let postHold = 0;           // extra scrolls after complete
   const postHoldNeeded = 2;
+
+  // NEW: pre-hold after fully visible before starting transition
+  let preHold = 0;
+  const preHoldNeeded = 2;
+
   const margin = 6;
 
   function render(){
@@ -343,14 +348,21 @@ const Confetti = (function(){
 
   function canStart(){ return fullyVisible(scene, margin); }
 
+  function inPreHold(delta){
+    return delta>0 && progress===0 && !completed && fullyVisible(scene, margin) && preHold < preHoldNeeded;
+  }
+
   function shouldHijack(delta){
     if(delta>0){
-      // if we're coming in hot from the top, pre-lock and snap to fully visible
+      // pre-lock: if we're coming in fast, snap to fully visible
       if(approachingDown() && !fullyVisible(scene, margin)){
         snapFullyVisible(scene, margin);
-        return true; // start consuming this gesture
+        return true;
       }
     }
+    // during pre-hold, we hijack to count the gestures
+    if(inPreHold(delta)) return true;
+
     // normal rules
     if(!canStart() && !partiallyVisible(scene, margin)) return false;
     if(completed){
@@ -381,9 +393,22 @@ const Confetti = (function(){
     const delta = e.deltaY;
     if(shouldHijack(delta)){
       e.preventDefault();
+
+      // handle pre-hold first
+      if(inPreHold(delta)){
+        preHold++;
+        return; // do not advance yet
+      }
+
       if(delta>0){
-        if(completed){ postHold++; } else { onAdvance(stepWheel); }
+        if(completed){ postHold++; }
+        else{
+          // ensure fully visible before advancing
+          if(!fullyVisible(scene, margin)) snapFullyVisible(scene, margin);
+          onAdvance(stepWheel);
+        }
       }else{
+        // reverse up
         onAdvance(-stepWheel);
       }
     }
@@ -401,10 +426,18 @@ const Confetti = (function(){
     const delta = dy;
     if(shouldHijack(delta)){
       e.preventDefault();
+
+      if(inPreHold(delta)){
+        // accumulate pre-hold with touch distance
+        preHold += Math.max(0, Math.abs(dy) * 0.01);
+        if(preHold > preHoldNeeded) preHold = preHoldNeeded;
+        touchY = y;
+        return;
+      }
+
       if(dy>0){
         if(completed){ postHold += Math.abs(dy)*0.01; }
         else{
-          // if not fully visible yet, snap before advancing
           if(!fullyVisible(scene, margin)) snapFullyVisible(scene, margin);
           onAdvance(stepTouch * dy);
         }
@@ -419,14 +452,24 @@ const Confetti = (function(){
   // keyboard
   window.addEventListener('keydown', (e)=>{
     if(!(canStart() || partiallyVisible(scene, margin))) return;
+
     if(e.key==='ArrowDown' || e.key==='PageDown'){
-      if(!fullyVisible(scene, margin)) { e.preventDefault(); snapFullyVisible(scene, margin); return; }
+      e.preventDefault();
+      if(!fullyVisible(scene, margin)) { snapFullyVisible(scene, margin); return; }
+
+      // pre-hold via keyboard
+      if(progress===0 && !completed && preHold < preHoldNeeded){
+        preHold++;
+        return;
+      }
+
       if(completed){
-        if(postHold < postHoldNeeded){ e.preventDefault(); postHold++; }
+        if(postHold < postHoldNeeded){ postHold++; }
       }else if(progress < 1){
-        e.preventDefault(); onAdvance(stepWheel);
+        onAdvance(stepWheel);
       }
     }
+
     if(e.key==='ArrowUp' || e.key==='PageUp'){
       if(progress > 0){ e.preventDefault(); onAdvance(-stepWheel); }
     }
