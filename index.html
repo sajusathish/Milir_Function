@@ -13,7 +13,9 @@
 :root{
   --ink:#222; --muted:#6b6b6b; --bg:#faf7f2; --card:#fff;
   --marigold:#f2a900; --leaf:#2f9e44; --pink:#ff7eb9; --gold:#f4c542; --gold2:#bb9a23;
-  --peach:#ffe7ef; --cream:#fff7e2;
+  /* Ear-lobe anchor as % of the scene box. Use #edit to drag and update these. */
+  --anchor-x: 67%;  /* horizontal position of lobe target */
+  --anchor-y: 64%;  /* vertical position of lobe target */
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
@@ -21,7 +23,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:Poppins,system-u
 .wrap{min-height:100svh;display:grid;place-items:center;padding:16px}
 .card{position:relative;background:var(--card);border:1px solid #00000010;border-radius:22px;max-width:620px;width:100%;padding:18px 18px 24px;box-shadow:0 18px 60px rgba(0,0,0,.08);overflow:hidden}
 
-/* Toran garland (marigold) */
+/* Toran garland */
 .toran{position:absolute;left:-6%;right:-6%;top:-2px;height:120px;pointer-events:none;z-index:2}
 .string{position:absolute;left:0;right:0;top:22px;height:2px;background:#00000018;border-radius:2px}
 .flowers{position:absolute;left:0;right:0;top:0;display:flex;justify-content:space-between;padding:0 22px}
@@ -31,7 +33,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:Poppins,system-u
 .leaf.r{margin-left:0;margin-right:18px;transform:rotate(14deg);justify-self:end}
 @keyframes sway{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
 
-/* Balloons (faster + GPU) */
+/* Balloons (faster) */
 .balloons{position:absolute;inset:0;overflow:hidden;z-index:1;pointer-events:none}
 .balloon{position:absolute;bottom:-140px;width:26px;height:34px;border-radius:50% 50% 45% 45%;background:#ffd1e1;animation:rise 4s linear infinite;opacity:.95;will-change:transform}
 .balloon:after{content:"";position:absolute;left:50%;top:32px;width:2px;height:60px;background:#e5cbd4;transform:translateX(-1px)}
@@ -57,18 +59,27 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:Poppins,system-u
 .badge{background:#f6f3ed;border:1px solid #00000010;border-radius:999px;padding:8px 14px;font-size:14px}
 .small{font-size:13px;color:var(--muted);text-align:center}
 
-/* Ear-piercing scene */
+/* Scene */
 .scroll-scene{margin:16px 0 8px}
-.scene-wrap{position:relative;height:60vh;min-height:420px;border:1px dashed #00000014;border-radius:16px;background:linear-gradient(180deg,var(--peach),var(--cream));display:grid;place-items:center;overflow:hidden}
-.ear-zoom{width:min(82vw,460px);transition:transform .12s linear;filter:drop-shadow(0 6px 14px rgba(0,0,0,.08))}
-.earring-fly{position:absolute;top:0;left:0;transform:translate(-9999px,-9999px);pointer-events:none;will-change:transform,opacity}
-.earring-svg{width:98px;height:auto;filter:drop-shadow(0 6px 12px rgba(0,0,0,.14))}
+.scene-wrap{position:relative;height:60vh;min-height:420px;border:1px dashed #00000014;border-radius:16px;background:#fffafc;display:grid;place-items:center;overflow:hidden}
+.scene{position:relative;width:100%;height:100%}
+.scene img{position:absolute;display:block;max-width:none;will-change:transform;image-rendering:auto}
 
-/* After attach: sparkle pop */
-.attached .earring-svg{animation:pop .6s ease-out}
-@keyframes pop{0%{transform:scale(.7)}60%{transform:scale(1.22)}100%{transform:scale(1)}}
+/* Baby image scales in center */
+#baby{left:50%;top:50%;transform:translate(-50%,-50%) scale(.82);width:auto;height:85%;}
 
-/* Actions + QR aligned and responsive */
+/* Jhumka starts off-screen and flies to anchor */
+#jhumka{left:0;top:0;transform:translate(-9999px,-9999px) scale(.8) rotate(8deg);width:auto;height:24%;}
+.scene.attached #jhumka{animation:pop .55s ease-out}
+@keyframes pop{0%{transform:translate(var(--jx), var(--jy)) scale(.8) rotate(0)}60%{transform:translate(var(--jx), var(--jy)) scale(1.15) rotate(0)}100%{transform:translate(var(--jx), var(--jy)) scale(1) rotate(0)}}
+
+/* Anchor overlay for #edit mode */
+.anchor-dot{position:absolute;width:16px;height:16px;border-radius:50%;background:#ff3b7c;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.25);transform:translate(-50%,-50%);display:none;z-index:5}
+.edit .anchor-dot{display:block}
+.anchor-readout{position:absolute;bottom:8px;left:8px;background:#111;color:#fff;border-radius:10px;padding:6px 10px;font-size:12px;display:none}
+.edit .anchor-readout{display:block}
+
+/* Actions + QR aligned */
 .info-grid{display:grid;gap:12px;margin-top:14px}
 @media(min-width:600px){.info-grid{grid-template-columns:1fr 200px;align-items:center}}
 .actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
@@ -78,7 +89,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:Poppins,system-u
 .qr img{width:180px;height:180px;max-width:42vw;border-radius:12px;border:1px solid #00000010}
 .footer{text-align:center;color:var(--muted);font-size:12px;margin-top:12px}
 
-/* Accessibility: reduced motion */
+/* Reduced motion */
 @media (prefers-reduced-motion: reduce){
   .flower,.balloon{animation:none!important}
 }
@@ -120,55 +131,20 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:Poppins,system-u
   <span class="badge">🕙 10:00 am</span>
 </section>
 
-<!-- Ear Piercing scene: baby cartoon + long jhumka that docks perfectly -->
+<!-- Ear Piercing: your images + precise docking -->
 <section class="scroll-scene" aria-label="Ear piercing">
   <div class="scene-wrap" id="earScene">
-
-    <!-- baby girl side cartoon (SVG), with exact lobe anchor -->
-    <svg class="ear-zoom" id="babySvg" viewBox="0 0 680 520" role="img" aria-label="Baby girl side">
-      <!-- hair volume -->
-      <path d="M120 240c0-126 190-206 378-96 66 36 110 108 96 146-8 22-30 38-50 36-20-2-40-14-58-28-40-30-104-50-176-52-100-4-178 34-206 54-14 10-30 10-44 0-12-8-18-22-18-40 0-18 12-34 78-20z" fill="#3b2a17"/>
-      <!-- face -->
-      <path d="M236 188c0-64 52-100 116-100s120 36 120 100c0 80-70 134-154 134s-82-70-82-134z" fill="#ffd8c8"/>
-      <!-- eye + smile -->
-      <circle cx="424" cy="242" r="8" fill="#222"/>
-      <path d="M404 232 q18 -12 36 0" stroke="#222" stroke-width="4" fill="none"/>
-      <path d="M402 272 q14 18 34 0" stroke="#cc6b7a" stroke-width="5" fill="none" stroke-linecap="round"/>
-      <!-- tiny bindi + bow -->
-      <circle cx="418" cy="210" r="4" fill="#d9480f"/>
-      <g transform="translate(352,152) rotate(-14)">
-        <ellipse cx="-18" cy="0" rx="18" ry="12" fill="#ff9bcf"/>
-        <ellipse cx="18" cy="0" rx="18" ry="12" fill="#ff9bcf"/>
-        <circle cx="0" cy="0" r="7" fill="#ff7eb9"/>
-      </g>
-      <!-- ear + precise lobe anchor -->
-      <g id="ear">
-        <path d="M462 248c12 12 16 36 0 52-8 10-22 14-28 6-6-8 4-18 8-26 4-10-2-22 6-30 4-4 10-4 14-2z" fill="#ffd3c6" stroke="#e7a892" stroke-width="3"/>
-        <circle id="lobe" cx="456" cy="288" r="3.5" fill="#bb9a23"/>
-      </g>
-    </svg>
-
-    <!-- long jhumka (stud+chain+dome+danglers) -->
-    <div class="earring-fly" id="jhumkaFly" aria-hidden="true">
-      <svg viewBox="0 0 140 240" class="earring-svg" role="img" aria-label="Jhumka earring">
-        <circle cx="70" cy="20" r="12" fill="var(--gold)" stroke="var(--gold2)" stroke-width="4"/>
-        <rect x="68" y="32" width="4" height="72" rx="2" fill="var(--gold2)"/>
-        <path d="M26 128 q44 -40 88 0 v54 H26z" fill="#ffdfa3" stroke="var(--gold2)" stroke-width="4"/>
-        <g>
-          <circle cx="36" cy="184" r="6" fill="#ffb6d1" stroke="#e88cb2" stroke-width="3"/>
-          <circle cx="56" cy="196" r="6" fill="#ffe38f" stroke="#e0b54f" stroke-width="3"/>
-          <circle cx="84" cy="196" r="6" fill="#ffe38f" stroke="#e0b54f" stroke-width="3"/>
-          <circle cx="104" cy="184" r="6" fill="#ffb6d1" stroke="#e88cb2" stroke-width="3"/>
-        </g>
-      </svg>
+    <div class="scene" id="scene">
+      <!-- drop your assets in /assets -->
+      <img id="baby" src="assets/baby_side.png" alt="Baby girl"/>
+      <img id="jhumka" src="assets/jhumka.png" alt="Jhumka"/>
+      <div class="anchor-dot" id="anchor"></div>
+      <div class="anchor-readout" id="readout">x: <span id="rx"></span> y: <span id="ry"></span></div>
     </div>
-
-    <!-- subtle marigold line -->
-    <div class="mini-garland" aria-hidden="true"><span>🌼</span><span>🌼</span><span>🌼</span><span>🌼</span><span>🌼</span></div>
   </div>
 </section>
 
-<!-- actions + QR (aligned) -->
+<!-- actions + QR -->
 <div class="info-grid">
   <div class="actions">
     <a class="btn" href="https://www.google.com/maps/search/?api=1&query=JC+Residency+Madurai" target="_blank" rel="noopener">Open map</a>
@@ -252,59 +228,115 @@ END:VCALENDAR`;
   });
 })();
 
-/* scroll-driven: zoom baby + fly jhumka to exact lobe */
+/* Smooth scroll-driven: zoom baby + fly jhumka to anchor */
 (function(){
-  const scene = document.getElementById('earScene');
-  const baby  = document.getElementById('babySvg');
-  const fly   = document.getElementById('jhumkaFly');
-  const lobe  = document.getElementById('lobe');
-  if(!scene||!baby||!fly||!lobe) return;
+  const sceneWrap = document.getElementById('earScene');
+  const scene     = document.getElementById('scene');
+  const baby      = document.getElementById('baby');
+  const jhumka    = document.getElementById('jhumka');
+  const anchorDot = document.getElementById('anchor');
+  const readout   = document.getElementById('readout');
+  const rxSpan    = document.getElementById('rx');
+  const rySpan    = document.getElementById('ry');
 
-  const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
+  if(!sceneWrap||!scene||!baby||!jhumka) return;
 
-  function onscroll(){
-    const r = scene.getBoundingClientRect();
-    const vh = window.innerHeight || document.documentElement.clientHeight;
-    let p = (vh*0.8 - r.top)/(r.height+vh*0.4); p = clamp(p,0,1);
+  const isEdit = location.hash === '#edit';
+  if(isEdit) document.body.classList.add('edit');
 
-    /* smooth zoom on baby */
-    const scale = 0.75 + 0.5*p;
-    baby.style.transform = `scale(${scale}) translateY(${(1-p)*12}px)`;
+  function clamp(v,min,max){return Math.max(min,Math.min(max,v))}
+  function lerp(a,b,t){return a+(b-a)*t}
+  function ease(t){return t<.5 ? 4*t*t*t : 1-Math.pow(-2*t+2,3)/2}
 
-    /* compute lobe position inside scene */
-    const bb = lobe.getBoundingClientRect();
-    const sc = scene.getBoundingClientRect();
-    const cx = bb.left + bb.width/2 - sc.left;
-    const cy = bb.top  + bb.height/2 - sc.top;
-
-    /* earring stud center is (70,20) in its own SVG */
-    const studX = 70, studY = 20;
-
-    /* start off-screen top-right */
-    const startX = sc.width*0.88, startY = -sc.height*0.28;
-
-    const targetX = cx - studX;
-    const targetY = cy - studY;
-
-    const x = startX + (targetX - startX)*p;
-    const y = startY + (targetY - startY)*p;
-
-    const s = 0.8 + 0.35*p;
-    const rot = 8*(1-p);
-
-    fly.style.transform = `translate(${x}px, ${y}px) rotate(${rot}deg) scale(${s})`;
-    fly.style.opacity   = 0.2 + 0.8*p;
-
-    if(p>0.985){ scene.classList.add('attached'); }
-    else { scene.classList.remove('attached'); }
+  function anchorPx(){
+    const r=scene.getBoundingClientRect();
+    const ax=r.width * parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--anchor-x'))/100;
+    const ay=r.height* parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--anchor-y'))/100;
+    return {x:ax,y:ay};
   }
 
-  /* initial position off-screen so it doesn't flash */
-  fly.style.transform = 'translate(-9999px,-9999px)';
+  // Drag anchor in #edit mode
+  if(isEdit){
+    const r=scene.getBoundingClientRect();
+    const dot=anchorDot;
+    dot.style.left=`var(--anchor-x)`;
+    dot.style.top=`var(--anchor-y)`;
+    dot.style.left=`calc(var(--anchor-x))`;
+    dot.style.top=`calc(var(--anchor-y))`;
+    function placeDot(){
+      const {x,y}=anchorPx();
+      dot.style.left = (x/r.width*100)+'%';
+      dot.style.top  = (y/r.height*100)+'%';
+      rxSpan.textContent = getComputedStyle(document.documentElement).getPropertyValue('--anchor-x').trim();
+      rySpan.textContent = getComputedStyle(document.documentElement).getPropertyValue('--anchor-y').trim();
+    }
+    placeDot();
 
-  onscroll();
-  document.addEventListener('scroll', onscroll, {passive:true});
-  window.addEventListener('resize', onscroll);
+    let dragging=false;
+    dot.addEventListener('pointerdown',e=>{dragging=true;dot.setPointerCapture(e.pointerId)});
+    window.addEventListener('pointermove',e=>{
+      if(!dragging) return;
+      const s=scene.getBoundingClientRect();
+      const nx=clamp((e.clientX-s.left)/s.width*100,0,100);
+      const ny=clamp((e.clientY-s.top)/s.height*100,0,100);
+      document.documentElement.style.setProperty('--anchor-x', nx+'%');
+      document.documentElement.style.setProperty('--anchor-y', ny+'%');
+      placeDot();
+    });
+    window.addEventListener('pointerup',()=>{dragging=false});
+  }
+
+  // rAF scroll mapping
+  let ticking=false;
+  function onScroll(){
+    if(ticking) return;
+    ticking=true;
+    requestAnimationFrame(()=>{
+      const r=sceneWrap.getBoundingClientRect();
+      const vh=window.innerHeight||document.documentElement.clientHeight;
+      // progress 0..1
+      let p=(vh*0.8 - r.top)/(r.height+vh*0.4);
+      p=clamp(p,0,1);
+      const e=ease(p);
+
+      // baby zoom
+      const scale=lerp(.82,1.1,e);
+      const ty=lerp(0,-8,e);
+      baby.style.transform=`translate(-50%,-50%) scale(${scale}) translateY(${ty}px)`;
+
+      // jhumka flight
+      const s=scene.getBoundingClientRect();
+      const {x:ax,y:ay}=anchorPx();
+      // jhumka's stud center: assume center-top of image ~ 50% x, 8% y
+      const studX = jhumka.naturalWidth  ? jhumka.naturalWidth*0.5  : 70;
+      const studY = jhumka.naturalHeight ? jhumka.naturalHeight*0.08 : 20;
+      const imgW  = jhumka.getBoundingClientRect().width;
+      const imgH  = jhumka.getBoundingClientRect().height;
+      const offX  = studX / (jhumka.naturalWidth||140) * imgW;
+      const offY  = studY / (jhumka.naturalHeight||240)* imgH;
+
+      const startX = s.width*0.9;
+      const startY = -s.height*0.28;
+
+      const tx = ax - offX;
+      const ty2= ay - offY;
+
+      const curX=lerp(startX,tx,e);
+      const curY=lerp(startY,ty2,e);
+      const rot = lerp(12,0,e);
+      const sc  = lerp(.8,1,e);
+
+      jhumka.style.transform = `translate(${curX}px, ${curY}px) rotate(${rot}deg) scale(${sc})`;
+      jhumka.style.opacity   = 0.2 + 0.8*e;
+
+      if(e>0.985){ scene.classList.add('attached') } else { scene.classList.remove('attached') }
+
+      ticking=false;
+    });
+  }
+  onScroll();
+  document.addEventListener('scroll',onScroll,{passive:true});
+  window.addEventListener('resize',onScroll);
 })();
 </script>
 </body>
