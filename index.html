@@ -4,252 +4,286 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
 <meta name="theme-color" content="#ffffff"/>
-<title>Milir | Tonsure & Ear Piercing</title>
-<meta name="description" content="Invite for Milir's tonsure and ear piercing at JC Residency, Madurai on 5 Oct 2025, 10:00 am."/>
+<title>Milir | Tonsure & Ear Piercing — Story Invite</title>
+<meta name="description" content="Scroll or tap through Milir's Tonsure and Ear Piercing story. JC Residency, Madurai. 5 Oct 2025, 10:00 am."/>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&family=Playfair+Display:wght@600;800&display=swap" rel="stylesheet">
 <style>
-:root{
-  --ink:#222; --muted:#6b6b6b; --bg:#faf7f2; --card:#fff;
-  --marigold:#f2a900; --leaf:#2f9e44; --pink:#ff7eb9; --gold:#f4c542;
-}
+:root{--ink:#222;--muted:#6b6b6b;--bg:#faf7f2;--card:#fff;--marigold:#f2a900;--leaf:#2f9e44;--pink:#ff7eb9;--gold:#f4c542;--lav:#c77dff}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:Poppins,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
-.wrap{min-height:100svh;display:grid;place-items:center;padding:16px}
-.card{position:relative;background:var(--card);border:1px solid #00000010;border-radius:22px;max-width:560px;width:100%;padding:18px 18px 24px;box-shadow:0 18px 60px rgba(0,0,0,.08);overflow:hidden}
-
-/* Toran garland */
-.toran{position:absolute;left:-6%;right:-6%;top:-2px;height:120px;pointer-events:none}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Poppins,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;overflow:hidden}
+/* Pager */
+#story{height:100svh;overflow:auto;scroll-snap-type:y mandatory;scroll-behavior:smooth}
+.panel{position:relative;height:100svh;scroll-snap-align:start;display:grid;place-items:center}
+.center{max-width:860px;width:100%;padding:16px}
+.card{position:relative;background:var(--card);border:1px solid #00000010;border-radius:22px;box-shadow:0 18px 60px rgba(0,0,0,.08);overflow:hidden}
+.pad{padding:18px}
+/* Toran */
+.toran{position:absolute;left:-6%;right:-6%;top:-2px;height:120px;pointer-events:none;z-index:3}
 .string{position:absolute;left:0;right:0;top:22px;height:2px;background:#00000018;border-radius:2px}
 .flowers{position:absolute;left:0;right:0;top:0;display:flex;justify-content:space-between;padding:0 22px}
-.flower{width:56px;height:80px;display:grid;place-items:flex-start;transform-origin:top center;animation:sway 3.8s ease-in-out infinite}
+.flower{width:56px;height:80px;display:grid;place-items:flex-start;transform-origin:top center;animation:sway 3.2s ease-in-out infinite}
 .bloom{width:44px;height:44px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#ffd76a,var(--marigold))}
 .leaf{width:10px;height:18px;background:var(--leaf);border-radius:10px;margin:2px 0 0 18px;transform:rotate(-14deg)}
 .leaf.r{margin-left:0;margin-right:18px;transform:rotate(14deg);justify-self:end}
-@keyframes sway{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
-
-/* Headings */
-.kicker{margin-top:78px;text-align:center;letter-spacing:.14em;text-transform:uppercase;font-size:12px;color:var(--muted)}
-.title{font-family:"Playfair Display",serif;font-weight:800;font-size:clamp(36px,7vw,60px);line-height:1.04;text-align:center;margin:6px 0}
-.sub{font-size:15px;text-align:center;color:#333}
-
-/* Countdown */
+@keyframes sway{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(5deg)}}
+/* Balloons */
+.balloons{position:absolute;inset:0;overflow:hidden;z-index:1;pointer-events:none}
+.balloon{position:absolute;bottom:-120px;width:26px;height:34px;border-radius:50% 50% 45% 45%;background:#ffd1e1;animation:rise 4.8s linear infinite;opacity:.9}
+.balloon:after{content:"";position:absolute;left:50%;top:32px;width:2px;height:60px;background:#e5cbd4}
+.balloon.b2{left:15%;background:#cde6ff;animation-duration:4.5s}
+.balloon.b3{left:35%;background:#ffe7a1;animation-duration:4.2s}
+.balloon.b4{left:65%;background:#d7ffc9;animation-duration:4.6s}
+.balloon.b5{left:85%;background:#ffe0ff;animation-duration:4.1s}
+@keyframes rise{0%{transform:translateY(0) translateX(0)}50%{transform:translateY(-45vh) translateX(18px)}100%{transform:translateY(-95vh) translateX(-10px)}}
+/* Text */
+.kicker{text-align:center;letter-spacing:.14em;text-transform:uppercase;font-size:12px;color:var(--muted);z-index:2;position:relative}
+.title{font-family:"Playfair Display",serif;font-weight:800;font-size:clamp(36px,7vw,64px);line-height:1.04;text-align:center;margin:6px 0;position:relative;z-index:2}
+.sub{font-size:15px;text-align:center;color:#333;position:relative;z-index:2}
+.note{font-size:13px;color:var(--muted);text-align:center}
+/* Scene canvas */
+.scene{position:relative;aspect-ratio:9/16;background:#fffafc;border-radius:16px;border:1px dashed #00000014;overflow:hidden}
+.scene-inner{position:relative;width:100%;height:100%}
+/* Scene 1 baby + tuft + scissors */
+.baby1{position:absolute;left:50%;top:50%;transform:translate(-50%,-52%) scale(1);width:min(520px,80%)}
+.tuft{transform-origin:center;animation:tuftFloat 2.4s ease-in-out infinite}
+@keyframes tuftFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
+.scissors{position:absolute;right:6%;top:14%;width:80px;height:auto;opacity:0;transform:rotate(12deg)}
+.cut .scissors{animation:snip 1.2s ease-out forwards}
+@keyframes snip{0%{opacity:0;transform:translate(30px,-30px) rotate(20deg)}20%{opacity:1}60%{transform:translate(-10px,8px) rotate(-6deg)}100%{transform:translate(0,0) rotate(0)}}
+.fall{opacity:0}
+.cut .fall{animation:fallHair .9s .5s cubic-bezier(.2,.9,.2,1) forwards}
+@keyframes fallHair{to{transform:translateY(160px) rotate(-28deg);opacity:1}}
+/* Scene 2 baby side + jhumka */
+.baby2{position:absolute;left:50%;top:50%;transform:translate(-44%,-50%) scale(.95);width:min(560px,88%);transition:transform .2s linear}
+.fly{position:absolute;left:0;top:0;transform:translate(-200%,-200%) scale(.6) rotate(8deg);opacity:.2}
+.jhumka{width:86px;height:auto;filter:drop-shadow(0 6px 12px rgba(0,0,0,.15))}
+.attach .jhumka{animation:pop .5s ease-out}
+@keyframes pop{0%{transform:scale(.7)}60%{transform:scale(1.22)}100%{transform:scale(1)}}
+/* Scene nav hint (tap/scroll) */
+.hint{position:absolute;right:10px;bottom:10px;background:#111;color:#fff;border-radius:999px;padding:8px 12px;font-weight:700;font-size:12px;opacity:.9}
+/* Finale grid */
+.info-grid{display:grid;gap:12px;margin-top:14px}
+@media(min-width:680px){.info-grid{grid-template-columns:1.4fr .6fr;align-items:center}}
+.actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.btn{appearance:none;border:0;background:#111;color:#fff;border-radius:12px;padding:12px 16px;font-weight:700;cursor:pointer;text-decoration:none}
+.btn.ghost{background:#fff;color:#111;border:1px solid #00000020}
+.qr{display:grid;place-items:center}
+.qr img{width:180px;height:180px;max-width:42vw;border-radius:12px;border:1px solid #00000010}
+/* Countdown tiles */
 .countdown{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:12px 0 4px}
 .tile{min-width:68px;background:#fff;border:1px solid #00000012;border-radius:14px;padding:10px 10px;text-align:center;box-shadow:0 6px 16px rgba(0,0,0,.05)}
 .num{font-size:26px;font-weight:800;font-family:"Playfair Display",serif}
 .lbl{font-size:11px;color:var(--muted)}
-
-/* Details */
-.details{margin:14px auto 10px;display:grid;gap:6px;justify-items:center}
-.badge{background:#f6f3ed;border:1px solid #00000010;border-radius:999px;padding:8px 14px;font-size:14px}
-.small{font-size:13px;color:var(--muted);text-align:center}
-.actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:10px}
-.btn{appearance:none;border:0;background:#111;color:#fff;border-radius:12px;padding:12px 16px;font-weight:700;cursor:pointer;text-decoration:none}
-.btn.ghost{background:#fff;color:#111;border:1px solid #00000020}
-
-/* Scroll-interactive ear piercing */
-.scroll-scene{margin:16px 0 8px}
-.scene-wrap{position:relative;height:60vh;min-height:420px;border:1px dashed #00000014;border-radius:16px;background:#fffafc;display:grid;place-items:center;overflow:hidden}
-.ear-zoom{width:min(68vw,320px);transition:transform .1s linear;filter:drop-shadow(0 6px 14px rgba(0,0,0,.08))}
-.earring-fly{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none}
-.earring-svg{width:54px;height:54px;filter:drop-shadow(0 6px 12px rgba(0,0,0,.12))}
-.mini-garland{position:absolute;bottom:8px;left:0;right:0;display:flex;gap:6px;justify-content:center;opacity:.9}
-.attached .earring-svg{animation:pop .6s ease-out}
-@keyframes pop{0%{transform:scale(.6)}60%{transform:scale(1.2)}100%{transform:scale(1)}}
 </style>
 </head>
 <body>
-<div class="wrap">
-<main class="card">
+<div id="story">
 
-<!-- Toran -->
-<div class="toran" aria-hidden="true">
-  <div class="string"></div>
-  <div class="flowers">
-    <div class="flower"><div class="bloom"></div><div class="leaf"></div></div>
-    <div class="flower"><div class="bloom"></div><div class="leaf r"></div></div>
-    <div class="flower"><div class="bloom"></div><div class="leaf"></div></div>
-    <div class="flower"><div class="bloom"></div><div class="leaf r"></div></div>
-    <div class="flower"><div class="bloom"></div><div class="leaf"></div></div>
-    <div class="flower"><div class="bloom"></div><div class="leaf r"></div></div>
-  </div>
-</div>
-
-<p class="kicker">You are invited</p>
-<h1 class="title">Milir</h1>
-<p class="sub">Tonsure & Ear Piercing · JC Residency, Madurai</p>
-
-<div class="countdown" id="countdown" aria-live="polite"></div>
-<p class="small">Sun, 5 Oct 2025 · 10:00 am IST</p>
-
-<section class="details">
-  <span class="badge">📍 JC Residency, Madurai</span>
-  <span class="badge">🕙 10:00 am</span>
-</section>
-
-<!-- Scroll-interactive Ear Piercing (Tamil vibe) -->
-<section class="scroll-scene" aria-label="Interactive ear piercing">
-  <p class="small" style="font-weight:600;margin-bottom:6px">காதணி போடும் விழா</p>
-  <div class="scene-wrap" id="earScene">
-    <!-- ear -->
-    <svg class="ear-zoom" id="earSvg" viewBox="0 0 220 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Baby ear">
-      <defs>
-        <radialGradient id="blush" cx="60%" cy="70%" r="40%">
-          <stop offset="0%" stop-color="#ffd2d9"/><stop offset="100%" stop-color="transparent"/>
-        </radialGradient>
-      </defs>
-      <circle cx="150" cy="150" r="60" fill="url(#blush)" opacity=".5"/>
-      <path d="M110 22c-40 0-70 22-70 64 0 24 12 42 30 54 9 6 14 15 14 26 0 12 9 22 21 22h18c12 0 21-10 21-22 0-19 6-33 19-46 12-12 19-28 19-46 0-36-32-52-72-52z" fill="#ffd8c8" stroke="#e7a892" stroke-width="3"/>
-      <path d="M128 78c-16-8-34 2-38 18-4 16 5 28 20 30" fill="none" stroke="#e6ad9b" stroke-width="4" stroke-linecap="round"/>
-      <path d="M132 130c6 10-2 22-12 22" fill="none" stroke="#e6ad9b" stroke-width="4" stroke-linecap="round"/>
-      <circle id="studSpot" cx="140" cy="120" r="3" fill="#d5a824"/>
-    </svg>
-    <!-- earring flies in -->
-    <div class="earring-fly" id="earFly" aria-hidden="true">
-      <svg viewBox="0 0 64 64" class="earring-svg">
-        <circle cx="32" cy="18" r="10" fill="var(--gold)" stroke="#d5a824" stroke-width="3"/>
-        <line x1="32" y1="28" x2="32" y2="40" stroke="#d5a824" stroke-width="3"/>
-        <g transform="translate(32,48)">
-          <circle r="8" fill="#ffe7f1" stroke="#ffbdd7" stroke-width="3"/>
-          <circle r="2" fill="#ff7eb9"/>
-        </g>
-      </svg>
+<!-- Panel 0: Splash -->
+<section class="panel">
+  <div class="center">
+    <div class="card pad" style="text-align:center">
+      <div class="toran" aria-hidden="true">
+        <div class="string"></div>
+        <div class="flowers">
+          <div class="flower"><div class="bloom"></div><div class="leaf"></div></div>
+          <div class="flower"><div class="bloom"></div><div class="leaf r"></div></div>
+          <div class="flower"><div class="bloom"></div><div class="leaf"></div></div>
+          <div class="flower"><div class="bloom"></div><div class="leaf r"></div></div>
+          <div class="flower"><div class="bloom"></div><div class="leaf"></div></div>
+          <div class="flower"><div class="bloom"></div><div class="leaf r"></div></div>
+        </div>
+      </div>
+      <div class="balloons" aria-hidden="true">
+        <div class="balloon b1" style="left:5%"></div>
+        <div class="balloon b2"></div>
+        <div class="balloon b3"></div>
+        <div class="balloon b4"></div>
+        <div class="balloon b5"></div>
+      </div>
+      <p class="kicker">You are invited</p>
+      <h1 class="title">Milir</h1>
+      <p class="sub">Tonsure & Ear Piercing · JC Residency, Madurai</p>
+      <p class="note">Scroll or tap to begin</p>
     </div>
-    <!-- mini marigold line -->
-    <div class="mini-garland" aria-hidden="true"><span>🌼</span><span>🌼</span><span>🌼</span><span>🌼</span><span>🌼</span></div>
   </div>
-  <p class="small" id="earHint">Scroll to watch the earring come closer</p>
 </section>
 
-<div class="actions">
-  <a class="btn" href="https://www.google.com/maps/search/?api=1&query=JC+Residency+Madurai" target="_blank" rel="noopener">Open map</a>
-  <button class="btn ghost" id="addCal">Add to calendar</button>
-  <button class="btn" id="shareBtn">Share</button>
-</div>
+<!-- Panel 1: Tonsure scene -->
+<section class="panel">
+  <div class="center">
+    <div class="card pad">
+      <div class="scene" id="scene1">
+        <div class="scene-inner">
+          <!-- baby front cartoon -->
+          <svg class="baby1" id="baby1" viewBox="0 0 540 520" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Baby girl">
+            <!-- head -->
+            <ellipse cx="300" cy="250" rx="180" ry="160" fill="#ffd8c8"/>
+            <!-- hair cap -->
+            <path d="M130 240c8-120 160-180 300-100 40 22 70 58 80 98-36-46-120-36-200-24-100 16-148 36-180 26z" fill="#3b2a17"/>
+            <!-- tuft that will fall -->
+            <g class="tuft fall" id="tuft">
+              <path d="M250 180 q30 -40 84 -20 q-20 28 -12 60 q-18 -10 -72 -40z" fill="#3b2a17"/>
+            </g>
+            <!-- eyes -->
+            <circle cx="250" cy="270" r="10" fill="#222"/>
+            <circle cx="350" cy="270" r="10" fill="#222"/>
+            <path d="M230 256 q20 -18 40 0" stroke="#222" stroke-width="4" fill="none"/>
+            <path d="M330 256 q20 -18 40 0" stroke="#222" stroke-width="4" fill="none"/>
+            <!-- blush -->
+            <circle cx="220" cy="312" r="16" fill="#ffced9" opacity=".7"/>
+            <circle cx="380" cy="312" r="16" fill="#ffced9" opacity=".7"/>
+            <!-- smile -->
+            <path d="M260 330 q40 34 80 0" stroke="#cc6b7a" stroke-width="6" fill="none" stroke-linecap="round"/>
+            <!-- bow -->
+            <g transform="translate(182,190) rotate(-16)">
+              <ellipse cx="-18" cy="0" rx="18" ry="12" fill="#ff9bcf"/>
+              <ellipse cx="18" cy="0" rx="18" ry="12" fill="#ff9bcf"/>
+              <circle cx="0" cy="0" r="7" fill="#ff7eb9"/>
+            </g>
+            <!-- tiny bindi -->
+            <circle cx="300" cy="220" r="3.5" fill="#d9480f"/>
+          </svg>
+          <img class="scissors" id="scissors" alt="scissors" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'><g fill='none' stroke='%23222' stroke-width='8' stroke-linecap='round'><circle cx='30' cy='30' r='18'/><circle cx='90' cy='30' r='18'/><path d='M30 30 L60 60 L90 30 M30 90 L60 60 L90 90'/></g></svg>"/>
+          <div class="hint">Tap to continue</div>
+        </div>
+      </div>
+      <p class="note" style="margin-top:8px">Mottai Ceremony · Sun, 5 Oct 2025 · 10:00 am</p>
+    </div>
+  </div>
+</section>
 
-<div class="qr">
-  <img alt="QR for location" src="https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=https%3A%2F%2Fwww.google.com%2Fmaps%2Fsearch%2F%3Fapi%3D1%26query%3DJC%2BResidency%2BMadurai"/>
-  <p class="small">Scan for directions</p>
-</div>
+<!-- Panel 2: Ear piercing scene -->
+<section class="panel">
+  <div class="center">
+    <div class="card pad">
+      <div class="scene" id="scene2">
+        <div class="scene-inner" id="scene2Inner">
+          <!-- baby side cartoon with ear anchor -->
+          <svg class="baby2" id="baby2" viewBox="0 0 560 520" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Baby girl side">
+            <!-- hair -->
+            <path d="M120 220c0-120 160-180 320-80 60 34 90 86 90 118 0 24-12 40-30 48-18 8-36 2-52-10-32-24-74-40-126-44-84-6-156 26-188 48-12 8-26 8-38 0-14-8-22-22-22-40 0-18 8-30 46-40z" fill="#3b2a17"/>
+            <!-- face shape -->
+            <path d="M220 180c0-54 44-90 98-90s100 36 100 90c0 68-58 116-130 116s-68-64-68-116z" fill="#ffd8c8"/>
+            <!-- eye + smile -->
+            <circle cx="372" cy="236" r="8" fill="#222"/>
+            <path d="M354 228 q18 -12 36 0" stroke="#222" stroke-width="4" fill="none"/>
+            <path d="M350 266 q14 18 34 0" stroke="#cc6b7a" stroke-width="5" fill="none" stroke-linecap="round"/>
+            <!-- ear with lobe anchor at precise spot -->
+            <g id="earGroup2">
+              <path d="M420 240c12 12 16 36 0 52-8 10-22 14-28 6-6-8 4-18 8-26 4-10-2-22 6-30 4-4 10-4 14-2z" fill="#ffd3c6" stroke="#e7a892" stroke-width="3"/>
+              <circle id="lobe2" cx="414" cy="280" r="4" fill="#bb9a23"/>
+            </g>
+            <!-- bow -->
+            <g transform="translate(300,152) rotate(-14)">
+              <ellipse cx="-18" cy="0" rx="18" ry="12" fill="#ff9bcf"/>
+              <ellipse cx="18" cy="0" rx="18" ry="12" fill="#ff9bcf"/>
+              <circle cx="0" cy="0" r="7" fill="#ff7eb9"/>
+            </g>
+            <!-- bindi -->
+            <circle cx="356" cy="206" r="3.5" fill="#d9480f"/>
+          </svg>
+          <!-- jhumka flies to lobe2 -->
+          <div class="fly" id="earring2">
+            <svg class="jhumka" viewBox="0 0 120 220" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <circle cx="60" cy="20" r="12" fill="var(--gold)" stroke="#bb9a23" stroke-width="4"/>
+              <rect x="58" y="32" width="4" height="64" rx="2" fill="#bb9a23"/>
+              <path d="M20 120 q40 -36 80 0 v48 H20z" fill="#ffdfa3" stroke="#bb9a23" stroke-width="4"/>
+              <g>
+                <circle cx="28" cy="172" r="6" fill="#ffb6d1" stroke="#e88cb2" stroke-width="3"/>
+                <circle cx="46" cy="182" r="6" fill="#ffe38f" stroke="#e0b54f" stroke-width="3"/>
+                <circle cx="74" cy="182" r="6" fill="#ffe38f" stroke="#e0b54f" stroke-width="3"/>
+                <circle cx="92" cy="172" r="6" fill="#ffb6d1" stroke="#e88cb2" stroke-width="3"/>
+              </g>
+            </svg>
+          </div>
+          <div class="hint">Tap to continue</div>
+        </div>
+      </div>
+      <p class="note" style="margin-top:8px">Ear Piercing Ceremony · Bless Milir with your love</p>
+    </div>
+  </div>
+</section>
 
-<p class="footer">With love — family and friends</p>
-</main>
-</div>
+<!-- Panel 3: Finale -->
+<section class="panel">
+  <div class="center">
+    <div class="card pad">
+      <p class="kicker">See you there</p>
+      <h2 class="title" style="font-size:clamp(28px,6vw,48px)">JC Residency, Madurai</h2>
+      <p class="sub">Sun, 5 Oct 2025 · 10:00 am IST</p>
+      <div class="countdown" id="countdown" aria-live="polite"></div>
+      <div class="info-grid">
+        <div class="actions">
+          <a class="btn" href="https://www.google.com/maps/search/?api=1&query=JC+Residency+Madurai" target="_blank" rel="noopener">Open map</a>
+          <button class="btn ghost" id="addCal">Add to calendar</button>
+          <button class="btn" id="shareBtn">Share</button>
+        </div>
+        <div class="qr">
+          <img alt="QR for location" src="https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=https%3A%2F%2Fwww.google.com%2Fmaps%2Fsearch%2F%3Fapi%3D1%26query%3DJC%2BResidency%2BMadurai"/>
+          <p class="note">Scan for directions</p>
+        </div>
+      </div>
+      <p class="note" style="margin-top:8px">With love — family and friends</p>
+    </div>
+  </div>
+</section>
 
+</div>
 <script>
 const EVENT_ISO = "2025-10-05T10:00:00+05:30";
-
-// countdown
+// simple pager tap support
 (function(){
-  const el=document.getElementById('countdown');
-  const parts=['Days','Hours','Mins','Secs'];
-  const tiles=parts.map(l=>{
-    const t=document.createElement('div');
-    t.className='tile';
-    t.innerHTML=`<div class="num">0</div><div class="lbl">${l}</div>`;
-    el.appendChild(t);return t
-  });
-  function tick(){
-    const now=new Date(), target=new Date(EVENT_ISO);
-    const s=Math.max(0, Math.floor((target-now)/1000));
-    const d=Math.floor(s/86400);
-    const h=Math.floor((s%86400)/3600);
-    const m=Math.floor((s%3600)/60);
-    const sec=s%60;
-    [d,h,m,sec].forEach((v,i)=>tiles[i].querySelector('.num').textContent=v);
-  }
-  setInterval(tick,1000); tick();
-})();
-
-// add to calendar
-(function(){
-  const btn=document.getElementById('addCal');
-  if(!btn) return;
-  btn.addEventListener('click',()=>{
-    const title='Milir | Tonsure & Ear Piercing';
-    const dtStart=new Date(EVENT_ISO);
-    const dtEnd=new Date(dtStart.getTime()+2*60*60*1000);
-    const fmt=d=>d.toISOString().replace(/[-:]/g,'').split('.')[0]+'Z';
-    const ics=`BEGIN:VCALENDAR
-VERSION:2.0
-BEGIN:VEVENT
-DTSTART:${fmt(dtStart)}
-DTEND:${fmt(dtEnd)}
-SUMMARY:${title}
-LOCATION:JC Residency, Madurai
-DESCRIPTION:Join us to bless Milir.
-END:VEVENT
-END:VCALENDAR`;
-    const blob=new Blob([ics],{type:'text/calendar'});
-    const url=URL.createObjectURL(blob);
-    const a=document.createElement('a'); a.href=url; a.download='milir-ceremony.ics'; a.click();
-    URL.revokeObjectURL(url);
+  const story=document.getElementById('story');
+  document.querySelectorAll('.panel').forEach((p,i,arr)=>{
+    p.addEventListener('click',()=>{if(i<arr.length-1) arr[i+1].scrollIntoView({behavior:'smooth'})});
   });
 })();
-
-// share
+// Tonsure animation trigger
 (function(){
-  const btn=document.getElementById('shareBtn');
-  if(!btn) return;
-  btn.addEventListener('click',async()=>{
-    try{
-      if(navigator.share){
-        await navigator.share({title:document.title,text:'Join us on 5 Oct 2025 at JC Residency, Madurai',url:location.href});
-      }else{
-        alert('Copy the link: '+location.href);
-      }
-    }catch{}
-  });
+  const scene=document.getElementById('scene1');
+  const sc=document.getElementById('scissors');
+  const card=scene.closest('.card');
+  const tuft=document.getElementById('tuft');
+  const io=new IntersectionObserver(([e])=>{
+    if(e.isIntersecting){card.classList.add('cut');tuft.classList.remove('fall');}
+  },{threshold:.6});io.observe(scene);
 })();
-
-// scroll-driven ear zoom + earring attach
+// Ear piercing jhumka flight
 (function(){
-  const scene=document.getElementById('earScene');
-  const ear=document.getElementById('earSvg');
-  const fly=document.getElementById('earFly');
-  const hint=document.getElementById('earHint');
-  if(!scene||!ear||!fly) return;
-  const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
-
-  function onscroll(){
+  const scene=document.getElementById('scene2');
+  const baby=document.getElementById('baby2');
+  const fly=document.getElementById('earring2');
+  function onenter(){
     const r=scene.getBoundingClientRect();
-    const vh=window.innerHeight||document.documentElement.clientHeight;
-    // progress: 0 at enter, 1 near center
-    let p=(vh*0.8 - r.top)/(r.height+vh*0.4); p=clamp(p,0,1);
-
-    // ear zoom
-    const scale=0.7 + 0.6*p;
-    ear.style.transform=`scale(${scale}) translateY(${(1-p)*20}px)`;
-
-    // earring flight to stud spot
-    const spot=ear.querySelector('#studSpot');
-    const bb=spot.getBoundingClientRect();
+    const lobe=document.getElementById('lobe2');
+    const bb=lobe.getBoundingClientRect();
     const sc=scene.getBoundingClientRect();
-    const cx=bb.left + bb.width/2 - sc.left;
-    const cy=bb.top + bb.height/2 - sc.top;
-
-    const startX=sc.width*0.75, startY=-sc.height*0.2; // from top-right
-    const x=startX + (cx - startX)*p;
-    const y=startY + (cy - startY)*p;
-    const s=0.6 + 0.5*p, rot=45*(1-p);
-
-    fly.style.transform=`translate(${x - sc.width/2}px, ${y - sc.height/2}px) rotate(${rot}deg) scale(${s})`;
-    fly.style.opacity=0.2 + 0.8*p;
-
-    if(p>0.98){
-      scene.classList.add('attached');
-      hint.textContent='இப்போது தயார் • see you soon';
-    }else{
-      scene.classList.remove('attached');
-      hint.textContent='Scroll to watch the earring come closer';
-    }
+    const tx=bb.left+bb.width/2 - sc.left; const ty=bb.top+bb.height/2 - sc.top;
+    // start from top-right outside
+    const startX=sc.width*0.9, startY=-sc.height*0.3;
+    fly.animate([
+      {transform:`translate(${startX}px, ${startY}px) scale(.6) rotate(8deg)`,opacity:.2},
+      {transform:`translate(${tx}px, ${ty-20}px) scale(.9) rotate(0deg)`,opacity:.95,offset:.7},
+      {transform:`translate(${tx}px, ${ty}px) scale(1) rotate(0deg)`,opacity:1}
+    ],{duration:1200,easing:'cubic-bezier(.2,.8,.2,1)',fill:'forwards'});
+    baby.animate([
+      {transform:'translate(-44%,-50%) scale(.95)'},
+      {transform:'translate(-44%,-50%) scale(1.05)'}
+    ],{duration:1200,easing:'ease-out',fill:'forwards'});
   }
-  onscroll();
-  document.addEventListener('scroll',onscroll,{passive:true});
-  window.addEventListener('resize',onscroll);
+  const io=new IntersectionObserver(([e])=>{if(e.isIntersecting) onenter();},{threshold:.6});
+  io.observe(scene);
 })();
+// Countdown
+(function(){const el=document.getElementById('countdown');const parts=['Days','Hours','Mins','Secs'];const tiles=parts.map(l=>{const t=document.createElement('div');t.className='tile';t.innerHTML=`<div class="num">0</div><div class="lbl">${l}</div>`;el.appendChild(t);return t});function tick(){const now=new Date();const target=new Date(EVENT_ISO);const s=Math.max(0,Math.floor((target-now)/1000));const d=Math.floor(s/86400);const h=Math.floor((s%86400)/3600);const m=Math.floor((s%3600)/60);const sec=s%60;[d,h,m,sec].forEach((v,i)=>tiles[i].querySelector('.num').textContent=v)}setInterval(tick,1000);tick();})();
+// Add to calendar
+(function(){const btn=document.getElementById('addCal');if(!btn) return;btn.addEventListener('click',()=>{const title='Milir | Tonsure & Ear Piercing';const dtStart=new Date(EVENT_ISO);const dtEnd=new Date(dtStart.getTime()+2*60*60*1000);const fmt=d=>d.toISOString().replace(/[-:]/g,'').split('.')[0]+'Z';const ics=`BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nDTSTART:${fmt(dtStart)}\nDTEND:${fmt(dtEnd)}\nSUMMARY:${title}\nLOCATION:JC Residency, Madurai\nDESCRIPTION:Join us to bless Milir.\nEND:VEVENT\nEND:VCALENDAR`;const blob=new Blob([ics],{type:'text/calendar'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='milir-ceremony.ics';a.click();URL.revokeObjectURL(url)});})();
+// Share
+(function(){const btn=document.getElementById('shareBtn');if(!btn) return;btn.addEventListener('click',async()=>{try{if(navigator.share){await navigator.share({title:document.title,text:'Join us on 5 Oct 2025 at JC Residency, Madurai',url:location.href});}else{alert('Copy the link: '+location.href)}}catch{}})} )();
 </script>
 </body>
 </html>
