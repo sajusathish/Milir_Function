@@ -56,13 +56,13 @@ img,svg{max-width:100%;display:block}
 .scene{border:1px dashed #00000014;border-radius:14px;background:#fff;padding:12px;margin:12px 0;position:relative;overflow:hidden}
 .scene h3{margin:0 0 8px 0;text-align:center;font-weight:800;font-size:16px}
 
-/* Mottai: step-by-step scroll crossfade (no particles) */
+/* Mottai: crossfade that hijacks scroll while fully visible */
 .mottai .frame{position:relative;width:100%;aspect-ratio:4/5;background:#fff;overflow:hidden;border:1px solid #00000010;border-radius:14px}
-.mottai img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;transition:opacity .15s linear, transform .15s linear}
-#withHair{opacity:1;transform:translateY(0)}   /* full hair at start */
+.mottai img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;transition:opacity .12s linear, transform .12s linear}
+#withHair{opacity:1;transform:translateY(0)} /* start with hair fully visible */
 #bald{opacity:0}
 
-/* Ear-piercing mini scene (simple) */
+/* Ear-piercing mini scene */
 .pierce .stage{position:relative;border:1px solid #00000010;border-radius:14px;overflow:hidden;background:linear-gradient(180deg,#fff,#fff6f6);aspect-ratio:4/3}
 .jhumka{position:absolute;left:50%;top:8%;transform-origin:50% 12%;transform:translateX(-50%) rotate(-28deg) scale(.92);opacity:0;filter:drop-shadow(0 6px 14px rgba(0,0,0,.12))}
 .swing .jhumka{animation:swingIn 1.15s cubic-bezier(.2,.8,.2,1) forwards}
@@ -128,7 +128,7 @@ img,svg{max-width:100%;display:block}
     <span class="badge">🕙 10:00 am</span>
   </section>
 
-  <!-- Mottai: step-by-step scroll transition -->
+  <!-- Mottai crossfade -->
   <section class="scene mottai" id="mottaiScene" aria-label="Mottai">
     <h3>Mottai Ceremony</h3>
     <div class="frame" id="frameBox">
@@ -249,67 +249,85 @@ END:VCALENDAR`;
   });
 })();
 
-/* Mottai: step-by-step scroll driver (no particles) */
+/* UTIL */
+function fullyVisible(el, margin=6){
+  const r = el.getBoundingClientRect();
+  const vh = window.innerHeight || document.documentElement.clientHeight;
+  const topOk = r.top >= margin;
+  const botOk = r.bottom <= vh - margin;
+  return topOk && botOk;
+}
+
+/* Mottai: start only when fully visible. While transitioning, hijack scroll globally. */
 (function(){
-  const scene  = document.getElementById('mottaiScene');
+  const scene    = document.getElementById('mottaiScene');
   const withHair = document.getElementById('withHair');
   const bald     = document.getElementById('bald');
   if(!scene || !withHair || !bald) return;
 
-  let progress = 0;               // 0 = full hair, 1 = fully bald
-  const stepPerWheel = 0.08;      // change this to tune how much each scroll moves
-  const stepPerTouch = 0.0025;    // touch drag sensitivity
+  let progress = 0;                 // 0 = hair, 1 = bald
+  const stepWheel = 0.08;           // wheel step
+  const stepTouch = 0.003;          // touch sensitivity
   const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
 
-  // apply visual state
   function render(){
     const p = clamp(progress,0,1);
     withHair.style.opacity = 1 - p;
     withHair.style.transform = `translateY(${(-12*p)}px)`;
     bald.style.opacity = p;
   }
-  render(); // start: hair 100%
+  render();
 
-  // only intercept scroll when the scene is mostly in view
-  function sceneInView(){
-    const r=scene.getBoundingClientRect();
-    const vh=window.innerHeight||document.documentElement.clientHeight;
-    return r.top < vh*0.75 && r.bottom > vh*0.25;
+  function shouldHijack(delta){
+    // Only hijack if the scene is fully visible and we are able to change progress in the scroll direction.
+    if(!fullyVisible(scene)) return false;
+    if(delta > 0 && progress < 1) return true;   // scrolling down and can go toward bald
+    if(delta < 0 && progress > 0) return true;   // scrolling up and can go toward hair
+    return false;
   }
 
-  // wheel - stepwise
-  scene.addEventListener('wheel',(e)=>{
-    if(!sceneInView()) return;
-    e.preventDefault();
-    const dir = e.deltaY>0 ? 1 : -1;
-    progress = clamp(progress + dir*stepPerWheel, 0, 1);
-    render();
+  // Global wheel
+  window.addEventListener('wheel', (e)=>{
+    const delta = e.deltaY;
+    if(shouldHijack(delta)){
+      e.preventDefault();
+      progress = clamp(progress + (delta>0 ? stepWheel : -stepWheel), 0, 1);
+      render();
+    }
+    // If we are at 0 or 1, do not preventDefault, allow page to continue scrolling.
   }, {passive:false});
 
-  // touch drag - stepwise
-  let tStartY=null;
-  scene.addEventListener('touchstart',e=>{ if(!sceneInView()) return; tStartY = e.touches[0].clientY; }, {passive:true});
-  scene.addEventListener('touchmove',e=>{
-    if(tStartY===null || !sceneInView()) return;
-    const dy = tStartY - e.touches[0].clientY; // swipe up -> positive
-    progress = clamp(progress + dy*stepPerTouch, 0, 1);
-    tStartY = e.touches[0].clientY;
-    render();
+  // Global touch
+  let touchY=null;
+  window.addEventListener('touchstart', (e)=>{
+    touchY = e.touches && e.touches.length ? e.touches[0].clientY : null;
   }, {passive:true});
-  scene.addEventListener('touchend',()=>{tStartY=null});
 
-  // keyboard (optional)
-  scene.addEventListener('keydown',(e)=>{
-    if(!sceneInView()) return;
-    if(e.key==='ArrowDown' || e.key==='PageDown'){e.preventDefault();progress=clamp(progress+stepPerWheel,0,1);render();}
-    if(e.key==='ArrowUp'   || e.key==='PageUp'){e.preventDefault();progress=clamp(progress-stepPerWheel,0,1);render();}
+  window.addEventListener('touchmove', (e)=>{
+    if(touchY===null) return;
+    const y = e.touches[0].clientY;
+    const dy = touchY - y; // up = positive (like wheel delta > 0)
+    const delta = dy;      // use sign only
+    if(shouldHijack(delta)){
+      e.preventDefault();
+      progress = clamp(progress + (dy>0 ? stepTouch*dy : stepTouch*dy), 0, 1);
+      render();
+    }
+    touchY = y;
+  }, {passive:false});
+
+  window.addEventListener('touchend', ()=>{ touchY=null; }, {passive:true});
+
+  // Keyboard for accessibility (only when fully visible)
+  window.addEventListener('keydown', (e)=>{
+    if(!fullyVisible(scene)) return;
+    if(e.key==='ArrowDown' || e.key==='PageDown'){
+      if(progress < 1){ e.preventDefault(); progress = clamp(progress + stepWheel, 0, 1); render(); }
+    }
+    if(e.key==='ArrowUp' || e.key==='PageUp'){
+      if(progress > 0){ e.preventDefault(); progress = clamp(progress - stepWheel, 0, 1); render(); }
+    }
   });
-
-  // fallback: slight progress from generic page scroll if not using the wheel on the scene
-  document.addEventListener('scroll',()=>{
-    if(!sceneInView()) return;
-    // no automatic mapping here to keep it stepwise as requested
-  }, {passive:true});
 })();
 
 /* Ear Piercing swing when visible */
