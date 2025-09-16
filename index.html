@@ -38,8 +38,6 @@ img,svg,canvas{max-width:100%;display:block}
 /* PARTY BAR (bunting + balloons) */
 .partybar{position:absolute;left:-6%;right:-6%;top:0;height:120px;pointer-events:none;animation:breeze 6.5s ease-in-out infinite}
 .partybar .string{position:absolute;left:0;right:0;top:24px;height:2px;background:var(--line);border-radius:2px}
-
-/* bunting flags */
 .flags{position:absolute;left:0;right:0;top:26px;display:flex;justify-content:space-between;padding:0 20px}
 .flag{width:0;height:0;border-left:18px solid transparent;border-right:18px solid transparent;border-top:28px solid var(--c1);
   transform-origin:top center;animation:flagSway 4.2s ease-in-out infinite}
@@ -52,28 +50,15 @@ img,svg,canvas{max-width:100%;display:block}
 .flag:nth-child(8){border-top-color:var(--c3);animation-delay:.45s}
 .flag:nth-child(9){border-top-color:var(--c4);animation-delay:.15s}
 .flag:nth-child(10){border-top-color:var(--c5);animation-delay:.35s}
-
-/* balloons */
 .balloons{position:absolute;left:0;right:0;top:-6px;display:flex;justify-content:space-around;padding:0 30px}
 .balloon{width:54px;height:72px;animation:floatBob 5.5s ease-in-out infinite}
 .balloon.f2{animation-duration:6.2s; animation-delay:-.6s}
 .balloon.f3{animation-duration:5.8s; animation-delay:-.2s}
 .balloon .b{filter:drop-shadow(0 6px 10px rgba(0,0,0,.12))}
 .balloon .s{stroke:#555;stroke-width:2;fill:none;stroke-linecap:round;opacity:.6}
-
-/* breeze + waving keyframes */
-@keyframes breeze{
-  0%,100%{ transform:translateY(0) }
-  50%{ transform:translateY(6px) }
-}
-@keyframes flagSway{
-  0%,100%{ transform:rotate(-6deg) translateY(0) }
-  50%{ transform:rotate(6deg) translateY(3px) }
-}
-@keyframes floatBob{
-  0%,100%{ transform:translateY(0) rotate(-1deg) }
-  50%{ transform:translateY(9px) rotate(1deg) }
-}
+@keyframes breeze{0%,100%{transform:translateY(0)}50%{transform:translateY(6px)}}
+@keyframes flagSway{0%,100%{transform:rotate(-6deg) translateY(0)}50%{transform:rotate(6deg) translateY(3px)}}
+@keyframes floatBob{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(9px) rotate(1deg)}}
 
 /* Typography */
 .kicker{margin-top:92px;text-align:center;letter-spacing:.14em;text-transform:uppercase;font-size:12px;color:var(--muted)}
@@ -103,7 +88,17 @@ img,svg,canvas{max-width:100%;display:block}
 
 /* Actions + QR */
 .actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:10px}
-.btn{appearance:none;border:1px solid var(--border);border-radius:12px;padding:12px 16px;font-weight:700;cursor:pointer;text-decoration:none}
+.btn{
+  appearance:none; -webkit-appearance:none;
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:12px 16px;
+  font-weight:700;
+  font-family:inherit; /* ensure same font on <a> and <button> */
+  line-height:1;       /* normalize */
+  display:inline-flex; align-items:center; justify-content:center;
+  cursor:pointer; text-decoration:none;
+}
 .btn.light{background:var(--light);color:#111}
 .btn.light:hover{background:var(--light2)}
 .btn.dark{background:#111;color:#fff;border-color:transparent}
@@ -314,8 +309,8 @@ const Confetti = (function(){
   if(!scene||!hairImg||!baldImg) return;
 
   let progress = 0;           // 0 hair -> 1 bald
-  const stepWheel = 0.04;     // wheel sensitivity
-  const stepTouch = 0.0015;    // touch sensitivity
+  const stepWheel = 0.04;     // slower: about double the scrolls
+  const stepTouch = 0.0015;   // slower touch
   let completed = false;
   let postHold = 0;           // extra scrolls after complete
   const postHoldNeeded = 2;
