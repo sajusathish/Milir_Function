@@ -23,9 +23,13 @@ html,body{overscroll-behavior-y: contain}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:Poppins,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
 img,svg,canvas{max-width:100%;display:block}
 
-/* transparent capture layer */
-#captureLayer{position:fixed; inset:0; z-index:6; pointer-events:none; background:transparent}
-#captureLayer.active{pointer-events:auto}
+/* transparent capture layer for touch-anywhere when active */
+#captureLayer{
+  position:fixed; inset:0; z-index:6; pointer-events:none; background:transparent;
+}
+#captureLayer.active{
+  pointer-events:auto; touch-action:none; /* allow preventDefault on touchmove */
+}
 
 /* global confetti */
 #confettiGlobal{position:fixed; inset:0; width:100vw; height:100vh; pointer-events:none; z-index:9999; opacity:0; transition:opacity .25s}
@@ -110,9 +114,6 @@ img,svg,canvas{max-width:100%;display:block}
 .footer{text-align:center;color:var(--muted);font-size:12px;margin-top:12px}
 .buffer{height:72px}
 
-/* tiny skip link */
-.skip{position:absolute;top:8px;right:10px;font-size:12px;color:#666;text-decoration:underline;background:#fff8;border-radius:8px;padding:4px 8px}
-
 @media (prefers-reduced-motion: reduce){.flag,.balloon,.partybar{animation:none!important}}
 </style>
 </head>
@@ -145,8 +146,6 @@ img,svg,canvas{max-width:100%;display:block}
       </svg>
     </div>
   </div>
-
-  <a class="skip" href="#" id="skipAnim">Skip animation</a>
 
   <p class="kicker">You are invited to</p>
   <h1 class="title">Milir's</h1>
@@ -281,13 +280,12 @@ const Confetti=(function(){
   return {start};
 })();
 
-/* interaction: global listeners, no hard scroll lock */
+/* interaction: overlay for touch, window for wheel; no hard body lock */
 (function(){
   const scene=document.getElementById('mottaiScene');
   const hair=document.getElementById('withHair');
   const bald=document.getElementById('bald');
   const overlay=document.getElementById('captureLayer');
-  const skip=document.getElementById('skipAnim');
   if(!scene||!hair||!bald||!overlay) return;
 
   let progress=0;                 // 0 hair -> 1 bald
@@ -298,10 +296,9 @@ const Confetti=(function(){
   let postHold=0, postHoldNeeded=2;
   let preHold=0,  preHoldNeeded=2;
 
-  let captureUntil=0;
+  const ARM_VIS=0.85;
   let lastVis=0;
-  let hijacking=false;           // true only while we actively consume a gesture
-  let failSafeTimer=null;
+  let cooldownUntil=0;
 
   function render(){
     const p=Math.max(0,Math.min(1,progress));
@@ -311,41 +308,19 @@ const Confetti=(function(){
   }
   render();
 
-  function armCaptureIfReady(){
+  function needsPlay(){
+    return (!completed || postHold<postHoldNeeded || progress>0);
+  }
+
+  function updateOverlay(){
     const vis=visibilityRatio(scene);
-    if(vis>=0.98 && lastVis<0.98){
-      captureUntil=performance.now()+800;
-      preHold=0;
-    }
-    lastVis=vis;
-
-    const needsPlay = (!completed || postHold<postHoldNeeded || progress>0);
-    const active = ((performance.now()<=captureUntil && vis>=0.98) || (fullyVisible(scene,6) && needsPlay));
+    const active = vis>=ARM_VIS && needsPlay() && performance.now()>=cooldownUntil;
     overlay.classList.toggle('active', active);
-
-    // if the scene is not active or no longer needs play, make sure we are not hijacking
-    if(!active || !needsPlay) endHijack();
+    lastVis=vis;
   }
-  document.addEventListener('scroll', armCaptureIfReady, {passive:true});
-  window.addEventListener('resize', armCaptureIfReady, {passive:true});
-  armCaptureIfReady();
-
-  function canCapture(){ return performance.now()<=captureUntil && visibilityRatio(scene)>=0.98; }
-
-  function shouldHijack(delta){
-    if(overlay.classList.contains('active')) return true;
-    if(canCapture()) return true;
-    if(!fullyVisible(scene,6)) return false;
-    if(delta>0 && progress===0 && !completed && preHold<preHoldNeeded) return true;
-    if(completed){
-      if(delta>0 && postHold<postHoldNeeded) return true;
-      if(delta<0 && progress>0) return true;
-      return false;
-    }
-    if(delta>0 && progress<1) return true;
-    if(delta<0 && progress>0) return true;
-    return false;
-  }
+  document.addEventListener('scroll', updateOverlay, {passive:true});
+  window.addEventListener('resize', updateOverlay, {passive:true});
+  updateOverlay();
 
   function onAdvance(amount){
     const prev=progress;
@@ -355,96 +330,98 @@ const Confetti=(function(){
     if(prev===1 && progress<1){ completed=false; }
   }
 
-  function beginHijack(){
-    if(hijacking) return;
-    hijacking=true;
-    clearTimeout(failSafeTimer);
-    failSafeTimer=setTimeout(()=>{ endHijack(); }, 3000); // never trap more than 3s
-  }
-  function endHijack(){
-    hijacking=false;
-    clearTimeout(failSafeTimer);
-    failSafeTimer=null;
+  function shouldHijack(delta){
+    const vis = lastVis>=ARM_VIS || visibilityRatio(scene)>=ARM_VIS;
+    if(!vis) return false;
+    const down = delta>0;
+    if(down){
+      if(progress===0 && preHold<preHoldNeeded) return true;
+      if(!completed && progress<1) return true;
+      if(completed && postHold<postHoldNeeded) return true;
+      return false;
+    }else{
+      if(progress>0) return true;
+      return false;
+    }
   }
 
-  /* WHEEL */
+  /* wheel: prevent page scroll only while we are advancing */
   window.addEventListener('wheel',(e)=>{
     const d=e.deltaY;
-    if(shouldHijack(d)){
+    if(overlay.classList.contains('active') || shouldHijack(d)){
       e.preventDefault();
-      beginHijack();
-      if((canCapture() || (d>0 && progress===0)) && preHold<preHoldNeeded){ preHold++; return; }
-      if(d>0){ if(completed){ postHold++; } else { onAdvance(stepWheel); } }
-      else   { onAdvance(-stepWheel); }
-      // stop hijacking when done
-      if((completed && postHold>=postHoldNeeded) || (!completed && progress===0 && d<0)){
-        endHijack();
+      if(d>0){
+        if(progress===0 && preHold<preHoldNeeded){
+          preHold++;
+        }else if(!completed){
+          onAdvance(stepWheel);
+        }else{
+          postHold++;
+          if(postHold>=postHoldNeeded){
+            cooldownUntil=performance.now()+700; // let next wheel scroll page
+            updateOverlay();
+          }
+        }
+      }else{
+        onAdvance(-stepWheel);
+        if(progress===0){
+          cooldownUntil=performance.now()+400;
+          updateOverlay();
+        }
       }
-    }else{
-      endHijack();
     }
   },{passive:false});
 
-  /* TOUCH */
-  let oy=null, gestureActive=false;
-  document.documentElement.addEventListener('touchstart',(e)=>{
-    if(visibilityRatio(scene)>=0.9){
-      gestureActive=true;
-      oy=e.touches[0].clientY;
-    }else{
-      gestureActive=false; oy=null;
-    }
-  },{passive:true});
-
-  document.documentElement.addEventListener('touchmove',(e)=>{
-    if(!gestureActive || oy===null) return;
+  /* touch on overlay (active only) */
+  let oy=null;
+  overlay.addEventListener('touchstart',(e)=>{ oy=e.touches[0].clientY; },{passive:true});
+  overlay.addEventListener('touchmove',(e)=>{
+    if(oy===null) return;
     const y=e.touches[0].clientY, dy=oy-y; // down positive
     if(shouldHijack(dy)){
       e.preventDefault();
-      beginHijack();
-      if((canCapture() || (dy>0 && progress===0)) && preHold<preHoldNeeded){
-        preHold += Math.abs(dy)*0.01;
-        if(preHold>preHoldNeeded) preHold=preHoldNeeded;
-        oy=y; return;
+      if(dy>0){
+        if(progress===0 && preHold<preHoldNeeded){
+          preHold += Math.abs(dy)*0.01;
+          if(preHold>preHoldNeeded) preHold=preHoldNeeded;
+        }else if(!completed){
+          onAdvance(stepTouch*dy);
+        }else{
+          postHold += Math.abs(dy)*0.01;
+          if(postHold>=postHoldNeeded){
+            cooldownUntil=performance.now()+700;
+            updateOverlay();
+          }
+        }
+      }else{
+        onAdvance(stepTouch*dy);
+        if(progress===0){
+          cooldownUntil=performance.now()+400;
+          updateOverlay();
+        }
       }
-      if(dy>0){ if(completed){ postHold+=Math.abs(dy)*0.01; } else { onAdvance(stepTouch*dy); } }
-      else    { onAdvance(stepTouch*dy); }
-      if(completed && postHold>=postHoldNeeded){ endHijack(); }
-    }else{
-      endHijack();
     }
     oy=y;
   },{passive:false});
+  overlay.addEventListener('touchend',()=>{ oy=null; },{passive:true});
 
-  document.documentElement.addEventListener('touchend',()=>{ oy=null; gestureActive=false; endHijack(); },{passive:true});
-
-  // keyboard
-  window.addEventListener('keydown',(e)=>{
-    if(visibilityRatio(scene)<0.98) return;
-    if(e.key==='Escape'){ // emergency out
-      completed=true; postHold=postHoldNeeded; progress=1; render(); endHijack(); return;
-    }
-    if(e.key==='ArrowDown'||e.key==='PageDown'){
+  /* fallback: allow upward swipe to rewind even if overlay just deactivated */
+  document.documentElement.addEventListener('touchmove',(e)=>{
+    if(overlay.classList.contains('active')) return;
+    if(fullyVisible(scene,6) && progress>0){
+      const y=e.touches[0].clientY;
+      const dy=(oy??y)-y;
       e.preventDefault();
-      beginHijack();
-      if(preHold<preHoldNeeded){ preHold++; return; }
-      if(completed){ if(postHold<postHoldNeeded) postHold++; }
-      else if(progress<1){ onAdvance(0.06); }
-      if(completed && postHold>=postHoldNeeded){ endHijack(); }
+      onAdvance(stepTouch*dy);
+      oy=y;
+      if(progress===0){
+        cooldownUntil=performance.now()+400;
+        updateOverlay();
+      }
     }
-    if(e.key==='ArrowUp'||e.key==='PageUp'){
-      if(progress>0){ e.preventDefault(); beginHijack(); onAdvance(-0.06); }
-    }
-  });
+  },{passive:false});
 
-  // skip link
-  skip?.addEventListener('click',(e)=>{
-    e.preventDefault();
-    completed=true; postHold=postHoldNeeded; progress=1; render(); endHijack();
-  });
-
-  // keep overlay state fresh
-  armCaptureIfReady();
+  updateOverlay();
 })();
 </script>
 </body>
