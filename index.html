@@ -18,6 +18,7 @@
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
+html,body{overscroll-behavior-y: contain} /* reduce fling skipping */
 body{margin:0;background:var(--bg);color:var(--ink);font-family:Poppins,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
 img,svg,canvas{max-width:100%;display:block}
 
@@ -218,7 +219,7 @@ END:VCALENDAR`;
   });
 })();
 
-/* helpers */
+/* utils */
 function fullyVisible(el, margin=6){
   const r=el.getBoundingClientRect(); const vh=window.innerHeight||document.documentElement.clientHeight;
   return (r.top>=margin)&&(r.bottom<=vh-margin);
@@ -253,7 +254,7 @@ const Confetti=(function(){
   return {start};
 })();
 
-/* interaction: no snap, only when fully visible */
+/* interaction: global capture window when scene becomes fully visible */
 (function(){
   const scene=document.getElementById('mottaiScene');
   const hair=document.getElementById('withHair');
@@ -261,14 +262,16 @@ const Confetti=(function(){
   if(!scene||!hair||!bald) return;
 
   let progress=0;                 // 0 hair -> 1 bald
-  const stepWheel=0.06;           // requested speed
-  const stepTouch=0.0022;         // requested speed
+  const stepWheel=0.06;           // speed
+  const stepTouch=0.0022;         // speed
   let completed=false;
-  let postHold=0;
-  const postHoldNeeded=2;
 
-  let preHold=0;
-  const preHoldNeeded=2;
+  let postHold=0, postHoldNeeded=2;
+  let preHold=0,  preHoldNeeded=2;
+
+  // NEW: capture window in ms after scene first becomes fully visible
+  let captureUntil=0;
+  let wasFullyVisible=false;
 
   function render(){
     const p=Math.max(0,Math.min(1,progress));
@@ -278,13 +281,32 @@ const Confetti=(function(){
   }
   render();
 
+  // watch scroll to arm capture window
+  window.addEventListener('scroll', ()=>{
+    const fv=fullyVisible(scene,6);
+    if(fv && !wasFullyVisible){
+      captureUntil=performance.now()+450; // capture for ~0.45s
+      preHold=0; // start pre-hold fresh each time it fully enters
+    }
+    wasFullyVisible=fv;
+  }, {passive:true});
+
+  function canCapture(){
+    const now=performance.now();
+    return fullyVisible(scene,6) && now<=captureUntil;
+  }
+
   function shouldHijack(delta){
-    // Only act when the scene is fully visible. No snap, no partial hijack.
+    // If within capture window, always hijack regardless of where the swipe started
+    if(canCapture()) return true;
+
+    // Outside capture window, only when fully visible
     if(!fullyVisible(scene,6)) return false;
 
-    // Pre-hold at the start
+    // Pre-hold at start
     if(delta>0 && progress===0 && !completed && preHold<preHoldNeeded) return true;
 
+    // Normal rules
     if(completed){
       if(delta>0 && postHold<postHoldNeeded) return true;
       if(delta<0 && progress>0) return true;
@@ -308,8 +330,12 @@ const Confetti=(function(){
     const d=e.deltaY;
     if(shouldHijack(d)){
       e.preventDefault();
+      // during capture window, consume the first 2 down-scrolls as pre-hold if at start
+      if((canCapture() || (d>0 && progress===0)) && preHold<preHoldNeeded){
+        preHold++;
+        return;
+      }
       if(d>0){
-        if(progress===0 && !completed && preHold<preHoldNeeded){ preHold++; return; }
         if(completed){ postHold++; } else { onAdvance(stepWheel); }
       }else{
         onAdvance(-stepWheel);
@@ -328,13 +354,13 @@ const Confetti=(function(){
     const dy=touchY-y; // down positive
     if(shouldHijack(dy)){
       e.preventDefault();
+      if((canCapture() || (dy>0 && progress===0)) && preHold<preHoldNeeded){
+        preHold+=Math.max(0,Math.abs(dy)*0.01);
+        if(preHold>preHoldNeeded) preHold=preHoldNeeded;
+        touchY=y;
+        return;
+      }
       if(dy>0){
-        if(progress===0 && !completed && preHold<preHoldNeeded){
-          preHold+=Math.max(0,Math.abs(dy)*0.01);
-          if(preHold>preHoldNeeded) preHold=preHoldNeeded;
-          touchY=y;
-          return;
-        }
         if(completed){ postHold+=Math.abs(dy)*0.01; }
         else{ onAdvance(stepTouch*dy); }
       }else{
@@ -350,7 +376,7 @@ const Confetti=(function(){
     if(!fullyVisible(scene,6)) return;
     if(e.key==='ArrowDown'||e.key==='PageDown'){
       e.preventDefault();
-      if(progress===0 && !completed && preHold<preHoldNeeded){ preHold++; return; }
+      if(preHold<preHoldNeeded){ preHold++; return; }
       if(completed){ if(postHold<postHoldNeeded) postHold++; }
       else if(progress<1){ onAdvance(0.06); }
     }
