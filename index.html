@@ -4,7 +4,7 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
 <meta name="theme-color" content="#ffffff"/>
-<title>Milir | Tonsure & Ear Piercing</title>
+<title>Milir's | Tonsure & Ear Piercing</title>
 <meta name="description" content="Invite for Milir's tonsure and ear piercing at JC Residency, Madurai on 5 Oct 2025, 10:00 am."/>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,46 +12,57 @@
 <style>
 :root{
   --ink:#222; --muted:#6b6b6b; --bg:#faf7f2; --card:#fff;
-  --marigold:#f2a900; --leaf:#2f9e44; --gold:#f4c542; --gold2:#bb9a23;
+  --c1:#ff7eb9; --c2:#ffd166; --c3:#90cdf4; --c4:#95e1d3; --c5:#a29bfe;
+  --line:#00000018;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:Poppins,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
 img,svg,canvas{max-width:100%;display:block}
 
-/* global confetti - stays hidden until transition completes */
+/* global confetti on top, hidden until transition completes */
 #confettiGlobal{
-  position:fixed;
-  inset:0;
-  width:100vw;
-  height:100vh;
-  pointer-events:none;
-  z-index:9999; /* on top of everything */
-  opacity:0;    /* hidden until started */
-  transition:opacity .25s ease;
+  position:fixed; inset:0; width:100vw; height:100vh; pointer-events:none;
+  z-index:9999; opacity:0; transition:opacity .25s ease;
 }
 
 /* layout */
 .wrap{min-height:100svh;display:grid;place-items:center;padding:16px;position:relative;z-index:2}
 .card{position:relative;background:var(--card);border:1px solid #00000010;border-radius:22px;max-width:560px;width:100%;padding:18px 18px 24px;box-shadow:0 18px 60px rgba(0,0,0,.08);overflow:hidden}
 
-/* Toran */
-.toran{position:absolute;left:-6%;right:-6%;top:-2px;height:120px;pointer-events:none}
-.string{position:absolute;left:0;right:0;top:22px;height:2px;background:#00000018;border-radius:2px}
-.flowers{position:absolute;left:0;right:0;top:0;display:flex;justify-content:space-between;padding:0 22px}
-.flower{width:56px;height:80px;display:grid;place-items:flex-start;transform-origin:top center;animation:sway 3.8s ease-in-out infinite}
-.bloom{width:44px;height:44px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#ffd76a,var(--marigold));box-shadow:inset 0 8px 14px rgba(0,0,0,.12),0 3px 6px rgba(0,0,0,.12)}
-.leaf{width:10px;height:18px;background:var(--leaf);border-radius:10px 10px 2px 10px;margin:2px 0 0 18px;transform:rotate(-14deg)}
-.leaf.r{margin-left:0;margin-right:18px;transform:rotate(14deg);justify-self:end}
-@keyframes sway{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
-
-/* Kolam corners */
+/* decorative corners */
 .corner{position:absolute;width:90px;height:90px;opacity:.25}
 .corner.tl{top:6px;left:6px}
 .corner.br{bottom:6px;right:6px;transform:scale(-1,-1)}
 
+/* PARTY BAR (bunting + balloons) */
+.partybar{position:absolute;left:-6%;right:-6%;top:0;height:120px;pointer-events:none}
+.partybar .string{position:absolute;left:0;right:0;top:24px;height:2px;background:var(--line);border-radius:2px}
+.flags{position:absolute;left:0;right:0;top:26px;display:flex;justify-content:space-between;padding:0 20px}
+.flag{width:0;height:0;border-left:18px solid transparent;border-right:18px solid transparent;border-top:28px solid var(--c1);transform-origin:top center;animation:flagSway 4s ease-in-out infinite}
+.flag:nth-child(2){border-top-color:var(--c2);animation-delay:.2s}
+.flag:nth-child(3){border-top-color:var(--c3);animation-delay:.4s}
+.flag:nth-child(4){border-top-color:var(--c4);animation-delay:.1s}
+.flag:nth-child(5){border-top-color:var(--c5);animation-delay:.3s}
+.flag:nth-child(6){border-top-color:var(--c1);animation-delay:.5s}
+.flag:nth-child(7){border-top-color:var(--c2);animation-delay:.25s}
+.flag:nth-child(8){border-top-color:var(--c3);animation-delay:.45s}
+.flag:nth-child(9){border-top-color:var(--c4);animation-delay:.15s}
+.flag:nth-child(10){border-top-color:var(--c5);animation-delay:.35s}
+@keyframes flagSway{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(6deg)}}
+
+/* Balloons */
+.balloons{position:absolute;left:0;right:0;top:-6px;display:flex;justify-content:space-around;padding:0 30px}
+.balloon{width:54px;height:72px}
+.balloon .b{filter:drop-shadow(0 6px 10px rgba(0,0,0,.12))}
+.balloon .s{stroke:#555;stroke-width:2;fill:none;stroke-linecap:round;opacity:.6}
+.balloon.f1{animation:float 5s ease-in-out -0.5s infinite}
+.balloon.f2{animation:float 6s ease-in-out -1s infinite}
+.balloon.f3{animation:float 5.5s ease-in-out -0.2s infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(8px)}}
+
 /* Typography */
-.kicker{margin-top:78px;text-align:center;letter-spacing:.14em;text-transform:uppercase;font-size:12px;color:var(--muted)}
+.kicker{margin-top:92px;text-align:center;letter-spacing:.14em;text-transform:uppercase;font-size:12px;color:var(--muted)}
 .title{font-family:"Playfair Display",serif;font-weight:800;font-size:clamp(36px,7vw,60px);line-height:1.04;text-align:center;margin:6px 0}
 .sub{font-size:15px;text-align:center;color:#333}
 
@@ -88,13 +99,13 @@ img,svg,canvas{max-width:100%;display:block}
 
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce){
-  .flower{animation:none!important}
+  .flag,.balloon{animation:none!important}
 }
 </style>
 </head>
 <body>
 
-<!-- global confetti on top - initially hidden -->
+<!-- global confetti on top - starts after transition -->
 <canvas id="confettiGlobal" aria-hidden="true"></canvas>
 
 <div class="wrap">
@@ -104,21 +115,37 @@ img,svg,canvas{max-width:100%;display:block}
   <svg class="corner tl" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M5 85 Q45 75 55 35 Q65 10 95 5" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/></svg>
   <svg class="corner br" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M5 85 Q45 75 55 35 Q65 10 95 5" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/></svg>
 
-  <!-- toran -->
-  <div class="toran" aria-hidden="true">
+  <!-- party bunting + balloons -->
+  <div class="partybar" aria-hidden="true">
     <div class="string"></div>
-    <div class="flowers">
-      <div class="flower"><div class="bloom"></div><div class="leaf"></div></div>
-      <div class="flower"><div class="bloom"></div><div class="leaf r"></div></div>
-      <div class="flower"><div class="bloom"></div><div class="leaf"></div></div>
-      <div class="flower"><div class="bloom"></div><div class="leaf r"></div></div>
-      <div class="flower"><div class="bloom"></div><div class="leaf"></div></div>
-      <div class="flower"><div class="bloom"></div><div class="leaf r"></div></div>
+    <div class="flags">
+      <span class="flag"></span><span class="flag"></span><span class="flag"></span><span class="flag"></span><span class="flag"></span>
+      <span class="flag"></span><span class="flag"></span><span class="flag"></span><span class="flag"></span><span class="flag"></span>
+    </div>
+    <div class="balloons">
+      <!-- balloon 1 -->
+      <svg class="balloon f1" viewBox="0 0 80 120" aria-hidden="true">
+        <ellipse class="b" cx="40" cy="38" rx="22" ry="28" fill="#ff7eb9"/>
+        <path d="M40 66 L36 74 L44 74 Z" fill="#ff7eb9"/>
+        <path class="s" d="M40 74 C38 86, 50 96, 40 112" />
+      </svg>
+      <!-- balloon 2 -->
+      <svg class="balloon f2" viewBox="0 0 80 120" aria-hidden="true">
+        <ellipse class="b" cx="40" cy="38" rx="22" ry="28" fill="#ffd166"/>
+        <path d="M40 66 L36 74 L44 74 Z" fill="#ffd166"/>
+        <path class="s" d="M40 74 C42 90, 30 98, 40 112" />
+      </svg>
+      <!-- balloon 3 -->
+      <svg class="balloon f3" viewBox="0 0 80 120" aria-hidden="true">
+        <ellipse class="b" cx="40" cy="38" rx="22" ry="28" fill="#90cdf4"/>
+        <path d="M40 66 L36 74 L44 74 Z" fill="#90cdf4"/>
+        <path class="s" d="M40 74 C36 86, 48 98, 40 112" />
+      </svg>
     </div>
   </div>
 
-  <p class="kicker">You are invited</p>
-  <h1 class="title">Milir</h1>
+  <p class="kicker">You are invited to</p>
+  <h1 class="title">Milir's</h1>
   <p class="sub">Tonsure & Ear Piercing · JC Residency, Madurai</p>
 
   <div class="countdown" id="countdown" aria-live="polite"></div>
@@ -149,7 +176,7 @@ img,svg,canvas{max-width:100%;display:block}
     <p class="small">Scan for directions</p>
   </div>
 
-  <p class="footer">With love - family and friends</p>
+  <p class="footer">With love, family and friends</p>
 </main>
 </div>
 
@@ -183,7 +210,7 @@ const EVENT_ISO = "2025-10-05T10:00:00+05:30";
   const btn=document.getElementById('addCal');
   if(!btn) return;
   btn.addEventListener('click',()=>{
-    const title='Milir | Tonsure & Ear Piercing';
+    const title="Milir's | Tonsure & Ear Piercing";
     const dtStart=new Date(EVENT_ISO);
     const dtEnd=new Date(dtStart.getTime()+2*60*60*1000);
     const fmt=d=>d.toISOString().replace(/[-:]/g,'').split('.')[0]+'Z';
@@ -211,7 +238,7 @@ END:VCALENDAR`;
   btn.addEventListener('click',async()=>{
     try{
       if(navigator.share){
-        await navigator.share({title:document.title,text:'Join us on 5 Oct 2025 at JC Residency, Madurai',url:location.href});
+        await navigator.share({title:document.title,text:"Join us on 5 Oct 2025 at JC Residency, Madurai",url:location.href});
       }else{
         alert('Copy the link: '+location.href);
       }
@@ -226,64 +253,47 @@ function fullyVisible(el, margin=6){
   return (r.top >= margin) && (r.bottom <= vh - margin);
 }
 
-/* Global confetti engine - paused until started */
+/* Global confetti engine - starts after transition */
 const Confetti = (function(){
   let started=false, rafId=null, canvas, ctx, W, H, parts;
-  const colors=['#ff8fb1','#ffd166','#95e1d3','#a29bfe','#fca5a5','#fcd34d','#90cdf4','#c6f6d5'];
+  const colors=['#ff7eb9','#ffd166','#90cdf4','#95e1d3','#a29bfe','#fca5a5','#fcd34d','#c6f6d5'];
   const N=140;
-  function size(){
-    W=canvas.width=window.innerWidth;
-    H=canvas.height=window.innerHeight;
-  }
+  function size(){ W=canvas.width=window.innerWidth; H=canvas.height=window.innerHeight; }
   function resetPiece(p, fromTop){
     p.x=Math.random()*W;
     p.y=fromTop?(-20 - Math.random()*H*0.3):(Math.random()*H);
-    p.w=4+Math.random()*3;
-    p.h=10+Math.random()*6;
+    p.w=4+Math.random()*3; p.h=10+Math.random()*6;
     p.color=colors[Math.floor(Math.random()*colors.length)];
-    p.vx=(Math.random()*2-1)*0.6;
-    p.vy=1.2+Math.random()*1.6;
-    p.rot=Math.random()*Math.PI;
-    p.vr=(Math.random()*2-1)*0.04;
-    p.swing=Math.random()*0.8+0.2;
-    p.life=300+Math.random()*300;
+    p.vx=(Math.random()*2-1)*0.6; p.vy=1.2+Math.random()*1.6;
+    p.rot=Math.random()*Math.PI; p.vr=(Math.random()*2-1)*0.04;
+    p.swing=Math.random()*0.8+0.2; p.life=300+Math.random()*300;
   }
   function loop(){
     if(!started) return;
     ctx.clearRect(0,0,W,H);
     const t=performance.now()*0.001;
     for(let i=0;i<parts.length;i++){
-      const p=parts[i];
-      p.life-=1;
-      p.x += p.vx + Math.sin(t+i)*p.swing*0.3;
-      p.y += p.vy;
-      p.rot += p.vr;
-      ctx.save();
-      ctx.translate(p.x,p.y);
-      ctx.rotate(p.rot);
-      ctx.fillStyle=p.color;
-      ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);
-      ctx.restore();
+      const p=parts[i]; p.life-=1;
+      p.x += p.vx + Math.sin(t+i)*p.swing*0.3; p.y += p.vy; p.rot += p.vr;
+      ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot); ctx.fillStyle=p.color;
+      ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h); ctx.restore();
       if(p.y>H+24 || p.x<-40 || p.x>W+40 || p.life<=0) resetPiece(p,true);
     }
     rafId=requestAnimationFrame(loop);
   }
   function start(){
     if(started) return;
-    canvas=document.getElementById('confettiGlobal');
-    if(!canvas) return;
-    ctx=canvas.getContext('2d');
-    size();
+    canvas=document.getElementById('confettiGlobal'); if(!canvas) return;
+    ctx=canvas.getContext('2d'); size();
     parts=new Array(N).fill(0).map(()=>{const p={}; resetPiece(p,false); return p;});
     window.addEventListener('resize', size);
-    started=true;
-    canvas.style.opacity=1; // fade in
-    loop();
+    started=true; canvas.style.opacity=1; loop();
   }
   return { start };
 })();
 
-/* Mottai interaction with hold and confetti start on completion */
+/* Mottai interaction: start only when fully visible, hijack during fade,
+   hold 2 more scrolls, confetti starts after completion, reverse on scroll up */
 (function(){
   const scene    = document.getElementById('mottaiScene');
   const hairImg  = document.getElementById('withHair');
@@ -322,9 +332,8 @@ const Confetti = (function(){
     progress = Math.max(0, Math.min(1, progress + amount));
     render();
     if(prev < 1 && progress === 1){
-      completed = true;
-      postHold = 0;
-      Confetti.start(); // start global confetti on top
+      completed = true; postHold = 0;
+      Confetti.start(); // start global confetti on top after transition
     }
     if(prev === 1 && progress < 1){
       completed = false;
