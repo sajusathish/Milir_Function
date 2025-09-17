@@ -11,10 +11,13 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&family=Playfair+Display:wght@600;800&display=swap" rel="stylesheet">
 <style>
 :root{
-  --violet:#8806CE;
-  --ink:var(--violet);
-  --muted:var(--violet);
-  --bg:#faf7f2; --card:#fff;
+  /* sampled from your image background */
+  --bg:#f9cfb3; /* light peach to blend with the art */
+  --maroon:#6A0D25; /* dark maroon for all text and accents */
+
+  --ink:var(--maroon);
+  --muted:var(--maroon);
+  --card:var(--bg);
   --c1:#ff7eb9; --c2:#ffd166; --c3:#90cdf4; --c4:#95e1d3; --c5:#a29bfe;
   --line:#00000018; --light:#f2f2f2; --light2:#e8e8e8; --border:#dddddd;
   --bottom-pad: calc(40px + env(safe-area-inset-bottom, 0px));
@@ -78,14 +81,14 @@ img,svg,canvas{max-width:100%;display:block}
 .small{font-size:13px;color:var(--ink);text-align:center}
 
 /* scene */
-.scene{border:1px dashed #00000014;border-radius:14px;background:#fff;padding:12px;margin:12px 0;position:relative;overflow:hidden}
+.scene{border:1px dashed #00000014;border-radius:14px;background:var(--bg);padding:12px;margin:12px 0;position:relative;overflow:hidden}
 .scene h3{margin:0 0 8px;text-align:center;font-weight:400;font-size:16px;color:var(--ink)} /* no bold */
 
-/* frame with dynamic aspect ratio from the image */
+/* frame (match background so the art edge blends) */
 .mottai .frame{
   position:relative; width:100%;
-  aspect-ratio: 4/5;
-  background:#fff; overflow:hidden; border:1px solid #00000010; border-radius:14px;
+  aspect-ratio:4/5;
+  background:var(--bg); overflow:hidden; border:1px solid #00000010; border-radius:14px;
 }
 .mottai img{
   position:absolute;
@@ -106,18 +109,18 @@ img,svg,canvas{max-width:100%;display:block}
 /* invite blurb */
 .invite-blurb{margin:12px auto 0; max-width:46ch; text-align:center; font-size:14px; color:var(--ink)}
 
-/* actions + unified buttons (outline violet) */
+/* actions + unified buttons (outline maroon) */
 .actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:12px}
 .btn{
-  appearance:none; -webkit-appearance:none; border:2px solid var(--violet);
+  appearance:none; -webkit-appearance:none; border:2px solid var(--maroon);
   border-radius:12px; padding:12px 16px; font-weight:700; font-family:inherit; line-height:1;
   display:inline-flex; align-items:center; justify-content:center; cursor:pointer; text-decoration:none;
   transition:transform .08s ease, box-shadow .12s ease, background .12s ease, border-color .12s ease;
-  color:var(--violet); background:transparent;
+  color:var(--maroon); background:transparent;
 }
-.btn.primary:hover{ transform:translateY(-1px); background:#8806ce10 }
+.btn.primary:hover{ transform:translateY(-1px); background:rgba(106,13,37,.06) }
 .btn.primary:active{ transform:translateY(0) }
-.btn:focus-visible{ outline:2px solid var(--violet); outline-offset:2px }
+.btn:focus-visible{ outline:2px solid var(--maroon); outline-offset:2px }
 
 .qr{display:flex;flex-direction:column;align-items:center;padding-top:20px;padding-bottom:20px;text-align:center}
 .qr img{width:240px;height:240px}
@@ -163,13 +166,12 @@ img,svg,canvas{max-width:100%;display:block}
 
   <p class="kicker">You are invited to</p>
   <h1 class="title">Milir's</h1>
-  <p class="sub">Tonsure & Ear Piercing </p>
-  <p class="sub">JC Residency,</p>
+  <p class="sub" style="font-weight:700">JC Residency,</p>
   <p class="sub">Ladydoak college road, china chokikulam,</p>
   <p class="sub">Madurai</p>
 
   <div class="countdown" id="countdown" aria-live="polite"></div>
-  <p class="small" style="text-align:center">Sun, 5 Oct 2025 · 10:30 am IST</p>
+  <p class="small" style="text-align:center;font-weight:700">Sun, 5 Oct 2025 · 10:30 am IST</p>
 
   <section class="details">
     <span class="badge">📍 JC Residency, Madurai</span>
