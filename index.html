@@ -100,14 +100,24 @@ img,svg,canvas{max-width:100%;display:block}
 .pin{position:relative;height:220svh}
 .pin .sticky{position:sticky;top:0;height:90svh;display:grid;align-items:center}
 
-/* actions + qr */
-.actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:10px}
-.btn{appearance:none;-webkit-appearance:none;border:1px solid var(--border);border-radius:12px;padding:12px 16px;font-weight:700;font-family:inherit;line-height:1;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;text-decoration:none}
-.btn.light{background:var(--light);color:#111}
-.btn.light:hover{background:var(--light2)}
-.btn.dark{background:#111;color:#fff;border-color:transparent}
-.qr{display:grid;place-items:center;margin-top:10px;margin-bottom:18px}
-.qr img{width:132px;height:132px;border-radius:12px;border:1px solid #00000010}
+/* invite blurb */
+.invite-blurb{margin:12px auto 0; max-width:46ch; text-align:center; font-size:14px; color:#404040}
+
+/* actions + unified buttons */
+.actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:12px}
+.btn{
+  appearance:none; -webkit-appearance:none; border:1px solid transparent;
+  border-radius:12px; padding:12px 16px; font-weight:700; font-family:inherit; line-height:1;
+  display:inline-flex; align-items:center; justify-content:center; cursor:pointer; text-decoration:none;
+  transition:transform .08s ease, box-shadow .12s ease, background .12s ease, border-color .12s ease;
+}
+.btn.primary{
+  background:#111; color:#fff;
+  box-shadow:0 6px 14px rgba(0,0,0,.12);
+}
+.btn.primary:hover{ transform:translateY(-1px); box-shadow:0 10px 20px rgba(0,0,0,.16) }
+.btn.primary:active{ transform:translateY(0); box-shadow:0 6px 14px rgba(0,0,0,.12) }
+.btn:focus-visible{ outline:2px solid #000; outline-offset:2px }
 
 /* footer + buffer */
 .footer{text-align:center;color:var(--muted);font-size:12px;margin-top:12px}
@@ -173,10 +183,14 @@ img,svg,canvas{max-width:100%;display:block}
     </div>
   </section>
 
+  <!-- Invite blurb -->
+  <p class="invite-blurb">We’d love to have you with us. Your blessings mean a lot to little Milir.</p>
+
+  <!-- Unified buttons -->
   <div class="actions">
-    <a class="btn light" href="https://www.google.com/maps/search/?api=1&query=JC+Residency+Madurai" target="_blank" rel="noopener">Open map</a>
-    <button class="btn light" id="addCal">Add to calendar</button>
-    <button class="btn dark" id="shareBtn">Share</button>
+    <a class="btn primary" href="https://www.google.com/maps/search/?api=1&query=JC+Residency+Madurai" target="_blank" rel="noopener">Open map</a>
+    <button class="btn primary" id="addCal">Add to calendar</button>
+    <button class="btn primary" id="shareBtn">Share</button>
   </div>
 
   <div class="qr">
@@ -282,16 +296,13 @@ const Confetti=(function(){
     if(!img || !frame) return;
     const w=img.naturalWidth, h=img.naturalHeight;
     if(w>0 && h>0){
-      frame.style.aspectRatio = `${w} / ${h}`; // full width, correct height, no crop
+      frame.style.aspectRatio = `${w} / ${h}`;
     }
   }
-
   function tryApply(){
-    // prefer withHair, fall back to bald
     if(hair.naturalWidth && hair.naturalHeight) applyAspectFrom(hair);
     else if(bald.naturalWidth && bald.naturalHeight) applyAspectFrom(bald);
   }
-
   if(hair.complete) tryApply();
   else hair.addEventListener('load', tryApply, {once:true});
   if(bald.complete) tryApply();
@@ -314,7 +325,6 @@ const Confetti=(function(){
     hair.style.transform=`translateY(${(-12*p)}px)`;
     bald.style.opacity=p;
   }
-
   function clamp(v,min,max){ return v<min?min:(v>max?max:v); }
 
   function update(){
@@ -334,14 +344,12 @@ const Confetti=(function(){
       if(fired && progress<1){ fired=false; }
     }
   }
-
   function onScroll(){
     if(!ticking){
       ticking=true;
       requestAnimationFrame(update);
     }
   }
-
   update();
   window.addEventListener('scroll', onScroll, {passive:true});
   window.addEventListener('resize', onScroll, {passive:true});
