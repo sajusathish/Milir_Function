@@ -22,7 +22,7 @@ html,body{height:100%}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:Poppins,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
 img,svg,canvas{max-width:100%;display:block}
 
-/* global confetti on top */
+/* global confetti */
 #confettiGlobal{position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:9999;opacity:0;transition:opacity .25s}
 
 /* layout */
@@ -78,8 +78,12 @@ img,svg,canvas{max-width:100%;display:block}
 .scene{border:1px dashed #00000014;border-radius:14px;background:#fff;padding:12px;margin:12px 0;position:relative;overflow:hidden}
 .scene h3{margin:0 0 8px;text-align:center;font-weight:800;font-size:16px}
 
-/* frame: fit to full height with buffer (no crop) */
-.mottai .frame{position:relative;width:100%;aspect-ratio:4/5;background:#fff;overflow:hidden;border:1px solid #00000010;border-radius:14px}
+/* frame with dynamic aspect ratio from the image */
+.mottai .frame{
+  position:relative; width:100%;
+  aspect-ratio: 4/5; /* default, will be overridden by JS to match the image */
+  background:#fff; overflow:hidden; border:1px solid #00000010; border-radius:14px;
+}
 .mottai img{
   position:absolute;
   inset: var(--frame-pad) var(--frame-pad);
@@ -155,7 +159,7 @@ img,svg,canvas{max-width:100%;display:block}
     <span class="badge">🕙 10:00 am</span>
   </section>
 
-  <!-- Sticky scroll segment drives the transition smoothly -->
+  <!-- Sticky scroll segment -->
   <section class="pin" id="pinWrap">
     <div class="sticky">
       <section class="scene mottai" id="mottaiScene" aria-label="Mottai">
@@ -267,7 +271,33 @@ const Confetti=(function(){
   return {start};
 })();
 
-/* scroll-driven transition inside sticky pin (no event hijack) */
+/* set frame aspect to match the image so there is no top/bottom gap */
+(function(){
+  const frame=document.getElementById('frameBox');
+  const hair=document.getElementById('withHair');
+  const bald=document.getElementById('bald');
+
+  function applyAspectFrom(img){
+    if(!img || !frame) return;
+    const w=img.naturalWidth, h=img.naturalHeight;
+    if(w>0 && h>0){
+      frame.style.aspectRatio = `${w} / ${h}`; // full width, correct height, no crop
+    }
+  }
+
+  function tryApply(){
+    // prefer withHair, fall back to bald
+    if(hair.naturalWidth && hair.naturalHeight) applyAspectFrom(hair);
+    else if(bald.naturalWidth && bald.naturalHeight) applyAspectFrom(bald);
+  }
+
+  if(hair.complete) tryApply();
+  else hair.addEventListener('load', tryApply, {once:true});
+  if(bald.complete) tryApply();
+  else bald.addEventListener('load', tryApply, {once:true});
+})();
+
+/* scroll-driven transition inside sticky pin */
 (function(){
   const pin=document.getElementById('pinWrap');
   const hair=document.getElementById('withHair');
@@ -291,20 +321,15 @@ const Confetti=(function(){
     const docY=window.scrollY||window.pageYOffset||0;
     const vh=window.innerHeight||document.documentElement.clientHeight;
 
-    // pin start: top edge of .pin relative to document
     const start=pin.offsetTop;
-    // total scrollable distance while sticky is engaged
     const total=Math.max(1, pin.offsetHeight - vh);
-    // current progress in the pin segment
     const scrolled=clamp(docY - start, 0, total);
     const p=scrolled/total;
 
     if(p!==progress){
       progress=p;
       render(progress);
-      if(!fired && progress>=1){
-        fired=true; Confetti.start();
-      }
+      if(!fired && progress>=1){ fired=true; Confetti.start(); }
       if(fired && progress<1){ fired=false; }
     }
   }
@@ -316,7 +341,6 @@ const Confetti=(function(){
     }
   }
 
-  // init
   update();
   window.addEventListener('scroll', onScroll, {passive:true});
   window.addEventListener('resize', onScroll, {passive:true});
