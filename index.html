@@ -11,7 +11,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&family=Playfair+Display:wght@600;800&display=swap" rel="stylesheet">
 <style>
 :root{
-  --ink:#222; --muted:#6b6b6b; --bg:#faf7f2; --card:#fff;
+  --violet:#8806CE;
+  --ink:var(--violet);
+  --muted:var(--violet);
+  --bg:#faf7f2; --card:#fff;
   --c1:#ff7eb9; --c2:#ffd166; --c3:#90cdf4; --c4:#95e1d3; --c5:#a29bfe;
   --line:#00000018; --light:#f2f2f2; --light2:#e8e8e8; --border:#dddddd;
   --bottom-pad: calc(40px + env(safe-area-inset-bottom, 0px));
@@ -59,29 +62,29 @@ img,svg,canvas{max-width:100%;display:block}
 @keyframes floatBob{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(25px) rotate(10deg)}}
 
 /* type */
-.kicker{margin-top:92px;text-align:center;letter-spacing:.14em;text-transform:uppercase;font-size:12px;color:var(--muted)}
-.title{font-family:"Playfair Display",serif;font-weight:800;font-size:clamp(36px,7vw,60px);line-height:1.04;text-align:center;margin:6px 0}
-.sub{font-size:15px;text-align:center;color:#333}
+.kicker{margin-top:92px;text-align:center;letter-spacing:.14em;text-transform:uppercase;font-size:12px;color:var(--ink)}
+.title{font-family:"Playfair Display",serif;font-weight:800;font-size:clamp(36px,7vw,60px);line-height:1.04;text-align:center;margin:6px 0;color:var(--ink)}
+.sub{font-size:15px;text-align:center;color:var(--ink)}
 
 /* countdown */
 .countdown{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:12px 0 4px}
 .tile{min-width:68px;background:#fff;border:1px solid #00000012;border-radius:14px;padding:10px 10px;text-align:center;box-shadow:0 6px 16px rgba(0,0,0,.05)}
-.num{font-size:26px;font-weight:800;font-family:"Playfair Display",serif}
-.lbl{font-size:11px;color:var(--muted)}
+.num{font-size:26px;font-weight:800;font-family:"Playfair Display",serif;color:var(--ink)}
+.lbl{font-size:11px;color:var(--ink)}
 
 /* details */
 .details{margin:14px auto 10px;display:grid;gap:6px;justify-items:center}
-.badge{background:#f6f3ed;border:1px solid #00000010;border-radius:999px;padding:8px 14px;font-size:14px}
-.small{font-size:13px;color:var(--muted);text-align:center}
+.badge{background:#f6f3ed;border:1px solid #00000010;border-radius:999px;padding:8px 14px;font-size:14px;color:var(--ink)}
+.small{font-size:13px;color:var(--ink);text-align:center}
 
 /* scene */
 .scene{border:1px dashed #00000014;border-radius:14px;background:#fff;padding:12px;margin:12px 0;position:relative;overflow:hidden}
-.scene h3{margin:0 0 8px;text-align:center;font-weight:800;font-size:16px}
+.scene h3{margin:0 0 8px;text-align:center;font-weight:400;font-size:16px;color:var(--ink)} /* no bold */
 
 /* frame with dynamic aspect ratio from the image */
 .mottai .frame{
   position:relative; width:100%;
-  aspect-ratio: 4/5; /* default, will be overridden by JS to match the image */
+  aspect-ratio: 4/5;
   background:#fff; overflow:hidden; border:1px solid #00000010; border-radius:14px;
 }
 .mottai img{
@@ -101,49 +104,27 @@ img,svg,canvas{max-width:100%;display:block}
 .pin .sticky{position:sticky;top:0;height:90svh;display:grid;align-items:center}
 
 /* invite blurb */
-.invite-blurb{margin:12px auto 0; max-width:46ch; text-align:center; font-size:14px; color:#404040}
+.invite-blurb{margin:12px auto 0; max-width:46ch; text-align:center; font-size:14px; color:var(--ink)}
 
-/* actions + unified buttons */
+/* actions + unified buttons (outline violet) */
 .actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:12px}
 .btn{
-  appearance:none; -webkit-appearance:none; border:1px solid transparent;
+  appearance:none; -webkit-appearance:none; border:2px solid var(--violet);
   border-radius:12px; padding:12px 16px; font-weight:700; font-family:inherit; line-height:1;
   display:inline-flex; align-items:center; justify-content:center; cursor:pointer; text-decoration:none;
   transition:transform .08s ease, box-shadow .12s ease, background .12s ease, border-color .12s ease;
+  color:var(--violet); background:transparent;
 }
-.btn.primary{
-  background:#111; color:#fff;
-  box-shadow:0 6px 14px rgba(0,0,0,.12);
-}
-.btn.primary:hover{ transform:translateY(-1px); box-shadow:0 10px 20px rgba(0,0,0,.16) }
-.btn.primary:active{ transform:translateY(0); box-shadow:0 6px 14px rgba(0,0,0,.12) }
-.btn:focus-visible{ outline:2px solid #000; outline-offset:2px }
+.btn.primary:hover{ transform:translateY(-1px); background:#8806ce10 }
+.btn.primary:active{ transform:translateY(0) }
+.btn:focus-visible{ outline:2px solid var(--violet); outline-offset:2px }
 
-.qr {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-top: 20px;
-  padding-bottom: 20px;
-  text-align: center;
-}
-
-.qr img {
-  width: 240px;
-  height: 240px;
-}
-
-.qr .small {
-  margin-top: 12px;
-  font-size: 14px;
-  color: #555;
-}
-
-
-
+.qr{display:flex;flex-direction:column;align-items:center;padding-top:20px;padding-bottom:20px;text-align:center}
+.qr img{width:240px;height:240px}
+.qr .small{margin-top:12px;font-size:14px;color:var(--ink)}
 
 /* footer + buffer */
-.footer{text-align:center;color:var(--muted);font-size:12px;margin-top:12px}
+.footer{text-align:center;color:var(--ink);font-size:12px;margin-top:12px}
 .buffer{height:72px}
 
 @media (prefers-reduced-motion: reduce){
@@ -186,7 +167,6 @@ img,svg,canvas{max-width:100%;display:block}
   <p class="sub">JC Residency,</p>
   <p class="sub">Ladydoak college road, china chokikulam,</p>
   <p class="sub">Madurai</p>
-
 
   <div class="countdown" id="countdown" aria-live="polite"></div>
   <p class="small" style="text-align:center">Sun, 5 Oct 2025 · 10:30 am IST</p>
