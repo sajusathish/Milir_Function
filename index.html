@@ -19,24 +19,15 @@
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
-html,body{overscroll-behavior-y: contain}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:Poppins,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
 img,svg,canvas{max-width:100%;display:block}
 
-/* transparent capture layer for touch-anywhere when active */
-#captureLayer{
-  position:fixed; inset:0; z-index:6; pointer-events:none; background:transparent;
-}
-#captureLayer.active{
-  pointer-events:auto; touch-action:none; /* allow preventDefault on touchmove */
-}
-
-/* global confetti */
-#confettiGlobal{position:fixed; inset:0; width:100vw; height:100vh; pointer-events:none; z-index:9999; opacity:0; transition:opacity .25s}
+/* global confetti on top */
+#confettiGlobal{position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:9999;opacity:0;transition:opacity .25s}
 
 /* layout */
 .wrap{min-height:100svh;display:grid;place-items:center;padding:16px;position:relative;z-index:2}
-.card{position:relative;background:var(--card);border:1px solid #00000010;border-radius:22px;max-width:560px;width:100%;padding:18px 18px var(--bottom-pad);box-shadow:0 18px 60px rgba(0,0,0,.08);overflow:hidden}
+.card{position:relative;background:var(--card);border:1px solid #00000010;border-radius:22px;max-width:560px;width:100%;padding:18px 18px var(--bottom-pad);box-shadow:0 18px 60px rgba(0,0,0,.08);overflow:visible}
 
 /* corners */
 .corner{position:absolute;width:90px;height:90px;opacity:.25}
@@ -101,6 +92,10 @@ img,svg,canvas{max-width:100%;display:block}
 #withHair{opacity:1;transform:translateY(0)}
 #bald{opacity:0}
 
+/* scrollytelling pin section */
+.pin{position:relative;height:220svh}
+.pin .sticky{position:sticky;top:0;height:100svh;display:grid;align-items:center}
+
 /* actions + qr */
 .actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:10px}
 .btn{appearance:none;-webkit-appearance:none;border:1px solid var(--border);border-radius:12px;padding:12px 16px;font-weight:700;font-family:inherit;line-height:1;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;text-decoration:none}
@@ -114,12 +109,13 @@ img,svg,canvas{max-width:100%;display:block}
 .footer{text-align:center;color:var(--muted);font-size:12px;margin-top:12px}
 .buffer{height:72px}
 
-@media (prefers-reduced-motion: reduce){.flag,.balloon,.partybar{animation:none!important}}
+@media (prefers-reduced-motion: reduce){
+  .flag,.balloon,.partybar{animation:none!important}
+}
 </style>
 </head>
 <body>
 
-<div id="captureLayer" aria-hidden="true"></div>
 <canvas id="confettiGlobal" aria-hidden="true"></canvas>
 
 <div class="wrap">
@@ -159,11 +155,16 @@ img,svg,canvas{max-width:100%;display:block}
     <span class="badge">🕙 10:00 am</span>
   </section>
 
-  <section class="scene mottai" id="mottaiScene" aria-label="Mottai">
-    <h3>Mottai & Kathukuthu Thiruvizha</h3>
-    <div class="frame" id="frameBox">
-      <img id="withHair" src="./assets/baby_with_hair.png" alt="Baby with hair">
-      <img id="bald" src="./assets/bald_baby.png" alt="Baby after tonsure">
+  <!-- Sticky scroll segment drives the transition smoothly -->
+  <section class="pin" id="pinWrap">
+    <div class="sticky">
+      <section class="scene mottai" id="mottaiScene" aria-label="Mottai">
+        <h3>Mottai & Kathukuthu Thiruvizha</h3>
+        <div class="frame" id="frameBox">
+          <img id="withHair" src="./assets/baby_with_hair.png" alt="Baby with hair">
+          <img id="bald" src="./assets/bald_baby.png" alt="Baby after tonsure">
+        </div>
+      </section>
     </div>
   </section>
 
@@ -237,20 +238,6 @@ END:VCALENDAR`;
   });
 })();
 
-/* utils */
-function visibilityRatio(el){
-  const r=el.getBoundingClientRect();
-  const vh=window.innerHeight||document.documentElement.clientHeight;
-  const topClamped=Math.max(r.top,0);
-  const bottomClamped=Math.min(r.bottom,vh);
-  const visibleH=Math.max(0,bottomClamped-topClamped);
-  return Math.min(1, Math.max(0, visibleH / Math.max(1,r.height)));
-}
-function fullyVisible(el, margin=6){
-  const r=el.getBoundingClientRect(); const vh=window.innerHeight||document.documentElement.clientHeight;
-  return (r.top>=margin)&&(r.bottom<=vh-margin);
-}
-
 /* confetti */
 const Confetti=(function(){
   let started=false,canvas,ctx,W,H,parts;
@@ -280,148 +267,59 @@ const Confetti=(function(){
   return {start};
 })();
 
-/* interaction: overlay for touch, window for wheel; no hard body lock */
+/* scroll-driven transition inside sticky pin (no event hijack) */
 (function(){
-  const scene=document.getElementById('mottaiScene');
+  const pin=document.getElementById('pinWrap');
   const hair=document.getElementById('withHair');
   const bald=document.getElementById('bald');
-  const overlay=document.getElementById('captureLayer');
-  if(!scene||!hair||!bald||!overlay) return;
+  if(!pin||!hair||!bald) return;
 
-  let progress=0;                 // 0 hair -> 1 bald
-  const stepWheel=0.06;
-  const stepTouch=0.0022;
-  let completed=false;
+  let progress=0;
+  let fired=false;
+  let ticking=false;
 
-  let postHold=0, postHoldNeeded=2;
-  let preHold=0,  preHoldNeeded=2;
-
-  const ARM_VIS=0.85;
-  let lastVis=0;
-  let cooldownUntil=0;
-
-  function render(){
-    const p=Math.max(0,Math.min(1,progress));
+  function render(p){
     hair.style.opacity=1-p;
     hair.style.transform=`translateY(${(-12*p)}px)`;
     bald.style.opacity=p;
   }
-  render();
 
-  function needsPlay(){
-    return (!completed || postHold<postHoldNeeded || progress>0);
-  }
+  function clamp(v,min,max){ return v<min?min:(v>max?max:v); }
 
-  function updateOverlay(){
-    const vis=visibilityRatio(scene);
-    const active = vis>=ARM_VIS && needsPlay() && performance.now()>=cooldownUntil;
-    overlay.classList.toggle('active', active);
-    lastVis=vis;
-  }
-  document.addEventListener('scroll', updateOverlay, {passive:true});
-  window.addEventListener('resize', updateOverlay, {passive:true});
-  updateOverlay();
+  function update(){
+    ticking=false;
+    const docY=window.scrollY||window.pageYOffset||0;
+    const vh=window.innerHeight||document.documentElement.clientHeight;
 
-  function onAdvance(amount){
-    const prev=progress;
-    progress=Math.max(0,Math.min(1,progress+amount));
-    render();
-    if(prev<1 && progress===1){ completed=true; postHold=0; Confetti.start(); }
-    if(prev===1 && progress<1){ completed=false; }
-  }
+    // pin start: top edge of .pin relative to document
+    const start=pin.offsetTop;
+    // total scrollable distance while sticky is engaged
+    const total=Math.max(1, pin.offsetHeight - vh);
+    // current progress in the pin segment
+    const scrolled=clamp(docY - start, 0, total);
+    const p=scrolled/total;
 
-  function shouldHijack(delta){
-    const vis = lastVis>=ARM_VIS || visibilityRatio(scene)>=ARM_VIS;
-    if(!vis) return false;
-    const down = delta>0;
-    if(down){
-      if(progress===0 && preHold<preHoldNeeded) return true;
-      if(!completed && progress<1) return true;
-      if(completed && postHold<postHoldNeeded) return true;
-      return false;
-    }else{
-      if(progress>0) return true;
-      return false;
-    }
-  }
-
-  /* wheel: prevent page scroll only while we are advancing */
-  window.addEventListener('wheel',(e)=>{
-    const d=e.deltaY;
-    if(overlay.classList.contains('active') || shouldHijack(d)){
-      e.preventDefault();
-      if(d>0){
-        if(progress===0 && preHold<preHoldNeeded){
-          preHold++;
-        }else if(!completed){
-          onAdvance(stepWheel);
-        }else{
-          postHold++;
-          if(postHold>=postHoldNeeded){
-            cooldownUntil=performance.now()+700; // let next wheel scroll page
-            updateOverlay();
-          }
-        }
-      }else{
-        onAdvance(-stepWheel);
-        if(progress===0){
-          cooldownUntil=performance.now()+400;
-          updateOverlay();
-        }
+    if(p!==progress){
+      progress=p;
+      render(progress);
+      if(!fired && progress>=1){
+        fired=true; Confetti.start();
       }
+      if(fired && progress<1){ fired=false; }
     }
-  },{passive:false});
+  }
 
-  /* touch on overlay (active only) */
-  let oy=null;
-  overlay.addEventListener('touchstart',(e)=>{ oy=e.touches[0].clientY; },{passive:true});
-  overlay.addEventListener('touchmove',(e)=>{
-    if(oy===null) return;
-    const y=e.touches[0].clientY, dy=oy-y; // down positive
-    if(shouldHijack(dy)){
-      e.preventDefault();
-      if(dy>0){
-        if(progress===0 && preHold<preHoldNeeded){
-          preHold += Math.abs(dy)*0.01;
-          if(preHold>preHoldNeeded) preHold=preHoldNeeded;
-        }else if(!completed){
-          onAdvance(stepTouch*dy);
-        }else{
-          postHold += Math.abs(dy)*0.01;
-          if(postHold>=postHoldNeeded){
-            cooldownUntil=performance.now()+700;
-            updateOverlay();
-          }
-        }
-      }else{
-        onAdvance(stepTouch*dy);
-        if(progress===0){
-          cooldownUntil=performance.now()+400;
-          updateOverlay();
-        }
-      }
+  function onScroll(){
+    if(!ticking){
+      ticking=true;
+      requestAnimationFrame(update);
     }
-    oy=y;
-  },{passive:false});
-  overlay.addEventListener('touchend',()=>{ oy=null; },{passive:true});
+  }
 
-  /* fallback: allow upward swipe to rewind even if overlay just deactivated */
-  document.documentElement.addEventListener('touchmove',(e)=>{
-    if(overlay.classList.contains('active')) return;
-    if(fullyVisible(scene,6) && progress>0){
-      const y=e.touches[0].clientY;
-      const dy=(oy??y)-y;
-      e.preventDefault();
-      onAdvance(stepTouch*dy);
-      oy=y;
-      if(progress===0){
-        cooldownUntil=performance.now()+400;
-        updateOverlay();
-      }
-    }
-  },{passive:false});
-
-  updateOverlay();
+  // init
+  update();
+  window.addEventListener('scroll', onScroll, {passive:true});
+  window.addEventListener('resize', onScroll, {passive:true});
 })();
 </script>
 </body>
