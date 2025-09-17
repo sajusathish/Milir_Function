@@ -35,8 +35,9 @@ img,svg,canvas{max-width:100%;display:block}
 
 /* language toggle */
 .lang-toggle{
-  position:absolute; top:12px; right:12px; z-index:20;
-  display:flex; align-items:center; gap:6px;
+  position:absolute; right:12px;
+  top:clamp(90px,12vw,128px); /* moved below balloons */
+  z-index:20; display:flex; align-items:center; gap:6px;
   border:2px solid var(--maroon); border-radius:999px; padding:4px 8px;
   background:rgba(106,13,37,.04); font-size:12px; user-select:none; cursor:pointer;
 }
@@ -74,7 +75,10 @@ img,svg,canvas{max-width:100%;display:block}
 @keyframes floatBob{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(25px) rotate(10deg)}}
 
 /* type */
-.kicker{margin-top:92px;text-align:center;letter-spacing:.14em;text-transform:uppercase;font-size:12px;color:var(--ink)}
+.kicker{
+  margin-top:clamp(130px,18vw,180px); /* moved rest down under balloons */
+  text-align:center;letter-spacing:.14em;text-transform:uppercase;font-size:12px;color:var(--ink)
+}
 .title{font-family:"Playfair Display",serif;font-weight:800;font-size:clamp(36px,7vw,60px);line-height:1.04;text-align:center;margin:6px 0;color:var(--ink)}
 .sub{font-size:15px;text-align:center;color:var(--ink)}
 .sub.addr{margin:2px 0}
@@ -198,7 +202,6 @@ img,svg,canvas{max-width:100%;display:block}
     <span class="badge" id="badgeTime">🕙 காலை 10:30</span>
   </section>
 
-  <!-- Sticky scroll segment -->
   <section class="pin" id="pinWrap">
     <div class="sticky">
       <section class="scene mottai" id="mottaiScene" aria-label="Mottai">
@@ -211,10 +214,8 @@ img,svg,canvas{max-width:100%;display:block}
     </div>
   </section>
 
-  <!-- Invite blurb -->
   <p class="invite-blurb" id="inviteBlurb">நீங்கள் வருவது எங்களுக்கு மகிழ்ச்சி. உங்கள் ஆசீர்வாதம் சிறிய மிலிருக்கு மிக முக்கியம்.</p>
 
-  <!-- Unified buttons -->
   <div class="actions">
     <a class="btn primary" id="btnMap" href="https://www.google.com/maps/search/?api=1&query=JC+Residency+Madurai" target="_blank" rel="noopener">வரைபடம் திறக்க</a>
     <button class="btn primary" id="addCal">நாள்காட்டியில் சேர்க்க</button>
@@ -234,59 +235,29 @@ img,svg,canvas{max-width:100%;display:block}
 <script>
 const EVENT_ISO="2025-10-05T10:30:00+05:30";
 
-/* i18n strings */
 const STR={
-  ta:{
-    htmlLang:"ta",
-    kicker:"உங்களை அன்புடன் அழைக்கிறோம்",
-    title:"மிலிரின்",
-    ceremony:"மோட்டை மற்றும் காது குத்து விழா",
-    at:"இடம்",
-    addr1:"ஜே.சி. ரெசிடென்சி,",
-    addr2:"லேடி டோக் கல்லூரி சாலை, சின்ன சோக்கிக்குளம்,",
-    addr3:"மதுரை",
-    date:"ஞாயிறு, 5 அக் 2025 · காலை 10:30 IST",
-    badgeLoc:"📍 ஜே.சி. ரெசிடென்சி, மதுரை",
-    badgeTime:"🕙 காலை 10:30",
-    scene:"மோட்டை & காது குத்து திருவிழா",
-    blurb:"நீங்கள் வருவது எங்களுக்கு மகிழ்ச்சி. உங்கள் ஆசீர்வாதம் சிறிய மிலிருக்கு மிக முக்கியம்.",
-    map:"வரைபடம் திறக்க",
-    cal:"நாள்காட்டியில் சேர்க்க",
-    share:"பகிர்",
-    qr:"வழிச்செலுத்தலுக்காக ஸ்கேன் செய்யவும்",
-    footer:"அன்புடன், குடும்பமும் நண்பர்களும்",
-    countdown:["நாட்கள்","மணி","நிமிடம்","வினாடி"],
-    shareText:"5 அக் 2025, காலை 10:30 · JC Residency, Madurai"
-  },
-  en:{
-    htmlLang:"en",
-    kicker:"You are invited to",
-    title:"Milir's",
-    ceremony:"Tonsure and Ear Piercing Ceremony",
-    at:"@",
-    addr1:"JC Residency,",
-    addr2:"Lady Doak College Road, Chinna Chokkikulam,",
-    addr3:"Madurai",
-    date:"Sun, 5 Oct 2025 · 10:30 am IST",
-    badgeLoc:"📍 JC Residency, Madurai",
-    badgeTime:"🕙 10:30 am",
-    scene:"Mottai & Kathukuthu Thiruvizha",
-    blurb:"We’d love to have you with us. Your blessings mean a lot to little Milir.",
-    map:"Open map",
-    cal:"Add to calendar",
-    share:"Share",
-    qr:"Scan for directions",
-    footer:"With love, family and friends",
-    countdown:["Days","Hours","Mins","Secs"],
-    shareText:"Join us on 5 Oct 2025 at JC Residency, Madurai"
-  }
+  ta:{htmlLang:"ta",kicker:"உங்களை அன்புடன் அழைக்கிறோம்",title:"மிலிரின்",ceremony:"மோட்டை மற்றும் காது குத்து விழா",at:"இடம்",
+      addr1:"ஜே.சி. ரெசிடென்சி,",addr2:"லேடி டோக் கல்லூரி சாலை, சின்ன சோக்கிக்குளம்,",addr3:"மதுரை",
+      date:"ஞாயிறு, 5 அக் 2025 · காலை 10:30 IST",badgeLoc:"📍 ஜே.சி. ரெசிடென்சி, மதுரை",badgeTime:"🕙 காலை 10:30",
+      scene:"மோட்டை & காது குத்து திருவிழா",
+      blurb:"நீங்கள் வருவது எங்களுக்கு மகிழ்ச்சி. உங்கள் ஆசீர்வாதம் சிறிய மிலிருக்கு மிக முக்கியம்.",
+      map:"வரைபடம் திறக்க",cal:"நாள்காட்டியில் சேர்க்க",share:"பகிர்",qr:"வழிச்செலுத்தலுக்காக ஸ்கேன் செய்யவும்",
+      footer:"அன்புடன், குடும்பமும் நண்பர்களும்",countdown:["நாட்கள்","மணி","நிமிடம்","வினாடி"],
+      shareText:"5 அக் 2025, காலை 10:30 · JC Residency, Madurai"},
+  en:{htmlLang:"en",kicker:"You are invited to",title:"Milir's",ceremony:"Tonsure and Ear Piercing Ceremony",at:"@",
+      addr1:"JC Residency,",addr2:"Lady Doak College Road, Chinna Chokkikulam,",addr3:"Madurai",
+      date:"Sun, 5 Oct 2025 · 10:30 am IST",badgeLoc:"📍 JC Residency, Madurai",badgeTime:"🕙 10:30 am",
+      scene:"Mottai & Kathukuthu Thiruvizha",
+      blurb:"We’d love to have you with us. Your blessings mean a lot to little Milir.",
+      map:"Open map",cal:"Add to calendar",share:"Share",qr:"Scan for directions",
+      footer:"With love, family and friends",countdown:["Days","Hours","Mins","Secs"],
+      shareText:"Join us on 5 Oct 2025 at JC Residency, Madurai"}
 };
 
-/* current language (default Tamil) */
 let LANG="ta";
 
-/* countdown (labels are i18n) */
-(function initCountdown(){
+/* countdown */
+(function(){
   const el=document.getElementById('countdown');
   const parts=STR[LANG].countdown;
   const tiles=parts.map(l=>{
@@ -303,8 +274,6 @@ let LANG="ta";
     [d,h,m,sec].forEach((v,i)=>tiles[i].querySelector('.num').textContent=v);
   }
   setInterval(tick,1000); tick();
-
-  /* expose a label updater for language switch */
   window._updateCountdownLabels=function(newParts){
     const lbls=el.querySelectorAll('.lbl');
     lbls.forEach((n,i)=>{ if(newParts[i]) n.textContent=newParts[i]; });
@@ -336,7 +305,7 @@ END:VCALENDAR`;
   });
 })();
 
-/* share (i18n text) */
+/* share */
 (function(){
   const btn=document.getElementById('shareBtn'); if(!btn) return;
   function doShare(){
@@ -405,7 +374,6 @@ const Confetti=(function(){
   if(!pin||!hair||!bald) return;
 
   let progress=0, fired=false, ticking=false;
-
   function render(p){
     hair.style.opacity=1-p;
     hair.style.transform=`translateY(${(-12*p)}px)`;
@@ -434,14 +402,12 @@ const Confetti=(function(){
   window.addEventListener('resize', onScroll, {passive:true});
 })();
 
-/* language toggle behavior */
+/* language toggle */
 (function(){
   const T=STR;
   function apply(lang){
     LANG=lang;
     document.documentElement.lang=T[lang].htmlLang;
-
-    // text nodes
     document.getElementById('kicker').textContent=T[lang].kicker;
     document.getElementById('titleName').textContent=T[lang].title;
     document.getElementById('ceremonyLine').textContent=T[lang].ceremony;
@@ -459,23 +425,14 @@ const Confetti=(function(){
     document.getElementById('shareBtn').textContent=T[lang].share;
     document.getElementById('qrText').textContent=T[lang].qr;
     document.getElementById('footerTxt').textContent=T[lang].footer;
-
-    // countdown labels
     if(window._updateCountdownLabels) window._updateCountdownLabels(T[lang].countdown);
-
-    // toggle chip state
     const chips=document.querySelectorAll('.lang-toggle .chip');
     chips.forEach(c=>c.classList.toggle('active', c.dataset.lang===lang));
   }
-
   const toggle=document.getElementById('langToggle');
-  function flip(){
-    apply(LANG==='ta'?'en':'ta');
-  }
+  function flip(){ apply(LANG==='ta'?'en':'ta'); }
   toggle.addEventListener('click', flip);
-  toggle.addEventListener('keydown', e=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); flip(); } });
-
-  // ensure initial (Tamil)
+  toggle.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); flip(); } });
   apply('ta');
 })();
 </script>
