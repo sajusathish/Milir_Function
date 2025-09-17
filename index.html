@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="ta">
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
@@ -11,8 +11,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&family=Playfair+Display:wght@600;800&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#ffffff;               /* white background */
-  --maroon:#6A0D25;           /* dark maroon for text */
+  --bg:#ffffff;
+  --maroon:#6A0D25;
   --ink:var(--maroon);
   --muted:var(--maroon);
   --card:#fff;
@@ -26,12 +26,23 @@ html,body{height:100%}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:Poppins,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
 img,svg,canvas{max-width:100%;display:block}
 
-/* global confetti */
+/* confetti */
 #confettiGlobal{position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:9999;opacity:0;transition:opacity .25s}
 
 /* layout */
 .wrap{min-height:100svh;display:grid;place-items:center;padding:16px;position:relative;z-index:2}
 .card{position:relative;background:var(--card);border:1px solid #00000010;border-radius:22px;max-width:560px;width:100%;padding:18px 18px var(--bottom-pad);box-shadow:0 18px 60px rgba(0,0,0,.08);overflow:visible}
+
+/* language toggle */
+.lang-toggle{
+  position:absolute; top:12px; right:12px; z-index:20;
+  display:flex; align-items:center; gap:6px;
+  border:2px solid var(--maroon); border-radius:999px; padding:4px 8px;
+  background:rgba(106,13,37,.04); font-size:12px; user-select:none; cursor:pointer;
+}
+.lang-toggle .chip{padding:3px 8px; border-radius:999px; color:var(--maroon)}
+.lang-toggle .chip.active{background:var(--maroon); color:#fff}
+.lang-toggle .sep{opacity:.4}
 
 /* corners */
 .corner{position:absolute;width:90px;height:90px;opacity:.25}
@@ -66,8 +77,8 @@ img,svg,canvas{max-width:100%;display:block}
 .kicker{margin-top:92px;text-align:center;letter-spacing:.14em;text-transform:uppercase;font-size:12px;color:var(--ink)}
 .title{font-family:"Playfair Display",serif;font-weight:800;font-size:clamp(36px,7vw,60px);line-height:1.04;text-align:center;margin:6px 0;color:var(--ink)}
 .sub{font-size:15px;text-align:center;color:var(--ink)}
-.sub.addr{margin:2px 0}          /* tighter spacing for the three address lines */
-.sub.and{margin:4px 0}           /* small gap for the “and” line */
+.sub.addr{margin:2px 0}
+.sub.and{margin:4px 0}
 
 /* countdown */
 .countdown{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:12px 0 4px}
@@ -142,6 +153,13 @@ img,svg,canvas{max-width:100%;display:block}
 <div class="wrap">
 <main class="card">
 
+  <!-- Language toggle -->
+  <div class="lang-toggle" id="langToggle" role="button" aria-label="Toggle language" tabindex="0">
+    <span class="chip active" data-lang="ta">தமிழ்</span>
+    <span class="sep">|</span>
+    <span class="chip" data-lang="en">EN</span>
+  </div>
+
   <svg class="corner tl" viewBox="0 0 100 100"><path d="M5 85 Q45 75 55 35 Q65 10 95 5" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/></svg>
   <svg class="corner br" viewBox="0 0 100 100"><path d="M5 85 Q45 75 55 35 Q65 10 95 5" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/></svg>
 
@@ -164,27 +182,27 @@ img,svg,canvas{max-width:100%;display:block}
     </div>
   </div>
 
-  <p class="kicker">You are invited to</p>
-  <h1 class="title">Milir's</h1>
-  <p class="sub and">Tonsure and Ear Piercing Ceremony </p>
-  <p class="sub and"> @ </p>
-  <p class="sub addr" style="font-weight:700">JC Residency,</p>
-  <p class="sub addr">Lady Doak College Road, Chinna Chokkikulam,</p>
-  <p class="sub addr">Madurai</p>
+  <p class="kicker" id="kicker">உங்களை அன்புடன் அழைக்கிறோம்</p>
+  <h1 class="title" id="titleName">மிலிரின்</h1>
+  <p class="sub and" id="ceremonyLine">மோட்டை மற்றும் காது குத்து விழா</p>
+  <p class="sub and" id="atLine">இடம்</p>
+  <p class="sub addr" id="addr1" style="font-weight:700">ஜே.சி. ரெசிடென்சி,</p>
+  <p class="sub addr" id="addr2">லேடி டோக் கல்லூரி சாலை, சின்ன சோக்கிக்குளம்,</p>
+  <p class="sub addr" id="addr3">மதுரை</p>
 
   <div class="countdown" id="countdown" aria-live="polite"></div>
-  <p class="small" style="text-align:center;font-weight:700">Sun, 5 Oct 2025 · 10:30 am IST</p>
+  <p class="small" id="dateLine" style="text-align:center;font-weight:700">ஞாயிறு, 5 அக் 2025 · காலை 10:30 IST</p>
 
   <section class="details">
-    <span class="badge">📍 JC Residency, Madurai</span>
-    <span class="badge">🕙 10:30 am</span>
+    <span class="badge" id="badgeLoc">📍 ஜே.சி. ரெசிடென்சி, மதுரை</span>
+    <span class="badge" id="badgeTime">🕙 காலை 10:30</span>
   </section>
 
   <!-- Sticky scroll segment -->
   <section class="pin" id="pinWrap">
     <div class="sticky">
       <section class="scene mottai" id="mottaiScene" aria-label="Mottai">
-        <h3>Mottai & Kathukuthu Thiruvizha</h3>
+        <h3 id="sceneTitle">மோட்டை & காது குத்து திருவிழா</h3>
         <div class="frame" id="frameBox">
           <img id="withHair" src="./assets/baby_with_hair.png" alt="Baby with hair">
           <img id="bald" src="./assets/bald_baby.png" alt="Baby after tonsure">
@@ -194,21 +212,21 @@ img,svg,canvas{max-width:100%;display:block}
   </section>
 
   <!-- Invite blurb -->
-  <p class="invite-blurb">We’d love to have you with us. Your blessings mean a lot to little Milir.</p>
+  <p class="invite-blurb" id="inviteBlurb">நீங்கள் வருவது எங்களுக்கு மகிழ்ச்சி. உங்கள் ஆசீர்வாதம் சிறிய மிலிருக்கு மிக முக்கியம்.</p>
 
   <!-- Unified buttons -->
   <div class="actions">
-    <a class="btn primary" href="https://www.google.com/maps/search/?api=1&query=JC+Residency+Madurai" target="_blank" rel="noopener">Open map</a>
-    <button class="btn primary" id="addCal">Add to calendar</button>
-    <button class="btn primary" id="shareBtn">Share</button>
+    <a class="btn primary" id="btnMap" href="https://www.google.com/maps/search/?api=1&query=JC+Residency+Madurai" target="_blank" rel="noopener">வரைபடம் திறக்க</a>
+    <button class="btn primary" id="addCal">நாள்காட்டியில் சேர்க்க</button>
+    <button class="btn primary" id="shareBtn">பகிர்</button>
   </div>
 
   <div class="qr">
     <img alt="QR for location" src="https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=https%3A%2F%2Fwww.google.com%2Fmaps%2Fsearch%2F%3Fapi%3D1%26query%3DJC%2BResidency%2BMadurai"/>
-    <p class="small">Scan for directions</p>
+    <p class="small" id="qrText">வழிச்செலுத்தலுக்காக ஸ்கேன் செய்யவும்</p>
   </div>
 
-  <p class="footer">With love, family and friends</p>
+  <p class="footer" id="footerTxt">அன்புடன், குடும்பமும் நண்பர்களும்</p>
   <div class="buffer" aria-hidden="true"></div>
 </main>
 </div>
@@ -216,11 +234,68 @@ img,svg,canvas{max-width:100%;display:block}
 <script>
 const EVENT_ISO="2025-10-05T10:30:00+05:30";
 
-/* countdown */
-(function(){
+/* i18n strings */
+const STR={
+  ta:{
+    htmlLang:"ta",
+    kicker:"உங்களை அன்புடன் அழைக்கிறோம்",
+    title:"மிலிரின்",
+    ceremony:"மோட்டை மற்றும் காது குத்து விழா",
+    at:"இடம்",
+    addr1:"ஜே.சி. ரெசிடென்சி,",
+    addr2:"லேடி டோக் கல்லூரி சாலை, சின்ன சோக்கிக்குளம்,",
+    addr3:"மதுரை",
+    date:"ஞாயிறு, 5 அக் 2025 · காலை 10:30 IST",
+    badgeLoc:"📍 ஜே.சி. ரெசிடென்சி, மதுரை",
+    badgeTime:"🕙 காலை 10:30",
+    scene:"மோட்டை & காது குத்து திருவிழா",
+    blurb:"நீங்கள் வருவது எங்களுக்கு மகிழ்ச்சி. உங்கள் ஆசீர்வாதம் சிறிய மிலிருக்கு மிக முக்கியம்.",
+    map:"வரைபடம் திறக்க",
+    cal:"நாள்காட்டியில் சேர்க்க",
+    share:"பகிர்",
+    qr:"வழிச்செலுத்தலுக்காக ஸ்கேன் செய்யவும்",
+    footer:"அன்புடன், குடும்பமும் நண்பர்களும்",
+    countdown:["நாட்கள்","மணி","நிமிடம்","வினாடி"],
+    shareText:"5 அக் 2025, காலை 10:30 · JC Residency, Madurai"
+  },
+  en:{
+    htmlLang:"en",
+    kicker:"You are invited to",
+    title:"Milir's",
+    ceremony:"Tonsure and Ear Piercing Ceremony",
+    at:"@",
+    addr1:"JC Residency,",
+    addr2:"Lady Doak College Road, Chinna Chokkikulam,",
+    addr3:"Madurai",
+    date:"Sun, 5 Oct 2025 · 10:30 am IST",
+    badgeLoc:"📍 JC Residency, Madurai",
+    badgeTime:"🕙 10:30 am",
+    scene:"Mottai & Kathukuthu Thiruvizha",
+    blurb:"We’d love to have you with us. Your blessings mean a lot to little Milir.",
+    map:"Open map",
+    cal:"Add to calendar",
+    share:"Share",
+    qr:"Scan for directions",
+    footer:"With love, family and friends",
+    countdown:["Days","Hours","Mins","Secs"],
+    shareText:"Join us on 5 Oct 2025 at JC Residency, Madurai"
+  }
+};
+
+/* current language (default Tamil) */
+let LANG="ta";
+
+/* countdown (labels are i18n) */
+(function initCountdown(){
   const el=document.getElementById('countdown');
-  const parts=['Days','Hours','Mins','Secs'];
-  const tiles=parts.map(l=>{const t=document.createElement('div');t.className='tile';t.innerHTML=`<div class="num">0</div><div class="lbl">${l}</div>`;el.appendChild(t);return t});
+  const parts=STR[LANG].countdown;
+  const tiles=parts.map(l=>{
+    const t=document.createElement('div');
+    t.className='tile';
+    t.innerHTML=`<div class="num">0</div><div class="lbl">${l}</div>`;
+    el.appendChild(t);
+    return t;
+  });
   function tick(){
     const now=new Date(), target=new Date(EVENT_ISO);
     const s=Math.max(0,Math.floor((target-now)/1000));
@@ -228,6 +303,12 @@ const EVENT_ISO="2025-10-05T10:30:00+05:30";
     [d,h,m,sec].forEach((v,i)=>tiles[i].querySelector('.num').textContent=v);
   }
   setInterval(tick,1000); tick();
+
+  /* expose a label updater for language switch */
+  window._updateCountdownLabels=function(newParts){
+    const lbls=el.querySelectorAll('.lbl');
+    lbls.forEach((n,i)=>{ if(newParts[i]) n.textContent=newParts[i]; });
+  };
 })();
 
 /* add to calendar */
@@ -255,16 +336,18 @@ END:VCALENDAR`;
   });
 })();
 
-/* share */
+/* share (i18n text) */
 (function(){
   const btn=document.getElementById('shareBtn'); if(!btn) return;
-  btn.addEventListener('click',async()=>{
+  function doShare(){
+    const txt=STR[LANG].shareText;
     try{
       if(navigator.share){
-        await navigator.share({title:document.title,text:"Join us on 5 Oct 2025 at JC Residency, Madurai",url:location.href});
-      }else{ alert('Copy the link: '+location.href); }
+        navigator.share({title:document.title,text:txt,url:location.href});
+      }else{ alert(txt+'\n'+location.href); }
     }catch{}
-  });
+  }
+  btn.addEventListener('click',doShare);
 })();
 
 /* confetti */
@@ -296,12 +379,11 @@ const Confetti=(function(){
   return {start};
 })();
 
-/* dynamic frame aspect (keeps no gap around art) */
+/* dynamic frame aspect */
 (function(){
   const frame=document.getElementById('frameBox');
   const hair=document.getElementById('withHair');
   const bald=document.getElementById('bald');
-
   function applyAspectFrom(img){
     if(!img || !frame) return;
     const w=img.naturalWidth, h=img.naturalHeight;
@@ -315,16 +397,14 @@ const Confetti=(function(){
   if(bald.complete) tryApply(); else bald.addEventListener('load', tryApply, {once:true});
 })();
 
-/* scroll-driven transition inside sticky pin */
+/* scroll-driven transition */
 (function(){
   const pin=document.getElementById('pinWrap');
   const hair=document.getElementById('withHair');
   const bald=document.getElementById('bald');
   if(!pin||!hair||!bald) return;
 
-  let progress=0;
-  let fired=false;
-  let ticking=false;
+  let progress=0, fired=false, ticking=false;
 
   function render(p){
     hair.style.opacity=1-p;
@@ -337,12 +417,10 @@ const Confetti=(function(){
     ticking=false;
     const docY=window.scrollY||window.pageYOffset||0;
     const vh=window.innerHeight||document.documentElement.clientHeight;
-
     const start=pin.offsetTop;
     const total=Math.max(1, pin.offsetHeight - vh);
     const scrolled=clamp(docY - start, 0, total);
     const p=scrolled/total;
-
     if(p!==progress){
       progress=p;
       render(progress);
@@ -350,15 +428,55 @@ const Confetti=(function(){
       if(fired && progress<1){ fired=false; }
     }
   }
-  function onScroll(){
-    if(!ticking){
-      ticking=true;
-      requestAnimationFrame(update);
-    }
-  }
+  function onScroll(){ if(!ticking){ ticking=true; requestAnimationFrame(update); } }
   update();
   window.addEventListener('scroll', onScroll, {passive:true});
   window.addEventListener('resize', onScroll, {passive:true});
+})();
+
+/* language toggle behavior */
+(function(){
+  const T=STR;
+  function apply(lang){
+    LANG=lang;
+    document.documentElement.lang=T[lang].htmlLang;
+
+    // text nodes
+    document.getElementById('kicker').textContent=T[lang].kicker;
+    document.getElementById('titleName').textContent=T[lang].title;
+    document.getElementById('ceremonyLine').textContent=T[lang].ceremony;
+    document.getElementById('atLine').textContent=T[lang].at;
+    document.getElementById('addr1').textContent=T[lang].addr1;
+    document.getElementById('addr2').textContent=T[lang].addr2;
+    document.getElementById('addr3').textContent=T[lang].addr3;
+    document.getElementById('dateLine').textContent=T[lang].date;
+    document.getElementById('badgeLoc').textContent=T[lang].badgeLoc;
+    document.getElementById('badgeTime').textContent=T[lang].badgeTime;
+    document.getElementById('sceneTitle').textContent=T[lang].scene;
+    document.getElementById('inviteBlurb').textContent=T[lang].blurb;
+    document.getElementById('btnMap').textContent=T[lang].map;
+    document.getElementById('addCal').textContent=T[lang].cal;
+    document.getElementById('shareBtn').textContent=T[lang].share;
+    document.getElementById('qrText').textContent=T[lang].qr;
+    document.getElementById('footerTxt').textContent=T[lang].footer;
+
+    // countdown labels
+    if(window._updateCountdownLabels) window._updateCountdownLabels(T[lang].countdown);
+
+    // toggle chip state
+    const chips=document.querySelectorAll('.lang-toggle .chip');
+    chips.forEach(c=>c.classList.toggle('active', c.dataset.lang===lang));
+  }
+
+  const toggle=document.getElementById('langToggle');
+  function flip(){
+    apply(LANG==='ta'?'en':'ta');
+  }
+  toggle.addEventListener('click', flip);
+  toggle.addEventListener('keydown', e=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); flip(); } });
+
+  // ensure initial (Tamil)
+  apply('ta');
 })();
 </script>
 </body>
