@@ -134,8 +134,8 @@ img,svg,canvas{max-width:100%;display:block}
   cursor:pointer; text-decoration:none;
   transition:transform .08s ease, box-shadow .12s ease, background .12s ease, border-color .12s ease;
   color:var(--maroon); background:transparent;
-  font:700 14px/1.1 Poppins,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif; /* ensure same font+size */
-  min-height:44px; /* ensure same height for <a> and <button> */
+  font:700 14px/1.1 Poppins,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  min-height:44px;
 }
 .btn.primary:hover{ transform:translateY(-1px); background:rgba(106,13,37,.06) }
 .btn.primary:active{ transform:translateY(0) }
@@ -146,13 +146,19 @@ img,svg,canvas{max-width:100%;display:block}
 .qr .small{margin-top:12px;font-size:14px;color:var(--ink)}
 
 /* footer + buffer */
-.footer{text-align:center;color:var(--ink);font-size:12px;margin-top:12px}
+.footer{
+  text-align:center;
+  color:var(--ink);
+  font-size:12px;
+  margin-top:12px;
+  white-space:pre-line; /* preserve \n and wrap */
+  word-break:break-word;
+}
 .buffer{height:72px}
 
 @media (prefers-reduced-motion: reduce){
   .flag,.balloon,.partybar{animation:none!important}
 }
-
 </style>
 </head>
 <body>
@@ -193,8 +199,8 @@ img,svg,canvas{max-width:100%;display:block}
 
   <p class="kicker" id="kicker">உங்களை அன்புடன் அழைக்கிறோம்</p>
   <h1 class="title" id="titleName">மிலிரின்</h1>
-  <!-- Tamil ceremony: ear piercing only -->
-  <p class="sub and" id="ceremonyLine">காது குத்து விழா</p>
+  <!-- Tamil ceremony: change to காதணி விழா -->
+  <p class="sub and" id="ceremonyLine">காதணி விழா</p>
   <p class="sub and" id="atLine">இடம்</p>
   <p class="sub addr" id="addr1" style="font-weight:700">ஜே.சி. ரெசிடென்சி,</p>
   <!-- keep Chokkikulam on same line -->
@@ -212,7 +218,7 @@ img,svg,canvas{max-width:100%;display:block}
   <section class="pin" id="pinWrap">
     <div class="sticky">
       <section class="scene mottai" id="mottaiScene" aria-label="Mottai">
-        <h3 id="sceneTitle">மோட்டை & காது குத்து திருவிழா</h3>
+        <h3 id="sceneTitle">மோட்டை & காதணி திருவிழா</h3>
         <div class="frame" id="frameBox">
           <img id="withHair" src="./assets/baby_with_hair.png" alt="Baby with hair">
           <img id="bald" src="./assets/bald_baby.png" alt="Baby after tonsure">
@@ -234,7 +240,7 @@ img,svg,canvas{max-width:100%;display:block}
     <p class="small" id="qrText">வழிச்செலுத்தலுக்காக ஸ்கேன் செய்யவும்</p>
   </div>
 
-  <p class="footer" id="footerTxt">அன்புடன், குடும்பமும் நண்பர்களும்</p>
+  <p class="footer" id="footerTxt">அன்புடன்</p>
   <div class="buffer" aria-hidden="true"></div>
 </main>
 </div>
@@ -243,24 +249,50 @@ img,svg,canvas{max-width:100%;display:block}
 const EVENT_ISO="2025-10-05T10:30:00+05:30";
 
 const STR={
-  ta:{htmlLang:"ta",kicker:"உங்களை அன்புடன் அழைக்கிறோம்",title:"மிளிர்",
-      ceremony:"காது குத்து விழா",
-      at:"‎ ",addr1:"இடம்: ஜே.சி. ரெசிடென்சி,",addr2:"லேடி டோக் கல்லூரி சாலை, சின்ன\u00A0சொக்கிக்குளம்,",addr3:"மதுரை",
-      date:"ஞாயிற்றுக்கிழமை, 5 அக்டோபர் 2025 · காலை 10:30 ",badgeLoc:"📍 ஜே.சி. ரெசிடென்சி, மதுரை",badgeTime:"🕙 காலை 10:30",
-      scene:"",
-      blurb:"தாங்கள் குடும்பத்துடன் வருகை தந்து ஆசீர்வதிக்குமாறு அன்புடன் கேட்டுக்கொள்கிறோம்.",
-      map:"வரைபடம் திறக்க",cal:"நாள்காட்டியில் சேர்க்க",share:"பகிர்",qr:"வழிச்செலுத்தலுக்காக ஸ்கேன் செய்யவும்",
-      footer:"அன்புடன், குடும்பமும் நண்பர்களும்",countdown:["நாட்கள்","மணி","நிமிடம்","வினாடி"],
-      shareText:"5 அக் 2025, காலை 10:30 மணிக்கு · JC Residency, Madurai"},
-  en:{htmlLang:"en",kicker:"You are invited to",title:"Milir's",
-      ceremony:"Ear Piercing Ceremony",
-      at:"@",addr1:"JC Residency,",addr2:"Lady Doak College Road, Chinna\u00A0Chokkikulam,",addr3:"Madurai",
-      date:"Sun, 5 Oct 2025 · 10:30 am IST",badgeLoc:"📍 JC Residency, Madurai",badgeTime:"🕙 10:30 am",
-      scene:" ",
-      blurb:"We’d love to have you with us. Your blessings mean a lot to little Milir.",
-      map:"Open map",cal:"Add to calendar",share:"Share",qr:"Scan for directions",
-      footer:"With love, family and friends",countdown:["Days","Hours","Mins","Secs"],
-      shareText:"Join us on 5 Oct 2025 at JC Residency, Madurai"}
+  ta:{
+    htmlLang:"ta",
+    kicker:"உங்களை அன்புடன் அழைக்கிறோம்",
+    title:"மிளிர்",
+    ceremony:"காதணி விழா",
+    at:"‎ ",
+    addr1:"இடம்: ஜே.சி. ரெசிடென்சி,",
+    addr2:"லேடி டோக் கல்லூரி சாலை, சின்ன\u00A0சொக்கிக்குளம்,",
+    addr3:"மதுரை",
+    date:"ஞாயிற்றுக்கிழமை, 5 அக்டோபர் 2025 · காலை 10:30 ",
+    badgeLoc:"📍 ஜே.சி. ரெசிடென்சி, மதுரை",
+    badgeTime:"🕙 காலை 10:30",
+    scene:"",
+    blurb:"தாங்கள் குடும்பத்துடன் வருகை தந்து ஆசீர்வதிக்குமாறு அன்புடன் கேட்டுக்கொள்கிறோம்.",
+    map:"வரைபடம் திறக்க",
+    cal:"நாள்காட்டியில் சேர்க்க",
+    share:"பகிர்",
+    qr:"வழிச்செலுத்தலுக்காக ஸ்கேன் செய்யவும்",
+    footer:"அன்புடன்\nசதிஷ் & பிரியங்கா,\nகாரைக்குடி",
+    countdown:["நாட்கள்","மணி","நிமிடம்","வினாடி"],
+    shareText:"5 அக் 2025, காலை 10:30 மணிக்கு · JC Residency, Madurai"
+  },
+  en:{
+    htmlLang:"en",
+    kicker:"You are invited to",
+    title:"Milir's",
+    ceremony:"Ear Piercing Ceremony",
+    at:"@",
+    addr1:"JC Residency,",
+    addr2:"Lady Doak College Road, Chinna\u00A0Chokkikulam,",
+    addr3:"Madurai",
+    date:"Sun, 5 Oct 2025 · 10:30 am IST",
+    badgeLoc:"📍 JC Residency, Madurai",
+    badgeTime:"🕙 10:30 am",
+    scene:" ",
+    blurb:"We’d love to have you with us. Your blessings mean a lot to little Milir.",
+    map:"Open map",
+    cal:"Add to calendar",
+    share:"Share",
+    qr:"Scan for directions",
+    footer:"With Love\nSathish & Priyanka,\nKaraikudi",
+    countdown:["Days","Hours","Mins","Secs"],
+    shareText:"Join us on 5 Oct 2025 at JC Residency, Madurai"
+  }
 };
 
 let LANG="ta";
@@ -433,7 +465,7 @@ const Confetti=(function(){
     document.getElementById('addCal').textContent=T[lang].cal;
     document.getElementById('shareBtn').textContent=T[lang].share;
     document.getElementById('qrText').textContent=T[lang].qr;
-    document.getElementById('footerTxt').textContent=T[lang].footer;
+    document.getElementById('footerTxt').textContent=T[lang].footer; // preserves \n via CSS pre-line
     if(window._updateCountdownLabels) window._updateCountdownLabels(T[lang].countdown);
     const chips=document.querySelectorAll('.lang-toggle .chip');
     chips.forEach(c=>c.classList.toggle('active', c.dataset.lang===lang));
